@@ -67,3 +67,21 @@ function deleteImage($path)
         Storage::disk('public')->delete($path);
     }
 }
+
+function formatPrice($price)
+{
+    if (!empty($price)) {
+        // Làm tròn đến 0 hoặc 1 chữ số thập phân tuỳ giá trị
+        $float = (float) $price;
+
+        // Nếu là số nguyên → format không có phần thập phân
+        if (floor($float) == $float) {
+            return number_format($float, 0, '', '.');
+        }
+
+        // Nếu có phần thập phân → format với 1–2 số sau dấu phẩy
+        return number_format($float, 2, ',', '.');
+    }
+
+    return '0';
+}

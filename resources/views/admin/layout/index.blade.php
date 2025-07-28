@@ -36,11 +36,12 @@
     <title>{{ isset($title) ? $title : 'document' }}</title>
 </head>
 <style>
-
     .cke_notification_warning {
         display: none !important;
     }
 </style>
+
+@stack('style')
 
 <body>
     <div id="wrapper">
@@ -102,6 +103,8 @@
             },
         });
     </script>
+
+    @stack('script')
 </body>
 
 </html>
