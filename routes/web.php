@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BankTransactionController;
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CashTransactionController;
 use App\Http\Controllers\Admin\CategorieController;
 use App\Http\Controllers\Admin\CheckInventoryController;
 use App\Http\Controllers\Admin\ClientController;
@@ -273,6 +276,39 @@ Route::middleware(CheckLogin::class)->prefix('admin')->name('admin.')->group(fun
         });
     });
     Route::post('/delete-multiple', [MultipleController::class, 'deleteMultiple'])->name('delete-multiple');
+
+    Route::prefix('accounts')
+        ->controller(AccountController::class)
+        ->name('accounts.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('balance', 'balance')->name('balance');
+            Route::post('/', 'store')->name('store');
+            Route::put('/', 'update')->name('update');
+            Route::delete('/', 'destroy')->name('destroy');
+            Route::get('ajax/list', 'list')->name('list');
+            Route::get('ajax/search', 'search')->name('search');
+        });
+
+    Route::prefix('transactions/cash')
+        ->controller(CashTransactionController::class)
+        ->name('transactions.cash.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('save', 'save')->name('save');
+            Route::post('store', 'store')->name('store');
+            Route::put('update', 'update')->name('update');
+            Route::get('search', 'search')->name('search');
+            Route::get('ajax/list', 'list')->name('list');
+        });
+
+    Route::prefix('transactions/bank')
+        ->controller(BankTransactionController::class)
+        ->name('transactions.bank.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('ajax/list', 'list')->name('list');
+        });
 })->middleware('checkRole:1');
 
 Route::middleware([CheckLogin::class])->prefix('ban-hang')->name('staff.')->group(function () {
