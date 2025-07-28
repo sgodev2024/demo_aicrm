@@ -1,0 +1,268 @@
+<style>
+    .nav-collapse {
+        padding: 0 0 0 10px !important;
+        margin-bottom: 0px !important;
+    }
+</style>
+<div class="sidebar no-print" data-background-color="dark">
+    <div class="sidebar-logo">
+        <!-- Logo Header -->
+        <div class="logo-header" data-background-color="white">
+            <a href="{{ route('admin.dashboard') }}" class="logo">
+                <img src="{{ asset('images/sgovn.png') }}" alt="navbar brand" class="navbar-brand" style="width: 140px;" />
+            </a>
+            <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                    <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                    <i class="gg-menu-left"></i>
+                </button>
+            </div>
+            <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+            </button>
+        </div>
+        <!-- End Logo Header -->
+    </div>
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+                <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-chart-bar"></i>
+                        <p>Tổng quan</p>
+                    </a>
+                </li>
+                <li
+                    class="nav-item {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit','admin.company.index', 'admin.company.add', 'admin.company.detail')  ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#product">
+                        <i class="fas fa-box"></i>
+                        <p>Sản phẩm</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'show' : '' }}"
+                        id="product">
+                        <ul class="nav nav-collapse">
+                            <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">
+                                <a href="{{ route('admin.product.store') }}">
+                                    <span class="sub-item">Sản phẩm</span>
+                                </a>
+                            </li>
+                            <li class=" {{ request()->routeIs('admin.category.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.category.index') }}">
+                                    <span class="sub-item">Danh mục</span>
+                                </a>
+                            </li>
+                            <li class=" {{ request()->routeIs('admin.brand.store') ? 'active' : '' }}">
+                                <a href="{{ route('admin.brand.store') }}">
+                                    <span class="sub-item">Thương hiệu</span>
+                                </a>
+                            </li>
+                            <li class=" {{ request()->routeIs('admin.company.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.company.index') }}">
+                                    <span class="sub-item">Nhà cung cấp</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+                <li
+                    class="nav-item {{ request()->routeIs('admin.storage.index', 'admin.importproduct.index', 'admin.check.index', 'admin.inventory.index') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#warehouse">
+                        <i class="fas fa-boxes"></i>
+                        <p>Kho hàng</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.storage.index', 'admin.importproduct.index', 'admin.check.index', 'admin.inventory.index') ? 'show' : '' }}"
+                        id="warehouse">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->routeIs('admin.storage.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.storage.index') }}">
+                                    <span class="sub-item">Kho hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.importproduct.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.importproduct.index') }}">
+                                    <span class="sub-item">Nhập hàng</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="sub-item">Xuất kho</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="sub-item">Chuyển kho</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.check.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.check.index') }}">
+                                    <span class="sub-item">Phiếu kiểm kho</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.inventory.index') }}">
+                                    <span class="sub-item">Tồn kho</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+
+                <li
+                    class="nav-item {{ request()->routeIs('admin.quanlythuchi.receipts.index', 'admin.quanlythuchi.expense.index') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarthuchi">
+                        <i class="fas fa-coins"></i>
+                        <p>Quản lý thu chi</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.quanlythuchi.receipts.index', 'admin.quanlythuchi.expense.index') ? 'show' : '' }}"
+                        id="sidebarthuchi">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->routeIs('admin.quanlythuchi.receipts.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.quanlythuchi.receipts.index') }}">
+                                    <span class="sub-item">Phiếu thu</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.quanlythuchi.expense.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.quanlythuchi.expense.index') }}">
+                                    <span class="sub-item">Phiếu chi</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+
+
+                <li
+                    class="nav-item {{ request()->routeIs(
+                        'admin.order.index',
+                        'admin.client.index',
+                        'admin.profit.index',
+                        'admin.debts.client',
+                        'admin.debts.supplier',
+                    )
+                        ? 'active'
+                        : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarbaocao">
+                        <i class="fas fa-file-alt"></i>
+                        <p>Báo cáo</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs(
+                        'admin.order.index',
+                        'admin.client.index',
+                        'admin.profit.index',
+                        'admin.debts.client',
+                        'admin.debts.supplier',
+                    )
+                        ? 'show'
+                        : '' }}"
+                        id="sidebarbaocao">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->routeIs('admin.order.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.order.index') }}">
+                                    <span class="sub-item">Đơn hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.client.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.client.index') }}">
+                                    <span class="sub-item">Khách hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.profit.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.profit.index') }}">
+                                    <span class="sub-item">Lợi nhuận</span>
+                                </a>
+                            </li>
+                            <li
+                                class="{{ request()->routeIs('admin.debts.client', 'admin.debts.supplier') ? 'active' : '' }}">
+                                <a data-bs-toggle="collapse" href="#sidebarcongno">
+                                    <span class="sub-item">Công nợ</span>
+                                    <span class="caret"></span>
+                                </a>
+                                <div class="collapse {{ request()->routeIs('admin.debts.client', 'admin.debts.supplier') ? 'show' : '' }}"
+                                    id="sidebarcongno">
+                                    <ul class="nav nav-collapse">
+                                        <li class="{{ request()->routeIs('admin.debts.client') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.debts.client') }}">
+                                                <span class="sub-item">Khách hàng</span>
+                                            </a>
+                                        </li>
+                                        <li class="{{ request()->routeIs('admin.debts.supplier') ? 'active' : '' }}">
+                                            <a href="{{ route('admin.debts.supplier') }}">
+                                                <span class="sub-item">Nhà cung cấp</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarthongke">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="sub-item">Thống kê ngày</span>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'show' : '' }}" id="sidebarthongke">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->routeIs('admin.report.orders.getDailyOrder') ? 'active' : '' }}">
+                                <a href="{{ route('admin.report.orders.getDailyOrder') }}">
+                                    <span class="sub-item">Bán hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.report.imports.getDailyImport') ? 'active' : '' }}">
+                                <a href="{{ route('admin.report.imports.getDailyImport') }}">
+                                    <span class="sub-item">Nhập hàng</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+
+                <li class="nav-item {{ request()->routeIs('admin.staff.store') ? 'active' : '' }}">
+                    <a href="{{ route('admin.staff.store') }}">
+                        <i class="fas fa-user-tie"></i>
+                        <p>Nhân viên</p>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('admin.config.detail') ? 'active' : '' }}">
+                    <a href="{{ route('admin.config.detail') }}">
+                        <i class="fas fa-cog"></i>
+                        <p>Cấu hình</p>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".nav-item > a").click(function(e) {
+                // Nếu menu đang mở, thì không làm gì
+                if ($(this).next(".collapse").hasClass("show")) {
+                    return;
+                }
+
+                // Đóng tất cả các menu khác trước khi mở menu mới
+                $(".collapse").not($(this).next(".collapse")).removeClass("show");
+
+                // Bỏ class 'active' trên tất cả menu chính
+                $(".nav-item").removeClass("active");
+
+                // Thêm class 'active' cho menu vừa được click
+                $(this).parent().addClass("active");
+            });
+        });
+    </script>
+</div>
