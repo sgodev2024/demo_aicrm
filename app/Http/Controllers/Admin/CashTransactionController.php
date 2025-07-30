@@ -460,6 +460,7 @@ class CashTransactionController extends Controller
         $results = $query->limit(10)->get()->map(
             fn($item) => [
                 'id' => $item->id,
+                'code' => $item->code,
                 'name' => match ($type) {
                     'customer', 'supplier' => $item->name ?? '',
                     default => '',
@@ -473,16 +474,16 @@ class CashTransactionController extends Controller
     }
 
 
-    public function printMultiple(Request $request)
-    {
-        $ids = $request->input('ids', []);
+    // public function printMultiple(Request $request)
+    // {
+    //     $ids = $request->input('ids', []);
 
-        $transactions = CashTransaction::with(['voucherType', 'cashAccount', 'creator'])
-            ->whereIn('id', $ids)
-            ->get();
+    //     $transactions = CashTransaction::with(['voucherType', 'cashAccount', 'creator'])
+    //         ->whereIn('id', $ids)
+    //         ->get();
 
-        return view('admin.cash-transaction.print', compact('transactions'));
-    }
+    //     return view('admin.cash-transaction.print', compact('transactions'));
+    // }
 
     public function list(Request $request)
     {
