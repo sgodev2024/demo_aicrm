@@ -79,7 +79,8 @@
                             </div>
                         </div>
 
-                        <div class="row g-3 justify-content-end align-items-center">
+                        <div class="w-50">
+                            <div class="row g-3 align-items-center">
                             <div class="col-md-5">
                                 <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
                             </div>
@@ -91,6 +92,7 @@
                                     <i class="bi bi-search"></i> Lọc
                                 </button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -357,6 +359,8 @@
 @endpush
 
 @push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
     <style>
         .filter-section {
             background-color: #f8f9fa;

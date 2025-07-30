@@ -86,7 +86,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@push('script')
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
@@ -174,4 +174,8 @@
             $('#customerDebtTable tbody').html(tbody);
         }
     </script>
+@endpush
+
+@push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
 @endpush
