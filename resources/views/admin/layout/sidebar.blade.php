@@ -153,15 +153,7 @@
                         <p>Báo cáo</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs(
-                        'admin.order.index',
-                        'admin.client.index',
-                        'admin.profit.index',
-                        'admin.debts.client',
-                        'admin.debts.supplier',
-                    )
-                        ? 'show'
-                        : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.order.index', 'admin.client.index', 'admin.profit.index') ? 'show' : '' }}"
                         id="sidebarbaocao">
                         <ul class="nav nav-collapse">
                             <li class="{{ request()->routeIs('admin.order.index') ? 'active' : '' }}">
@@ -179,7 +171,7 @@
                                     <span class="sub-item">Lợi nhuận</span>
                                 </a>
                             </li>
-                            <li
+                            {{-- <li
                                 class="{{ request()->routeIs('admin.debts.client', 'admin.debts.supplier') ? 'active' : '' }}">
                                 <a data-bs-toggle="collapse" href="#sidebarcongno">
                                     <span class="sub-item">Công nợ</span>
@@ -200,7 +192,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </li>
@@ -236,7 +228,7 @@
                         <span class="sub-item">Kế toán</span>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.accounts.index', 'admin.transactions.cash.index', 'admin.transactions.bank.index', 'admin.accounts.balance') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.accounts.index', 'admin.transactions.cash.index', 'admin.transactions.bank.index', 'admin.accounts.balance', 'admin.debts.customer', 'admin.debts.supplier', 'admin.debts.beginning', 'admin.journal-entries.index') ? 'show' : '' }}"
                         id="receipt">
                         <ul class="nav nav-collapse">
                             <li class="{{ request()->routeIs('admin.transactions.cash.index') ? 'active' : '' }}">
@@ -249,6 +241,21 @@
                                     <span class="sub-item">Thu chi ngân hàng</span>
                                 </a>
                             </li>
+                            <li class="{{ request()->routeIs('admin.debts.customer') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.customer') }}">
+                                    <span class="sub-item">Công nợ khác hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.debts.supplier') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.supplier') }}">
+                                    <span class="sub-item">Công nợ nhà cung cấp</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.debts.beginning') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.beginning') }}">
+                                    <span class="sub-item">Nhập công nợ đầu kỳ</span>
+                                </a>
+                            </li>
                             <li class="{{ request()->routeIs('admin.accounts.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.accounts.index') }}">
                                     <span class="sub-item">Tài khoản kế toán</span>
@@ -257,6 +264,11 @@
                             <li class="{{ request()->routeIs('admin.accounts.balance') ? 'active' : '' }}">
                                 <a href="{{ route('admin.accounts.balance') }}">
                                     <span class="sub-item">Tổng hợp theo tài khoản</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.journal-entries.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.journal-entries.index') }}">
+                                    <span class="sub-item">Bút toán</span>
                                 </a>
                             </li>
                         </ul>

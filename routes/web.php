@@ -21,10 +21,12 @@ use App\Http\Controllers\Staff\ProductController as StaffProductController;
 use App\Http\Controllers\Admin\ConfigController;
 use App\Http\Controllers\Admin\DailyReportController;
 use App\Http\Controllers\Admin\DebtClientController;
+use App\Http\Controllers\Admin\DebtController;
 use App\Http\Controllers\Admin\DebtNccController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\importCouponController;
 use App\Http\Controllers\Admin\ImportProductController;
+use App\Http\Controllers\Admin\JournalEntryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\ReportController;
@@ -235,6 +237,22 @@ Route::middleware(CheckLogin::class)->prefix('admin')->name('admin.')->group(fun
         Route::get('/supplier', [DebtNccController::class, 'index'])->name('supplier');
         Route::get('/supplier/detail/{id}', [DebtNccController::class, 'detail'])->name('supplier.detail');
     });
+
+    Route::prefix('debts')->controller(DebtController::class)->name('debts.')->group(function () {
+        Route::get('customer', 'customer')->name('customer');
+        Route::get('supplier', 'supplier')->name('supplier');
+        Route::get('beginning', 'create')->name('beginning');
+        Route::post('beginning', 'store');
+    });
+
+    Route::prefix('journal-entries')
+        ->controller(JournalEntryController::class)
+        ->name('journal-entries.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::delete('destroy', 'destroy')->name('destroy');
+        });
+
     Route::prefix('quanlythuchi')->name('quanlythuchi.')->group(function () {
         Route::prefix('receipts')->name('receipts.')->group(function () { // phiếu thu
             Route::get('/', [ReceiptController::class, 'index'])->name('index');
