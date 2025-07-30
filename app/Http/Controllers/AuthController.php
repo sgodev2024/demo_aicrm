@@ -51,8 +51,6 @@ class AuthController extends Controller
             if (auth()->attempt($credentials, $remember)) {
                 session()->put('authUser', auth()->user());
 
-                // toastr()->success('Đăng nhập thành công.');
-
                 // Điều hướng theo role_id
                 switch (auth()->user()->role_id) {
                     case 1:
@@ -62,10 +60,9 @@ class AuthController extends Controller
                     case 3:
                         return redirect()->route('sa.store.index');
                     default:
-                        return redirect()->route('dashboard'); // fallback nếu không khớp
+                        return redirect()->route('dashboard');
                 }
             } else {
-                // toastr()->error('Tài khoản hoặc mật khẩu không chính xác!');
                 return back();
             }
         } catch (\Exception $e) {

@@ -21,7 +21,7 @@
         <div class="card p-3 mb-3 shadow-sm">
             <div class="row g-3 justify-content-end align-items-center">
                 <div class="col-md-3">
-                    <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
+                    <input type="text" id="dateFilter" name="date_range" class="form-control" placeholder="Chọn khoảng ngày">
                 </div>
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="name" placeholder="Tên khách hàng">
@@ -87,7 +87,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@push('script')
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
@@ -138,19 +138,12 @@
                     date_range,
                     name: name
                 },
-                beforeSend: function() {
-                    $("#loadingSpinner").fadeIn();
-                },
                 success: function(response) {
                     renderTable(response);
                 },
                 error: function() {
                     alert("Có lỗi xảy ra, vui lòng thử lại.");
                 },
-                complete: function() {
-                    $("#loadingSpinner").fadeOut();
-                },
-
             });
         });
 
@@ -180,4 +173,8 @@
             $('#supplierDebtTable tbody').html(tbody);
         }
     </script>
+@endpush
+
+@push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
 @endpush
