@@ -1,466 +1,342 @@
 @extends('admin.layout.index')
 
 @section('content')
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-
-
-    <style>
-        .row {
-            display: flex;
-        }
-
-        .col-md-8,
-        .col-md-4 {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card,
-        .card-custom {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-body {
-            flex-grow: 1;
-        }
-
-        /* Thiết kế chung cho thẻ card */
-        #income-card {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            /* Đổ bóng mềm */
-            background-color: #fff;
-            /* Nền trắng */
-            transition: all 0.3s ease;
-            /* Hiệu ứng mượt */
-            margin: 10px 0;
-            /* Khoảng cách trên dưới */
-            border: 1px solid #e0e0e0;
-            /* Đường viền mỏng */
-        }
-
-        #income-card:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            /* Đổ bóng đậm hơn khi hover */
-            transform: translateY(-4px);
-            /* Nâng nhẹ khi hover */
-        }
-
-        /* Phần đầu của card */
-        #income-card-header {
-            background: linear-gradient(135deg, #177dff, #6ea0ff);
-            /* Gradient màu xanh */
-            color: #fff;
-            /* Màu chữ trắng */
-            padding: 15px;
-            /* Khoảng đệm */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #income-card-header .card-title {
-            font-size: 18px;
-            /* Kích thước chữ */
-            font-weight: 600;
-            /* Độ đậm của chữ */
-        }
-
-        #income-card .btn-label-light {
-            background-color: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: #fff;
-            transition: background-color 0.3s ease;
-            padding: 5px 12px;
-        }
-
-        #income-card .btn-label-light:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-
-        #income-card-body {
-            padding: 20px;
-            color: #333;
-
-        }
-
-        #income-card-body .info p {
-            margin: 5px 0;
-            font-size: 16px;
-            line-height: 1.5;
-            font-weight: 500;
-        }
-
-        #income {
-            font-size: 24px;
-            font-weight: bold;
-            color: #177dff;
-        }
-
-        #day_month_year {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-
-        #income-card .dropdown-menu .dropdown-item {
-            transition: background-color 0.3s ease;
-            font-weight: 500;
-        }
-
-        #income-card .dropdown-menu .dropdown-item:hover {
-            background-color: rgba(23, 125, 255, 0.1);
-            color: #177dff;
-        }
-
-        #income-card-body .profit p {
-            margin: 5px 0;
-            font-size: 15px;
-            color: #555;
-        }
-
-
-        #dropdownMenuButton:hover {
-            color: black !important;
-            background: rgb(170, 169, 169);
-        }
-
-        .slider-container {
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            margin: auto;
-            max-height: 180px;
-        }
-
-        .slider {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .slide {
-            flex: 0 0 100%;
-        }
-
-        .prev-btn,
-        .next-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(65, 64, 64, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            font-size: 16px;
-            z-index: 1;
-        }
-
-        .prev-btn {
-            left: 0;
-        }
-
-        .next-btn {
-            right: 0;
-        }
-
-        .chart-container {
-            position: relative;
-            width: 100%;
-            min-height: 375px;
-        }
-
-        #statisticsChart {
-            display: block;
-            width: 100%;
-            height: auto;
-        }
-
-        #myChartLegend {
-            margin-top: 10px;
-        }
-
-        .chart-legend {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-        }
-
-        .chart-legend li {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-        }
-
-        .legend-color {
-            display: inline-block;
-            width: 20px;
-            height: 10px;
-            margin-right: 5px;
-            border-radius: 2px;
-        }
-
-        #myChartLegend .legend-color {
-            vertical-align: middle;
-        }
-    </style>
-
     <div class="page-inner">
-        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-            <div>
-                <h3 class="fw-bold mb-3">Thống kê </h3>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6 col-md-4">
-                <div class="card card-stats card-round">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-icon">
-                                <div class="icon-big text-center icon-primary bubble-shadow-small">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                            </div>
-                            <div class="col col-stats ms-3 ms-sm-0">
-                                <div class="numbers">
-                                    <p class="card-category">Khách hàng mới</p>
-                                    <h4 class="card-title" style="font-size: 15px">{{ $clientnumber }}</h4>
-                                </div>
-                            </div>
+        <div class="dashboard-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="form-control search-input"
+                                placeholder="Tìm kiếm đơn hàng, khách hàng...">
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div class="col-md-6">
 
-            <div class="col-sm-6 col-md-4">
-                <div class="card card-stats card-round">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-icon">
-                                <div class="icon-big text-center icon-secondary bubble-shadow-small">
-                                    <i class="far fa-check-circle"></i>
-                                </div>
-                            </div>
-                            <div class="col col-stats ms-3 ms-sm-0">
-                                <div class="numbers">
-                                    <p class="card-category">Đơn hàng năm nay</p>
-                                    <h4 class="card-title" style="font-size: 15px">{{ $ordernumber }}</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-sm-6 col-md-4">
-                <div class="card card-stats card-round">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-icon">
-                                <div class="icon-big text-center icon-success bubble-shadow-small">
-                                    <i class="fas fa-luggage-cart"></i>
-                                </div>
-                            </div>
-                            <div class="col col-stats ms-3 ms-sm-0">
-                                <div class="numbers">
-                                    <p class="card-category">Thu nhập năm nay</p>
-                                    <h4 class="card-title" style="font-size: 15px">{{ number_format($amount) }} VND</h4>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- <div class="row">
-            <div class="col-md-8 d-flex flex-column">
-                <div class="card card-round flex-grow-1">
-                    <div class="card-header" style="padding: 10px">
-                        <div class="card-head-row">
-                            <div class="card-title">Thống kê doanh thu</div>
-                            <div class="card-tools">
-                                <a href="{{ route('admin.report.orders.getDailyOrder') }}"
-                                    class="btn btn-label-info btn-round btn-sm">
-                                    <span class="btn-label">
-                                        <i class="fa fa-solid fa-chart-bar"></i>
-                                    </span>
-                                    Báo cáo bán hàng
-                                </a>
+        <div class="container-fluid">
+            <!-- Main Metrics -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon revenue">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="metric-title">Doanh thu (hôm nay)</div>
+
+                        {{-- Giá trị hôm nay --}}
+                        <div class="metric-value">
+                            {{ number_format($stats['today_revenue'], 0, ',', '.') }} ₫
+                        </div>
+
+                        {{-- So sánh hôm qua --}}
+                        @if ($stats['percent_change'] !== null)
+                            @php
+                                $isPositive = $stats['percent_change'] >= 0;
+                            @endphp
+                            <div class="metric-change {{ $isPositive ? 'positive' : 'negative' }}">
+                                <i class="fas {{ $isPositive ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                {{ $stats['percent_change'] }}% so với hôm qua
+                            </div>
+                        @else
+                            <div class="metric-change">
+                                Không có dữ liệu hôm qua
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon orders">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="metric-title">Đơn hàng (hôm nay)</div>
+
+                        {{-- Tổng số đơn hôm nay --}}
+                        <div class="metric-value">
+                            {{ $orderStats['today_orders'] }}
+                        </div>
+
+                        {{-- So sánh hôm qua --}}
+                        @if (!is_null($orderStats['percent_change']))
+                            @php
+                                $isPositive = $orderStats['percent_change'] >= 0;
+                            @endphp
+                            <div class="metric-change {{ $isPositive ? 'positive' : 'negative' }}">
+                                <i class="fas {{ $isPositive ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                {{ $orderStats['percent_change'] }}% so với hôm qua
+                            </div>
+                        @else
+                            <div class="metric-change">
+                                Không có dữ liệu hôm qua
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon profit">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-title">Tổng doanh thu</div>
+
+                        {{-- Doanh thu --}}
+                        <div class="metric-value">
+                            {{ number_format($totalRevenueStats['total_revenue'], 0, ',', '.') }} ₫
+                        </div>
+
+                        {{-- Biên lợi nhuận gộp --}}
+                        @if (isset($totalRevenueStats['gross_margin']))
+                            <div
+                                class="metric-change {{ $totalRevenueStats['gross_margin'] >= 0 ? 'positive' : 'negative' }}">
+                                Biên LN gộp ~{{ $totalRevenueStats['gross_margin'] }}%
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon inventory">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="metric-title">Tồn kho</div>
+
+                        {{-- Tổng tồn kho --}}
+                        <div class="metric-value">
+                            {{ $inventoryStats['total_stock'] }} sp
+                        </div>
+
+                        {{-- Sản phẩm sắp hết --}}
+                        <div class="metric-change {{ $inventoryStats['low_stock_count'] > 0 ? 'negative' : 'positive' }}">
+                            @if ($inventoryStats['low_stock_count'] > 0)
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {{ $inventoryStats['low_stock_count'] }} sản phẩm sắp hết
+                            @else
+                                <i class="fas fa-check-circle"></i>
+                                Không có sản phẩm sắp hết
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Additional Metrics -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon customers">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-title">Khách hàng mới</div>
+                        <div class="metric-value">127</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            15.2% so với tuần trước
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon conversion">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="metric-title">Tỷ lệ chuyển đổi</div>
+                        <div class="metric-value">3.2%</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            0.5% so với tháng trước
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon orders">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <div class="metric-title">Đơn hàng hoàn trả</div>
+                        <div class="metric-value">8</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            2.1% tổng đơn hàng
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="metric-card">
+                        <div class="metric-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-title">Giá trị đơn hàng TB</div>
+
+                        {{-- AOV --}}
+                        <div class="metric-value">
+                            {{ number_format($aovStats['current_aov'], 0, ',', '.') }} ₫
+                        </div>
+
+                        {{-- So sánh tháng trước --}}
+                        @if (!is_null($aovStats['percent_change']))
+                            @php
+                                $isPositive = $aovStats['percent_change'] >= 0;
+                            @endphp
+                            <div class="metric-change {{ $isPositive ? 'positive' : 'negative' }}">
+                                <i class="fas {{ $isPositive ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                {{ $aovStats['percent_change'] }}% so với tháng trước
+                            </div>
+                        @else
+                            <div class="metric-change">
+                                Không có dữ liệu tháng trước
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Charts and Tables -->
+            <div class="row g-4">
+                <div class="col-xl-8">
+                    <div class="chart-card">
+                        <div class="chart-title">Doanh thu theo thời gian</div>
+                        <div
+                            style="height: 300px; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                            <div class="text-center">
+                                <i class="fas fa-chart-area fa-3x mb-3"></i>
+                                <div>Biểu đồ doanh thu sẽ được hiển thị tại đây</div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" style="padding: 0px">
-                        <div class="chart-container">
-                            <canvas id="columnChart"></canvas>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h5 class="table-title">Sản phẩm bán chạy</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Đã bán</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($topSellingProducts as $product)
+                                        <tr>
+                                            <td>{{ $product->name }}</td>
+                                            <td><strong>{{ $product->total_sold }}</strong></td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2">Không có dữ liệu</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4 d-flex flex-column mb-4">
-                <div class="card-custom" id="income-card" style="margin-bottom: 10px">
-                    <div class="card-header" id="income-card-header">
-                        <div class="card-head-row">
-                            <div class="card-title" id="daily" style="color:white">Thu nhập ngày</div>
-                            <div class="card-tools">
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-label-light dropdown-toggle" type="button"
-                                        id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        Theo ngày
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" id="day">Theo ngày</a>
-                                        <a class="dropdown-item" id="month">Theo tháng</a>
-                                        <a class="dropdown-item" id="year">Theo năm</a>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="row g-4 mt-2">
+                <div class="col-xl-6">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h5 class="table-title">Đơn hàng gần đây</h5>
                         </div>
-                        <div class="card-category" id="day_month_year">{{ date('d/m/Y') }}</div>
-                    </div>
-                    <div class="card-body" id="income-card-body">
-                        <div class="info">
-                            <p id="income">{{ $daily['income'] }}</p>
-                            <p><u id="amount">{{ $daily['amount'] }} Đơn</u></p>
-                        </div>
-                        <div class="profit">
-                            <p id="interest">Lợi nhuận: {{ $daily['interest'] }}</p>
-                            <p id="moneyinterest">{{ $daily['moneyinterest'] }}</p>
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Giá trị</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>#DH001</strong></td>
+                                        <td>Nguyễn Văn A</td>
+                                        <td>1.250.000 ₫</td>
+                                        <td><span class="status-badge status-completed">Hoàn thành</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#DH002</strong></td>
+                                        <td>Trần Thị B</td>
+                                        <td>890.000 ₫</td>
+                                        <td><span class="status-badge status-pending">Đang xử lý</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#DH003</strong></td>
+                                        <td>Lê Văn C</td>
+                                        <td>2.100.000 ₫</td>
+                                        <td><span class="status-badge status-completed">Hoàn thành</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#DH004</strong></td>
+                                        <td>Phạm Thị D</td>
+                                        <td>450.000 ₫</td>
+                                        <td><span class="status-badge status-cancelled">Đã hủy</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="your-slider" style="margin: 0px">
-
-                </div>
-                <div class="slider-container">
-                    <div class="slider">
-                        <div class="slide">
-                            <img style="width: 100%; height: auto;"
-                                src="https://intphcm.com/data/upload/poster-quang-cao-dep-mat.jpg" alt="">
+                <div class="col-xl-6">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h5 class="table-title">Sản phẩm sắp hết hàng</h5>
                         </div>
-                        <div class="slide">
-                            <img style="width: 100%; height: auto;"
-                                src="https://images2.thanhnien.vn/528068263637045248/2024/1/25/e093e9cfc9027d6a142358d24d2ee350-65a11ac2af785880-17061562929701875684912.jpg"
-                                alt="">
-                        </div>
-                        <div class="slide">
-                            <img style="width: 100%; height: auto;"
-                                src="https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/07/anh-dep-thien-nhien-2-1.jpg"
-                                alt="">
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%">Sản phẩm</th>
+                                        <th>Tồn kho</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($lowStockProducts as $product)
+                                        <tr>
+                                            <td>{{ $product->name }}</td>
+                                            <td><strong>{{ $product->quantity }}</strong></td>
+                                            <td><span
+                                                    class="{{ $product->status_class }}">{{ $product->status_label }}</span>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3">Không có dữ liệu</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <button class="prev-btn">&#10094;</button>
-                    <button class="next-btn">&#10095;</button>
-                </div>
-            </div>
-        </div> --}}
-
-        <div class="card card-round">
-            <div class="card-header" style="padding: 5px 5px 5px 10px;">
-                <div class="card-head-row card-tools-still-right">
-                    <div class="card-title" style="color: white; font-size: 15px">Sản phẩm bán chạy nhất</div>
-                    <div class="card-tools">
-                    </div>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table align-items-center mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="text-center" scope="col">Mã sản phẩm</th>
-                                <th class="text-center" scope="col">Tên sản phẩm</th>
-                                <th class="text-center" scope="col">Giá nhập</th>
-                                <th class="text-center" scope="col">Giá bán</th>
-                                <th class="text-center" scope="col">Số lượng đã bán</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($topProducts as $item)
-                                <tr>
-                                    <td class="text-center"><a
-                                            href="{{ route('admin.product.edit', ['id' => $item->product_id]) }}">{{ $item->code }}</a>
-                                    </td>
-                                    <td class="text-center">{{ $item->name ?? '' }}</td>
-                                    <td class="text-center">{{ number_format($item->price ?? '') }}</td>
-                                    <td class="text-center">{{ number_format($item->priceBuy ?? '') }}</td>
-                                    <td class="text-center">{{ $item->total_quantity ?? '' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card card-round">
-            <div class="card-header"  style="padding: 5px 5px 5px 10px;">
-                <div class="card-head-row card-tools-still-right">
-                    <div class="card-title" style="color: white; font-size: 15px">Đơn hàng gần đây</div>
-                    {{-- <div class="card-tools">
-                        <div class="dropdown">
-                            <button class="btn btn-icon btn-clean me-0" type="button" id="dropdownMenuButton"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
-                        </div>
-                    </div> --}}
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table align-items-center mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th class="text-center" scope="col">Mã đơn hàng</th>
-                                <th class="text-center" scope="col">Ngày tạo</th>
-                                <th class="text-center" scope="col">Khách hàng</th>
-                                <th class="text-center" scope="col">Tổng tiền (VND)</th>
-                                <th class="text-center" scope="col">Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($newOrder as $item)
-                                <tr>
-                                    <td class="text-center"><a
-                                            href="{{ route('admin.order.detail', ['id' => $item->id]) }}">{{ $item->id }}</a>
-                                    </td>
-                                    <td class="text-center">{{ $item->created_at->format('H:i d/m/Y') }}</td>
-                                    <td class="text-center">{{ $item->client->name }}</td>
-                                    <td class="text-center">{{ number_format($item->total_money) }}</td>
-                                    @if ($item->status !== 4)
-                                        <td class="text-center">
-                                            <span class="badge badge-success">Hoàn thành</span>
-                                        </td>
-                                    @else
-                                        <td class="text-center">
-                                            <span style="background-color: red" class="badge badge-success">Công nợ</span>
-                                        </td>
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
 
     </div>
-
 
     <script>
         $(document).ready(function() {
@@ -546,7 +422,6 @@
         });
 
         function formatCurrency(number) {
-            // return Number(number).toLocaleString('vi-VN') + ' VND';
             return new Intl.NumberFormat('vi-VN', {
                 style: 'currency',
                 currency: 'VND'
@@ -599,54 +474,234 @@
             }
         });
     </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var ctx = document.getElementById('columnChart').getContext('2d');
-            var months = {!! json_encode(range(1, 12)) !!};
-            var monthlyRevenue = {!! json_encode($getMonthlyRevenue) !!};
-
-            var chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months.map(function(month) {
-                        return 'Tháng ' + month;
-                    }),
-                    datasets: [{
-                        label: 'Doanh thu hàng tháng',
-                        data: monthlyRevenue,
-                        backgroundColor: Array(12).fill('#177dff'),
-                        borderColor: Array(12).fill('#177dff'),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true,
-                                callback: function(value, index, values) {
-                                    return value.toLocaleString(
-                                        'vi-VN'); // Thêm dấu phẩy vào giá trị trục Y
-                                }
-                            }
-                        }]
-                    },
-                    tooltips: {
-                        callbacks: {
-                            label: function(tooltipItem, data) {
-                                var label = data.datasets[tooltipItem.datasetIndex].label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                label += tooltipItem.yLabel.toLocaleString(
-                                    'vi-VN'); // Định dạng giá trị khi hover
-                                return label;
-                            }
-                        }
-                    }
-                }
-            });
-        });
-    </script>
 @endsection
+
+
+@push('style')
+    <style>
+        .dashboard-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 0.875rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .time-filter {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            background: white;
+            font-size: 0.875rem;
+        }
+
+        .refresh-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #5855eb;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 4px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            height: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon.revenue {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .metric-icon.orders {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .metric-icon.profit {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .metric-icon.inventory {
+            background: #fce7f3;
+            color: #db2777;
+        }
+
+        .metric-icon.customers {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .metric-icon.conversion {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .metric-change.positive {
+            color: #16a34a;
+        }
+
+        .metric-change.negative {
+            color: #dc2626;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 4px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .custom-table {
+            margin: 0;
+        }
+
+        .custom-table th {
+            background: #f8fafc;
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 1rem 1.5rem;
+        }
+
+        .custom-table td {
+            border: none;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .low-stock {
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        .in-stock {
+            color: #16a34a;
+            font-weight: 500;
+        }
+    </style>
+@endpush

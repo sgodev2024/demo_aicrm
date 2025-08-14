@@ -1,9 +1,3 @@
-<style>
-    .nav-collapse {
-        padding: 0 0 0 10px !important;
-        margin-bottom: 0px !important;
-    }
-</style>
 <div class="sidebar no-print" data-background-color="dark">
     <div class="sidebar-logo">
         <!-- Logo Header -->
@@ -25,6 +19,7 @@
         </div>
         <!-- End Logo Header -->
     </div>
+
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
@@ -46,22 +41,22 @@
                         <ul class="nav nav-collapse">
                             <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">
                                 <a href="{{ route('admin.product.store') }}">
-                                    <span class="sub-item">Sản phẩm</span>
+                                    <span class="sub-item">Quản lý sản phẩm</span>
                                 </a>
                             </li>
                             <li class=" {{ request()->routeIs('admin.category.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.category.index') }}">
-                                    <span class="sub-item">Danh mục</span>
+                                    <span class="sub-item">Quản lý danh mục</span>
                                 </a>
                             </li>
                             <li class=" {{ request()->routeIs('admin.brand.store') ? 'active' : '' }}">
                                 <a href="{{ route('admin.brand.store') }}">
-                                    <span class="sub-item">Thương hiệu</span>
+                                    <span class="sub-item">Quản lý thương hiệu</span>
                                 </a>
                             </li>
                             <li class=" {{ request()->routeIs('admin.company.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.company.index') }}">
-                                    <span class="sub-item">Nhà cung cấp</span>
+                                    <span class="sub-item">Quản lý nhà cung cấp</span>
                                 </a>
                             </li>
 
