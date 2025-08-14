@@ -1,0 +1,25 @@
+.nav-collapse {
+    padding: 0 0 0 10px !important;
+    margin-bottom: 0px !important;
+}
+
+.card {
+    border-radius: 4px !important;
+}
+
+.btn {
+    border-radius: 4px !important;
+    border-color: rgba(4, 32, 69, 0.1);
+}
+
+.btn:hover {
+    background-color: var(--bb-btn-hover-bg);
+    border-color: var(--bb-btn-hover-border-color);
+    color: var(--bb-btn-hover-color);
+    text-decoration: none;
+}
+
+.form-control {
+    border-color: #e5e7eb !important;
+    border-width: 1px !important;
+}
