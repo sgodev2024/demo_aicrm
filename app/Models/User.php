@@ -78,7 +78,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Storage::class);
     }
-
+   public function role()
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
+    }
     // Relationship with CampaignDetail
     public function campaignDetails()
     {

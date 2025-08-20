@@ -269,7 +269,12 @@
                         </ul>
                     </div>
                 </li>
-
+                <li class="nav-item {{ request()->routeIs('admin.branch.store') ? 'active' : '' }}">
+                    <a href="{{ route('admin.branch.store') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Chi nhánh cửa hàng</p>
+                    </a>
+                </li>
 
                 <li class="nav-item {{ request()->routeIs('admin.staff.store') ? 'active' : '' }}">
                     <a href="{{ route('admin.staff.store') }}">

@@ -187,7 +187,7 @@ class AdminService
                 'password' => bcrypt($data['password']),
                 'phone' => $data['phone'],
                 'address' => $data['address'],
-                'role_id' => 2,
+                'role_id' => $data['role_id'],
                 'storage_id' => $data['storage'],
                 'status' => 'active'
             ]);
