@@ -166,11 +166,11 @@ Route::middleware(['auth'])
             });
             Route::prefix('branch')->name('branch.')->group(function () {
                 Route::get('', [BranchController::class, 'index'])->name('store');
-                 Route::get('update/{id}', [BranchController::class, 'edit'])->name('edit');
-                 Route::post('update/{id}', [BranchController::class, 'update'])->name('update');
+                Route::get('update/{id}', [BranchController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [BranchController::class, 'update'])->name('update');
                 Route::get('add', [BranchController::class, 'addForm'])->name('addForm');
-                 Route::post('add', [BranchController::class, 'add'])->name('add');
-                 Route::delete('delete/{id}', [BranchController::class, 'delete'])->name('delete');
+                Route::post('add', [BranchController::class, 'add'])->name('add');
+                Route::delete('delete/{id}', [BranchController::class, 'delete'])->name('delete');
                 // Route::post('updateAdmin/{id}', [BranchController::class, 'updateadmin'])->name('updateAdmin');
                 // Route::get('search/phone', [BranchController::class, 'findByPhone'])->name('findByPhone');
             });
@@ -261,7 +261,7 @@ Route::middleware(['auth'])
 
 
 
-        // kho 
+        // kho
         Route::middleware(['role:4'])->group(function () {
             Route::prefix('checkInventory')->name('check.')->group(function () {
                 Route::get('/', [CheckInventoryController::class, 'index'])->name('index');
