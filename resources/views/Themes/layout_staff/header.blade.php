@@ -7,15 +7,19 @@
     <title>{{ $title }}</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Notify Plugin -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script>
-    <!-- Bootstrap CSS for better styling (optional) -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{asset('css/staff.css')}}">
+    <!-- Notify Plugin -->
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script> --}}
+    <!-- Bootstrap CSS for better styling (optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.22.4/sweetalert2.min.css">
+
+    {{-- <link rel="stylesheet" href="{{asset('css/staff.css')}}"> --}}
     <script src="{{ asset('validator/validator.js') }}"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
 </head>
 <style>
     /* Container của submenu */
@@ -93,10 +97,12 @@
         #row1 {
             margin-top: 20px;
         }
-        .product-item1 img{
+
+        .product-item1 img {
             display: none;
         }
-        .product-item1 .product-name{
+
+        .product-item1 .product-name {
             display: contents;
         }
     }
@@ -110,23 +116,23 @@
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const homeIcon = document.getElementById('homeIcon');
-    const submenu = document.getElementById('submenu');
+        const homeIcon = document.getElementById('homeIcon');
+        const submenu = document.getElementById('submenu');
 
-    homeIcon.addEventListener('click', function(event) {
-        event.preventDefault();
-        submenu.style.display = (submenu.style.display === 'none' || submenu.style.display === '') ? 'block' : 'none';
+        homeIcon.addEventListener('click', function(event) {
+            event.preventDefault();
+            submenu.style.display = (submenu.style.display === 'none' || submenu.style.display === '') ?
+                'block' : 'none';
+        });
+
+        // Đóng menu con khi nhấp ra ngoài
+        document.addEventListener('click', function(event) {
+            if (!homeIcon.contains(event.target) && !submenu.contains(event.target)) {
+                submenu.style.display = 'none';
+            }
+        });
+
     });
-
-    // Đóng menu con khi nhấp ra ngoài
-    document.addEventListener('click', function(event) {
-        if (!homeIcon.contains(event.target) && !submenu.contains(event.target)) {
-            submenu.style.display = 'none';
-        }
-    });
-
-});
-
 </script>
 
 
@@ -137,35 +143,33 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 @if (session('action'))
-<script>
-    $(document).ready(function(){
-        Swal.fire({
-        icon: 'success',
-        title: 'Thông báo',
-        text: '{{ session('action') }}',
-        position: 'center',
-        showConfirmButton: false, // Ẩn nút xác nhận
-        timer: 3000 // Tự động đóng sau 3 giây
-      });
-    })
-</script>
-
-@else
-@if (session('fail'))
-<script>
-    $(document).ready(function(){
+    <script>
+        $(document).ready(function() {
             Swal.fire({
-            icon: 'error',
-            title: 'Thông báo',
-            text: '{{ session('fail') }}',
-            position: 'center',
-            showConfirmButton: false, // Ẩn nút xác nhận
-            timer: 3000 // Tự động đóng sau 3 giây
-        });
+                icon: 'success',
+                title: 'Thông báo',
+                text: '{{ session('action') }}',
+                position: 'center',
+                showConfirmButton: false, // Ẩn nút xác nhận
+                timer: 3000 // Tự động đóng sau 3 giây
+            });
         })
-</script>
-
-@endif
+    </script>
+@else
+    @if (session('fail'))
+        <script>
+            $(document).ready(function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thông báo',
+                    text: '{{ session('fail') }}',
+                    position: 'center',
+                    showConfirmButton: false, // Ẩn nút xác nhận
+                    timer: 3000 // Tự động đóng sau 3 giây
+                });
+            })
+        </script>
+    @endif
 @endif
 
 <body style="overflow-x: hidden; ">

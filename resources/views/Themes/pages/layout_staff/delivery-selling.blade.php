@@ -1,11 +1,10 @@
-
 <div class="col-lg-4" id="delivery-selling-content" style="display: none;">
     <div class="card">
         <div class="card-header">Thông tin khách hàng</div>
         <div class="card-body" style="max-height: 700px; overflow-y: auto;">
             <!-- Customer information form -->
             <form action="">
-                <div class="input-group" >
+                <div class="input-group">
                     <i class="fas fa-search"></i>
                     <input type="text" class="form-control" placeholder="Tìm kiếm khách hàng" name="search"
                         id="search" />
@@ -13,11 +12,11 @@
                 </div>
                 <ul class="results" id="results">
                     @if ($clients)
-                    @foreach ($clients as $item )
-                    <li data-fullname="{{ $item->name }}" data-email="{{ $item->email }}"
-                        data-phone="{{ $item->phone }}" data-address="{{ $item->address }}">{{ $item->name .'('
-                        .$item->phone . ')'}}</li>
-                    @endforeach
+                        @foreach ($clients as $item)
+                            <li data-fullname="{{ $item->name }}" data-email="{{ $item->email }}"
+                                data-phone="{{ $item->phone }}" data-address="{{ $item->address }}">
+                                {{ $item->name . '(' . $item->phone . ')' }}</li>
+                        @endforeach
                     @endif
                     <li class="no-results">Không có kết quả</li>
                     <!-- Thêm phần tử này -->
@@ -54,7 +53,7 @@
                     <label for="clientgroup">Nhóm khách hàng</label></label>
                     <select class="form-control" id="clientgroup_id" name="clientgroup_id">
                         <option value="">----- Nhóm khách hàng ----- </option>
-                        @foreach ($clientgroup as $item )
+                        @foreach ($clientgroup as $item)
                         <option value="{{ $item->id }}"> {{ $item->name }}</option>
                         @endforeach
                     </select>
@@ -99,24 +98,31 @@
                             <h3 style="font-size: 20px">{{ isset($config) ? $config->user->store_name : '' }}</h3>
                             <table style="width: 40%; margin: 0px auto" id="thongtinnhahang">
                                 <tr>
-                                    <td style="
+                                    <td
+                                        style="
                                     display: flex;
                                     justify-content: start;
-                                "><strong>Địa chỉ:</strong></td>
-                                    <td style="text-align: left;">{{ isset($config) ? $config->user->address : '' }}</td>
+                                ">
+                                        <strong>Địa chỉ:</strong></td>
+                                    <td style="text-align: left;">{{ isset($config) ? $config->user->address : '' }}
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td style="
+                                    <td
+                                        style="
                                     display: flex;
                                     justify-content: start;
-                                "><strong>Điện thoại:</strong></td>
+                                ">
+                                        <strong>Điện thoại:</strong></td>
                                     <td style="text-align: left;">{{ isset($config) ? $config->user->phone : '' }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="
+                                    <td
+                                        style="
                                     display: flex;
                                     justify-content: start;
-                                "><strong>Email:</strong></td>
+                                ">
+                                        <strong>Email:</strong></td>
                                     <td style="text-align: left;">{{ isset($config) ? $config->user->email : '' }}</td>
                                 </tr>
                             </table>
@@ -140,12 +146,12 @@
                                 </thead>
                                 <tbody id="orderBill">
                                     @foreach ($cart as $item)
-                                    <tr>
-                                        <td>{{ $item->product->name }}</td>
-                                        <td>{{ $item->amount }}</td>
-                                        <td>{{ number_format($item->product->price) }}</td>
-                                        <td>{{ number_format($item->product->priceBuy * $item->amount ) }}</td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ $item->product->name }}</td>
+                                            <td>{{ $item->amount }}</td>
+                                            <td>{{ number_format($item->product->price) }}</td>
+                                            <td>{{ number_format($item->product->priceBuy * $item->amount) }}</td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -153,13 +159,13 @@
                         <div class="receipt-totals">
                             <div class="total">
                                 <span>Tổng cộng</span>
-                                <span class='totalBill'>{{ number_format($sum) }}  VND</span>
+                                <span class='totalBill'>{{ number_format($sum) }} VND</span>
                             </div>
-                            <div id="dangchu" class="dangchu" ></div>
+                            <div id="dangchu" class="dangchu"></div>
                             <hr>
                             <div class="total">
                                 <span>Tổng tiền phải trả</span>
-                                <span class='totalPay'>{{number_format( $sum ) }}  VND</span>
+                                <span class='totalPay'>{{ number_format($sum) }} VND</span>
                             </div>
                             {{-- <hr>
                             <div class="total">
@@ -170,13 +176,14 @@
                         <div class="receipt-footer">
                             <p style='margin: 0px;'>Cảm ơn quý khách!</p>
                             @if (isset($config))
-                            <img style="width: 200px;" src="{{ $config->qr }}" alt="QR Code">
-                            <div>
-                                <p style="margin: 0; padding-bottom: 5px ">{{ $config->bank->name }} :{{ $config->bank_account }} </p>
-                                <p>{{ $config->receiver }}</p>
-                            </div>
+                                <img style="width: 200px;" src="{{ $config->qr }}" alt="QR Code">
+                                <div>
+                                    <p style="margin: 0; padding-bottom: 5px ">{{ $config->bank->name }}
+                                        :{{ $config->bank_account }} </p>
+                                    <p>{{ $config->receiver }}</p>
+                                </div>
                             @else
-                            <img style="width: 200px;" src="" alt="QR Code">
+                                <img style="width: 200px;" src="" alt="QR Code">
                             @endif
 
                         </div>
@@ -338,7 +345,8 @@
         width: 250px;
         height: auto;
     }
-    .dangchu{
+
+    .dangchu {
         text-align: end;
         font-size: 13px;
         color: gray;
@@ -351,14 +359,12 @@
         'name': {
             'element': document.getElementById('name'),
             'error': document.getElementById('orderName_error'),
-            'validations': [
-                {
-                    'func': function(value){
-                        return checkRequired(value);
-                    },
-                    'message': generateErrorMessage('E032')
+            'validations': [{
+                'func': function(value) {
+                    return checkRequired(value);
                 },
-            ]
+                'message': generateErrorMessage('E032')
+            }, ]
         },
         // 'email': {
         //     'element': document.getElementById('email'),
@@ -375,38 +381,32 @@
         'phoneNumber': {
             'element': document.getElementById('phoneNumber'),
             'error': document.getElementById('orderPhone_error'),
-            'validations': [
-                {
-                    'func': function(value){
-                        return checkRequired(value);
-                    },
-                    'message': generateErrorMessage('E034')
+            'validations': [{
+                'func': function(value) {
+                    return checkRequired(value);
                 },
-            ]
+                'message': generateErrorMessage('E034')
+            }, ]
         },
         'address': {
             'element': document.getElementById('address'),
             'error': document.getElementById('orderAddress_error'),
-            'validations': [
-                {
-                    'func': function(value){
-                        return checkRequired(value);
-                    },
-                    'message': generateErrorMessage('E035')
+            'validations': [{
+                'func': function(value) {
+                    return checkRequired(value);
                 },
-            ]
+                'message': generateErrorMessage('E035')
+            }, ]
         },
         'paymentMethod': {
             'element': document.getElementById('paymentMethod'),
             'error': document.getElementById('orderPay_error'),
-            'validations': [
-                {
-                    'func': function(value){
-                        return checkRequired(value);
-                    },
-                    'message': generateErrorMessage('E036')
+            'validations': [{
+                'func': function(value) {
+                    return checkRequired(value);
                 },
-            ]
+                'message': generateErrorMessage('E036')
+            }, ]
         },
 
     }
@@ -419,24 +419,25 @@
 
         return dd + '/' + mm + '/' + yyyy;
     }
-    function submitorder(event){
+
+    function submitorder(event) {
         event.preventDefault();
-        if (validateAllFields(validateorder)){
+        if (validateAllFields(validateorder)) {
             var name = $('#name').val();
-                var email = $('#email').val();
-                var phoneNumber = $('#phoneNumber').val();
-                var address = $('#address').val();
-                var paymentMethod = $('#paymentMethod').val();
+            var email = $('#email').val();
+            var phoneNumber = $('#phoneNumber').val();
+            var address = $('#address').val();
+            var paymentMethod = $('#paymentMethod').val();
 
 
-                var modalContent = `
+            var modalContent = `
                         <p>Ngày tạo: ${getCurrentDate()}</p>
                         <p>Tên khách: ${name}</p>
                         <p>Số điện thoại: ${phoneNumber}</p>
-                        <p>Tên thu ngân: {{  Auth::user()->name }} </p>
+                        <p>Tên thu ngân: {{ Auth::user()->name }} </p>
                 `;
 
-                var info_client = `
+            var info_client = `
                     <input type="hidden" name="name" value="${name}">
                     <input type="hidden" name="email" value="${email}">
                     <input type="hidden" name="phone" value="${phoneNumber}">
@@ -445,17 +446,17 @@
 
                 `;
 
-                $('.receipt-info').html(modalContent);
-                $('#info_client').html(info_client);
-                $('#orderModal').modal('show');
+            $('.receipt-info').html(modalContent);
+            $('#info_client').html(info_client);
+            $('#orderModal').modal('show');
 
         }
     }
 
 
-// Hàm giả định để lấy ngày hiện tại
-function getCurrentDate() {
-    var today = new Date();
-    return today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-}
+    // Hàm giả định để lấy ngày hiện tại
+    function getCurrentDate() {
+        var today = new Date();
+        return today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+    }
 </script>

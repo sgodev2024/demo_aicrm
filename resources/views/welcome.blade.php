@@ -7,9 +7,10 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" class="form-control search-input"
-                                placeholder="Tìm kiếm đơn hàng, khách hàng...">
+                            {{-- <input type="text" class="form-control search-input"
+                                placeholder="Tìm kiếm đơn hàng, khách hàng..."> --}}
+                            <input type="text" id="dateFilter" class="form-control search-input"
+                                placeholder="Chọn khoảng ngày">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -337,11 +338,59 @@
         </div>
 
     </div>
+@endsection
 
+@push('script')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#day').click(function(e) {
 
+            let start = moment().subtract(1, 'month');
+            let end = moment();
+
+            $('#dateFilter').daterangepicker({
+                startDate: start,
+                endDate: end,
+                autoUpdateInput: true,
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    cancelLabel: 'Hủy',
+                    applyLabel: 'Áp dụng',
+                    customRangeLabel: 'Tùy chọn',
+                    daysOfWeek: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                    monthNames: [
+                        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+                    ],
+                    firstDay: 1
+                },
+                ranges: {
+                    'Hôm nay': [moment(), moment()],
+                    'Ngày mai': [moment().add(1, 'days'), moment().add(1, 'days')],
+                    'Tuần này': [moment().startOf('week'), moment().endOf('week')],
+                    'Tuần sau': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf(
+                        'week')],
+                    'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                    'Tháng sau': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf(
+                        'month')]
+                }
+            });
+
+            // Hiển thị mặc định trên input khi load
+            $('#dateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+            $('#dateFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format(
+                    'DD/MM/YYYY'));
+            });
+
+            $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+            });
+
+            $('#day').click(function(e) {
                 $.ajax({
                     url: '{{ route('admin.dashboard.day') }}',
                     method: 'GET',
@@ -428,7 +477,6 @@
             }).format(number).replace('₫', 'VND');
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -474,10 +522,12 @@
             }
         });
     </script>
-@endsection
+@endpush
 
 
 @push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
     <style>
         .dashboard-header {
             background: white;
@@ -493,7 +543,7 @@
         .search-input {
             border: 1px solid #e2e8f0;
             border-radius: 4px;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            padding: 0.75rem 1rem 0.75rem 1.5rem;
             font-size: 0.875rem;
             width: 100%;
             max-width: 400px;

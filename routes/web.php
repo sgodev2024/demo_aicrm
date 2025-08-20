@@ -331,14 +331,15 @@ Route::middleware('auth')
             });
     })->middleware('checkRole:1');
 
-Route::middleware([CheckLogin::class])->prefix('ban-hang')->name('staff.')->group(function () {
+Route::middleware(['auth'])->prefix('ban-hang')->name('staff.')->group(function () {
     Route::get('product/search', [StaffProductController::class, 'search'])->name('product.search');
+    Route::get('get-clients', [StaffProductController::class, 'getClients']);
     Route::get('', [StaffProductController::class, 'index'])->name('index');
     Route::post('/cart/add', [StaffProductController::class, 'addToCart'])->name('cart.add');
     Route::post('/cart/update', [StaffProductController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/update_price', [StaffProductController::class, 'updatePriceCart'])->name('cart.update.price');
     Route::post('/cart/remove', [StaffProductController::class, 'removeFromCart'])->name('cart.remove');
-    Route::post('/client/add', [StaffClientController::class, 'addClient'])->name('client.add');
+    Route::post('/clients/add', [StaffClientController::class, 'addClient'])->name('client.add');
     Route::post('pay', [StaffClientController::class, 'pay'])->name('pay');
     Route::get('cart', [StaffClientController::class, 'cart'])->name('cart.data');
     Route::get('order', [StaffOrderController::class, 'index'])->name('order');
