@@ -51,7 +51,6 @@
             border: 2px dashed rgba(255, 255, 255, 0.5);
             padding: 25px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
         }
 
         .contact-item {
@@ -62,18 +61,19 @@
         }
 
         .contact-label {
-            font-weight: 500;
+            font-weight: 600;
             min-width: 120px;
+            font-size: 14px;
         }
 
         .contact-info {
-            text-align: right;
-            flex: 1;
+            display: flex;
+            gap: 5px
         }
 
         .phone-number {
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 14px;
         }
 
         .time-info {
@@ -255,51 +255,47 @@
                         <div class="contact-box">
                             <div class="contact-item">
                                 <span class="contact-label">Hỗ trợ kỹ thuật:</span>
-                                <div class="contact-info">
-                                    <div class="phone-number">(024) 62 927 089</div>
-                                    <div class="time-info">(24/7)</div>
+                                <div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
+                                    <div class="contact-info">
+                                        <div class="phone-number">(024) 62 927 089</div>
+                                        <div class="time-info">(24/7)</div>
+                                    </div>
+                                    <div class="contact-info">
+                                        <div class="phone-number">0981 185 620</div>
+                                        <div class="time-info">(24/7)</div>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="contact-item">
-                                <span class="contact-label"></span>
-                                <div class="contact-info">
-                                    <div class="phone-number">0981 185 520</div>
-                                    <div class="time-info">(24/7)</div>
+                                <span class="contact-label">Hỗ trợ hóa đơn:</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
+                                    <div class="contact-info">
+                                        <div class="phone-number">(024) 62 927 089</div>
+                                        <div class="time-info">(8h30 - 18h00)</div>
+                                    </div>
+                                    <div class="contact-info">
+                                        <div class="phone-number">0912 399 322</div>
+                                        <div class="time-info">(8h30 - 18h00)</div>
+                                    </div>
                                 </div>
                             </div>
 
+
                             <div class="contact-item">
-                                <span class="contact-label">Hỗ trợ học đơn:</span>
-                                <div class="contact-info">
-                                    <div class="phone-number">(024) 62 927 089</div>
-                                    <div class="time-info">(8h30 - 18h00)</div>
+                                <span class="contact-label">Hỗ trợ gia hạn:</span>
+                                <div style="display: flex; flex-direction: column; gap: 3px; align-items: flex-end;">
+                                    <div class="contact-info">
+                                        <div class="phone-number">(024) 62 927 089</div>
+                                        <div class="time-info">(8h30 - 18h00)</div>
+                                    </div>
+                                    <div class="contact-info">
+                                        <div class="phone-number">0981 185 620</div>
+                                        <div class="time-info">(8h30 - 18h00)</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="contact-item">
-                                <span class="contact-label"></span>
-                                <div class="contact-info">
-                                    <div class="phone-number">0912 399 322</div>
-                                    <div class="time-info">(8h30 - 18h00)</div>
-                                </div>
-                            </div>
-
-                            <div class="contact-item">
-                                <span class="contact-label">Hỗ trợ giá hạn:</span>
-                                <div class="contact-info">
-                                    <div class="phone-number">(024) 62 927 089</div>
-                                    <div class="time-info">(8h30 - 18h00)</div>
-                                </div>
-                            </div>
-
-                            <div class="contact-item">
-                                <span class="contact-label"></span>
-                                <div class="contact-info">
-                                    <div class="phone-number">0981 185 520</div>
-                                    <div class="time-info">(8h30 - 18h00)</div>
-                                </div>
-                            </div>
 
                             <div class="contact-item">
                                 <span class="contact-label">Email:</span>
@@ -315,7 +311,7 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="login-section">
                         <div class="logo-container text-center">
-                            <img src="{{ asset('assets/img/logo.png') }}" alt="SGO Media" class="logo"
+                            <img src="{{ asset('images/sgovn.png') }}" alt="SGO Media" class="logo"
                                 style="max-width: 180px;">
                         </div>
 

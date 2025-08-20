@@ -18,6 +18,7 @@ class CheckLogin
     public function handle(Request $request, Closure $next)
     {
 
+
         if (!auth()->check()) {
             // Nếu session chưa được đặt, chuyển hướng người dùng đến trang login
             return redirect()->route('auth.login');
@@ -26,6 +27,7 @@ class CheckLogin
         if (!in_array($user->role_id, [1, 2])) {
             abort(403, 'Access denied');
         }
+
         return $next($request);
     }
 }
