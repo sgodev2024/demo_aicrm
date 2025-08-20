@@ -16,10 +16,10 @@ class CheckLogin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!session('authUser')) {
-            // Nếu session chưa được đặt, chuyển hướng người dùng đến trang login
-            return redirect()->route('formlogin');
-        }
+        // if (!session('authUser')) {
+        //     // Nếu session chưa được đặt, chuyển hướng người dùng đến trang login
+        //     return redirect()->route('formlogin');
+        // }
         return $next($request);
     }
 }
