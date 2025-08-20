@@ -19,28 +19,56 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function authenticate(LoginRequest $request)
+    // public function authenticate(LoginRequest $request)
+    // {
+    //     $credentials = $request->validated();
+
+    //     return transaction(function () use ($credentials, $request) {
+
+    //         $remember = $request->filled('remember');
+
+    //         if (Auth::attempt($credentials, $remember)) {
+    //             $user = Auth::user();
+
+    //             return match ($user->role_id) {
+    //                 1 => redirect()->route('admin.dashboard'),
+    //                 2 => redirect()->route('staff.index'),
+    //                 3 => redirect()->route('sa.store.index'),
+    //                 default =>  redirect()->route('dashboard')
+    //             };
+
+    //         }
+
+    //         return errorResponse("Mật khẩu không chính xác!", 404);
+    //     });
+    // }
+    public function authenticate(Request $request)
     {
-        $credentials = $request->validated();
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
-        return transaction(function () use ($credentials, $request) {
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
 
-            $remember = $request->filled('remember');
-
-            if (Auth::attempt($credentials, $remember)) {
-                $user = Auth::user();
-
-                return match ($user->role_id) {
-                    1 => redirect()->route('admin.dashboard'),
-                    2 => redirect()->route('staff.index'),
-                    3 => redirect()->route('sa.store.index'),
-                    default =>  redirect()->route('dashboard')
-                };
-
+            // Chuyển hướng theo role
+            if (auth()->user()->role_id == 1) {
+                return redirect()->route('admin.dashboard');
             }
 
-            return errorResponse("Mật khẩu không chính xác!", 404);
-        });
+            if (auth()->user()->role_id == 2) {
+                return redirect()->route('staff.index');
+            }
+             if (auth()->user()->role_id == 3) {
+                return redirect()->route('admin.transactions.cash.index');
+            }
+            abort(403, 'Access denied');
+        }
+
+        return back()->withErrors([
+            'email' => 'Thông tin đăng nhập không chính xác.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)

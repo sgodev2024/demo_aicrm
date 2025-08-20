@@ -319,7 +319,8 @@
                                 style="max-width: 180px;">
                         </div>
 
-                        <form>
+                        <form method="POST" action="{{ route('auth.authenticate') }}">
+                            @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <div class="input-group">
@@ -327,7 +328,7 @@
                                         <i class="fas fa-user"></i>
                                     </span>
                                     <input type="email" name="email" class="form-control py-2" id="email"
-                                        placeholder="Địa chỉ Email">
+                                        placeholder="Địa chỉ Email" required>
                                     <small id="err-email" class="text-danger text-muted"></small>
                                 </div>
                             </div>
@@ -339,7 +340,7 @@
                                         <i class="fas fa-lock"></i>
                                     </span>
                                     <input type="password" name="password" class="form-control py-2" id="password"
-                                        placeholder="Password">
+                                        placeholder="Password" required>
                                     <span class="input-group-text password-toggle" onclick="togglePassword()">
                                         <i class="fas fa-eye" id="toggleIcon"></i>
                                     </span>
@@ -390,37 +391,37 @@
             }
         }
 
-        $(function() {
-            $('form').on('submit', function(e) {
-                e.preventDefault();
+        // $(function() {
+        //     $('form').on('submit', function(e) {
+        //         e.preventDefault();
 
-                const formData = new FormData(this)
+        //         const formData = new FormData(this)
 
-                $.ajax({
-                    url: window.location.href,
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    beforeSend: () => {
-                        $("#loadingOverlay").show();
-                    },
-                    success: (res) => {
-                        window.location.href = '/admin'
-                    },
-                    error: (xhr) => {
-                        datgin.error(xhr.responseJSON?.message ??
-                            'Đã có lỗi xảy ra, vui lòng thử lại sau!');
-                    },
-                    complete: function() {
-                        $("#loadingOverlay").hide();
-                    },
-                })
-            })
-        })
+        //         $.ajax({
+        //             url: window.location.href,
+        //             method: 'POST',
+        //             data: formData,
+        //             processData: false,
+        //             contentType: false,
+        //             headers: {
+        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        //             },
+        //             beforeSend: () => {
+        //                 $("#loadingOverlay").show();
+        //             },
+        //             // success: (res) => {
+        //             //     window.location.href = '/admin'
+        //             // },
+        //             error: (xhr) => {
+        //                 datgin.error(xhr.responseJSON?.message ??
+        //                     'Đã có lỗi xảy ra, vui lòng thử lại sau!');
+        //             },
+        //             complete: function() {
+        //                 $("#loadingOverlay").hide();
+        //             },
+        //         })
+        //     })
+        // })
     </script>
 </body>
 

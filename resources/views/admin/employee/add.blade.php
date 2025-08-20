@@ -78,6 +78,17 @@
                                                     <div class="col-lg-9"><span class="invalid-feedback d-block"
                                                             style="font-weight: 500" id="storage_error"></span> </div>
                                                 </div>
+                                                  <div class="form-group">
+                                                    <label for="new-user-password">Vai trò</label>
+                                                    <select class="form-control" name="role_id" id="role_id" required>
+                                                        <option value="">Chọn vai trò</option>
+                                                        @foreach ($role as $item)
+                                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="col-lg-9"><span class="invalid-feedback d-block"
+                                                            style="font-weight: 500" id="role_id_error"></span> </div>
+                                                </div>
                                                 <div class="form-group">
                                                     <label for="new-user-password">Mật khẩu:</label>
                                                     <input type="password" class="form-control" id="password"
@@ -110,7 +121,7 @@
             </div>
         </div>
     </div>
-
+<script src="{{ asset('validator/validator.js') }}"></script>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <script>
         function submitForm() {
@@ -191,6 +202,16 @@
                         return checkRequired(value);
                     },
                     'message': generateErrorMessage('E046')
+                }, ]
+            },
+             'role_id': {
+                'element': document.getElementById('role_id'),
+                'error': document.getElementById('role_id_error'),
+                'validations': [{
+                    'func': function(value) {
+                        return checkRequired(value);
+                    },
+                    'message': generateErrorMessage('E047')
                 }, ]
             }
 
