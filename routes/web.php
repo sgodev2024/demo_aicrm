@@ -1,4 +1,4 @@
-branch<?php
+<?php
 
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminController;
