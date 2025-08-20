@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Models\Roles;
 use App\Models\User;
 use App\Services\AdminService;
 use App\Services\StorageService;
@@ -46,7 +47,7 @@ class UserController extends Controller
             $title = "Nhân viên";
             $search = $request->input('search');
 
-            $query = User::where('role_id', '!=', 1);
+            $query = User::where('role_id', '!=', 1)->with('role');
 
             if ($search) {
                 $query->where(function ($q) use ($search) {
@@ -128,7 +129,8 @@ class UserController extends Controller
     {
         $title = 'Thêm nhân viên';
         $storage = $this->storageService->getAllStorage();
-        return view('admin.employee.add', compact('title', 'storage'));
+        $role    = Roles::all();
+        return view('admin.employee.add', compact('title', 'storage','role'));
     }
     public function add(Request $request)
     {
