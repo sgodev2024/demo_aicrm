@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BankTransactionController;
-use App\Http\Controllers\admin\BranchController;
+use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CashTransactionController;
 use App\Http\Controllers\Admin\CategorieController;
