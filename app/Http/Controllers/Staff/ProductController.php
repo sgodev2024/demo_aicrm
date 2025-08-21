@@ -68,9 +68,10 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function getClients()
+    public function getClients(Request $request)
     {
-        $clients = $this->clientService->getAllClientStaff();
+        $searchText = $request->input('searchText');
+        $clients = $this->clientService->getAllClientStaff($searchText);
         return response()->json($clients);
     }
 

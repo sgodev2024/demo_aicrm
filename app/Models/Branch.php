@@ -10,8 +10,13 @@ class Branch extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'name',
-        'status',
+        'address',
+        'phone',
+        'email',
+        'manager_name',
+        'status'
     ];
     protected function statusText(): Attribute
     {

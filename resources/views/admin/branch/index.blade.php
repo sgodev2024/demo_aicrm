@@ -13,13 +13,7 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="">Nhân viên</a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Danh sách</a>
+                    <a href="#">Danh sách chi nhánh</a>
                 </li>
             </ul>
         </div>
@@ -27,50 +21,43 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title" style="text-align: center; color:white">Danh sách nhân viên</h4>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Danh sách chi nhánh</h5>
+                        <button class="btn btn-primary" id="show-modal">Thêm
+                            mới</button>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <!-- Form nhập số điện thoại -->
-                                        <form action="{{ route('admin.branch.store') }}" method="GET" class="d-flex"
-                                            role="search">
-                                            <input type="text" name="search" class="form-control me-2" style="width: 300px;"
-                                                placeholder="Nhập tên, điện thoại, email " value="{{ request('search') }}">
-                                            <button class="btn btn-outline-primary" type="submit">  <i class="fas fa-search"></i></button>
-                                            <a class="btn btn-outline-danger mx-2" href="{{ route('admin.branch.store') }}">  <i class="fas fa-sync-alt"></i></a>
-                                        </form>
-
-                                        <!-- Nút Thêm mới -->
-                                        <a class="btn btn-primary" href="{{ route('admin.branch.addForm') }}">Thêm mới</a>
-                                    </div>
-                                </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    Thao tác
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-delete">
+                                            <i class="fa-solid fa-trash me-2"></i> Xóa đã chọn
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-status">
+                                            <i class="fa-solid fa-toggle-on me-2"></i> Thay đổi trạng thái
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="mt-3" id="delete-selected-container" style="display: none;">
-                                            <button id="btn-delete-selected" class="btn" style="background: rgb(242, 91, 91); color: white" data-model='User'> Xóa </button>
-                                        </div>
 
+                            <div class="d-flex justify-content-end align-items-center">
+                                <input type="text" name="search" class="form-control me-2" style="width: 300px;"
+                                    placeholder="Nhập tên chi nhánh">
 
-                            <div id="basic-datatables_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 p-0">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div id="staff-table-container">
-                                            <table id="staff-table" class="table table-hover">
-                                                <!-- Table content will be dynamically updated via AJAX -->
-                                                @include('admin.branch.table', ['user' => $user])
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12" id="pagination">
-                                        {{ $user->links('vendor.pagination.custom') }}
-                                    </div>
-                                </div>
+                                <button type="button" class="btn" id="btn-reset"> <i
+                                        class="fa-solid fa-rotate"></i></button>
                             </div>
+                        </div>
+
+                        <div id="branch-table-wrapper">
+                            @include('admin.branch.table', compact('branchs'))
                         </div>
                     </div>
                 </div>
@@ -78,89 +65,293 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-notify/0.2.0/js/bootstrap-notify.min.js"></script>
+    <!-- Branch Modal -->
+    <div class="modal fade" id="branchModal" tabindex="-1" aria-labelledby="branchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-extrabold" id="branchModalLabel">Chi tiết chi nhánh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="branchForm" data-method="POST" data-id="">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tên chi nhánh</label>
+                                <input type="text" class="form-control" name="name" id="branch-name">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Người quản lý</label>
+                                <input type="text" class="form-control" name="manager_name" id="branch-manager_name">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Địa chỉ</label>
+                                <input type="text" class="form-control" name="address" id="branch-address">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Điện thoại</label>
+                                <input type="text" class="form-control" name="phone" id="branch-phone">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" class="form-control" name="email" id="branch-email">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Trạng thái</label>
+                                <select class="form-select" name="status" id="branch-status">
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Ngừng hoạt động</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" form="branchForm" class="btn btn-primary btn-sm">Lưu thay đổi</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+@endsection
+
+
+@push('script')
     <script>
         $(document).ready(function() {
-            // Handle delete button click
-            $(document).on('click', '.btn-delete', function() {
-                if (confirm('Bạn có chắc chắn muốn xóa?')) {
-                    var userId = $(this).data('id');
-                    var deleteUrl = '{{ route('admin.branch.delete', ['id' => ':id']) }}';
-                    deleteUrl = deleteUrl.replace(':id', userId);
 
-                    $.ajax({
-                        url: deleteUrl,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            _method: 'DELETE'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Update the table and pagination with the new HTML
-                                $('#staff-table-container').html(response.table);
-                                $('#pagination').html(response.pagination);
+            let currentPage = 1
 
-                                $.notify({
-                                    icon: 'icon-bell',
-                                    title: 'Nhân viên',
-                                    message: response.message,
-                                }, {
-                                    type: 'success',
-                                    placement: {
-                                        from: "bottom",
-                                        align: "right"
-                                    },
-                                    time: 1000,
-                                });
-                            } else {
-                                $.notify({
-                                    icon: 'icon-bell',
-                                    title: 'Nhân viên',
-                                    message: response.message,
-                                }, {
-                                    type: 'danger',
-                                    placement: {
-                                        from: "bottom",
-                                        align: "right"
-                                    },
-                                    time: 1000,
-                                });
-                            }
-                        },
-                        error: function(xhr) {
-                            $.notify({
-                                icon: 'icon-bell',
-                                title: 'Nhân viên',
-                                message: 'Xóa nhân viên thất bại!',
-                            }, {
-                                type: 'danger',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                time: 1000,
-                            });
-                        }
-                    });
-                }
+            function debounce(fn, delay = 500) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            $('#show-modal').click(function() {
+                $('#branchModal').modal('show')
+                $('#branchForm')[0].reset()
+                $('#branchForm').attr({
+                    'data-method': 'POST',
+                    'data-id': ''
+                })
+
+            })
+
+            let searchText = ''; // giữ giá trị search hiện tại
+
+            // Click phân trang
+            $(document).on('click', 'a.page-link', function(e) {
+                e.preventDefault();
+
+                let url = $(this).attr('href');
+                let page = new URL(url).searchParams.get("page");
+
+                fetchBranches(page, searchText);
             });
 
-            @if (session('success'))
-                $.notify({
-                    icon: 'icon-bell',
-                    title: 'Nhân viên',
-                    message: '{{ session('success') }}',
-                }, {
-                    type: 'secondary',
-                    placement: {
-                        from: "bottom",
-                        align: "right"
+            // Search input
+            $('input[name="search"]').on('input', debounce(function() {
+                searchText = $(this).val();
+                fetchBranches(1, searchText); // reset về page 1 khi search
+            }));
+
+            $('#btn-reset').click(function() {
+                fetchBranches()
+            })
+
+            // Hàm fetch data
+            const fetchBranches = (page = 1, search = '') => {
+                $.ajax({
+                    url: window.location.pathname, // chỉ lấy path, bỏ query cũ
+                    method: 'GET',
+                    data: {
+                        page,
+                        s: search
                     },
-                    time: 1000,
+                    success: (res) => {
+                        // Cập nhật table + pagination
+                        $('#branch-table-wrapper').html(res.html);
+                        currentPage = page
+                    },
+                    error: () => {
+                        datgin.error('Đã có lỗi xảy ra. Vui lòng thử lại sau!');
+                    }
+                })
+            }
+
+            $(document).on('click', '.btn-delete', function() {
+                let id = $(this).data('id');
+                handleDestroy([id])
+            });
+
+            $(document).on('click', '.btn-edit', function() {
+                let id = $(this).data('id');
+
+                $.ajax({
+                    url: `/admin/branchs/${id}/show`,
+                    type: 'GET',
+                    success: (res) => {
+
+                        $.each(res.data, function(key, item) {
+                            $(`input[name="${key}"], select[name="${key}"]`).val(item)
+                            $('#branchForm').attr('data-method', 'PUT')
+                        })
+                        $('#branchForm').attr('data-id', id)
+
+                        $('#branchModal').modal('show')
+                    },
+                    error: (xhr) => {
+                        datgin.error('Đã có lỗi xảy ra. Vui lòng thử lại sau!');
+                    }
+                })
+
+            })
+
+            $(document).on('click', '#check-all', function() {
+
+                let isChecked = $(this).prop('checked');
+
+                $('.checked-item').prop('checked', isChecked)
+            })
+
+            $(document).on('click', '.checked-item', function() {
+                let total = $('.checked-item').length;
+                let checked = $('.checked-item:checked').length;
+
+                $('#check-all').prop('checked', checked === total);
+            })
+
+            $('#bulk-delete').click(function() {
+                const ids = $('.checked-item:checked').map((i, el) => $(el).val()).get()
+
+                if (ids.length <= 0) return datgin.warning('Vui lòng chọn ít nhất 1 hàng!')
+
+                handleDestroy(ids)
+            })
+
+            $('#bulk-status').click(function() {
+                const ids = $('.checked-item:checked').map((i, el) => $(el).val()).get()
+
+                if (ids.length <= 0) return datgin.warning('Vui lòng chọn ít nhất 1 hàng!')
+
+                handleChangeStatus(ids)
+            })
+
+            function handleDestroy(ids) {
+                Swal.fire({
+                    title: "Xác nhận xóa?",
+                    text: "Chi nhánh sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Vâng, xóa ngay!",
+                    cancelButtonText: "Hủy"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: '/admin/branchs',
+                            method: 'DELETE',
+                            data: {
+                                ids
+                            },
+                            success: (res) => {
+                                datgin.success(res.message)
+                                $('input[name="search"]').trigger('input')
+                                $('input[type="checkbox"]').prop('checked', false);
+                            },
+                            error: (xhr) => {
+                                datgin.error('Đã có lỗi xảy ra. Vui lòng thử lại sau!');
+                            }
+                        })
+                    }
                 });
-            @endif
+            }
+
+            function handleChangeStatus(ids) {
+                Swal.fire({
+                    title: "Xác nhận thay đổi trạng thái?",
+                    text: "Bạn có chắc chắn muốn cập nhật trạng thái cho các chi nhánh đã chọn?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Vâng, cập nhật!",
+                    cancelButtonText: "Hủy"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/admin/branchs/change-status',
+                            method: 'PATCH',
+                            data: {
+                                ids
+                            },
+                            success: (res) => {
+                                datgin.success(res.message)
+                                fetchBranches()
+                                $('input[type="checkbox"]').prop('checked', false);
+                            },
+                            error: (xhr) => {
+                                datgin.error('Đã có lỗi xảy ra. Vui lòng thử lại sau!');
+                            }
+                        })
+                    }
+                });
+            }
+
+            $('#branchForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let formData = $(this).serializeArray()
+
+                let method = $(this).attr('data-method')
+
+                method === 'PUT' && formData.push({
+                    name: '_method',
+                    value: 'PUT'
+                })
+
+                $.ajax({
+                    url: '/admin/branchs' + (method === 'PUT' ? '/' + $(this).attr('data-id') : ''),
+                    type: 'POST',
+                    data: formData,
+                    success: (res) => {
+                        datgin.success(res.message)
+                        $(this)[0].reset()
+                        $('#branchModal').modal('hide')
+                        fetchBranches(method === 'PUT' ? currentPage : 1)
+                    },
+                    error: (xhr) => {
+                        let message = xhr.responseJSON.message ||
+                            'Đã có lỗi xảy ra. Vui lòng thử lại sau!'
+                        datgin.error(message);
+                    }
+                })
+            })
+
         });
     </script>
-@endsection
+@endpush
+
+@push('style')
+    <style>
+        select.form-select {
+            padding: .5rem 2.25rem .475rem .5rem !important;
+        }
+    </style>
+@endpush

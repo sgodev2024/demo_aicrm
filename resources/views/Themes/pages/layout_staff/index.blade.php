@@ -2,6 +2,10 @@
 
 @section('content')
     <style>
+        body {
+            background: #f5f7fd;
+        }
+
         .search-wrapper {
             position: relative;
         }

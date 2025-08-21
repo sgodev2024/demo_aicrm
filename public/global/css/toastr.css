@@ -1,163 +1,263 @@
-.table-container {
-    overflow-x: auto;
-    background: #ffffff;
+/* Container vị trí */
+#toastr-container-top-right {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+#toastr-container-top-center {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    /* width: 100%; */
+    max-width: 100%;
 }
 
-th {
-    background-color: #f8f9fa;
-    padding: 16px 20px;
-    text-align: left;
-    font-weight: 500;
-    font-size: 14px;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
+#toastr-container-top-left {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+#toastr-container-bottom-right {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+#toastr-container-bottom-center {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#toastr-container-bottom-left {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+/* Toast chung */
+.toastr {
+    min-width: 250px;
+    color: #333;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    border-radius: 2px;
+    padding: 0.3rem 0.75rem;
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: Arial, sans-serif;
+    font-size: 0.9rem;
+    cursor: default;
+    opacity: 0;
+    user-select: none;
     position: relative;
+    background-color: #ffffff;
 }
 
-th::before {
+/* Thanh trượt thời gian */
+.toastr .progress-bar {
     position: absolute;
-    top: 50%;
-    inset-inline-end: 0; /* end = right với LTR, left với RTL */
-    width: 1px;
-    height: 1.6em;
-    background-color: #e6e6e6;
-    transform: translateY(-50%);
-    transition: background-color 0.2s;
-    content: "";
+    bottom: -1px;
+    left: 0;
+    height: 3px;
+    background-color: var(--color);
+    width: 100%;
+    animation-timing-function: linear;
 }
 
-/* Bỏ ::before ở cột cuối cùng */
-th:last-child::before {
-    content: none;
-}
-
-td {
-    padding: 16px 20px;
-    font-size: 14px;
-    color: #374151;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-tr:hover {
-    background-color: #f9fafb;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-.pagination {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    border-top: 1px solid #e5e7eb;
-    background-color: #fafafa;
-}
-
-.pagination-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.pagination-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid #d1d5db;
-    background: white;
-    color: #6b7280;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.pagination-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #9ca3af;
-}
-
-.pagination-btn.active {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-    color: white;
-}
-
-.pagination-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.pagination-dots {
-    color: #9ca3af;
-    padding: 0 4px;
-}
-
-.choices__inner {
-    padding: 3.5px 7.5px 3.5px;
-    min-height: 39px;
-}
-
-.choices[data-type*="select-one"] .choices__inner {
-    padding-bottom: 4.5px;
-}
-
-@media (max-width: 768px) {
-    .pagination {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    th,
-    td {
-        padding: 12px 16px;
-    }
-
-    table thead {
-        display: none;
-    }
-
-    table,
-    tbody,
-    tr,
-    td {
-        display: block;
+/* Keyframe cho animation của progress bar */
+@keyframes slideOut {
+    from {
         width: 100%;
     }
-
-    tr {
-        border-radius: 0.25rem;
-        margin-bottom: 15px;
-        border: 1px solid #f0f0f0;
-        padding: 10px 0;
+    to {
+        width: 0%;
     }
+}
 
-    td {
-        text-align: right;
-        padding: 10px;
-        position: relative;
+.toastr .icon i {
+    color: var(--color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+    font-size: 15px;
+}
+
+.toastr span {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.88);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.toastr .content .title::first-letter {
+    text-transform: uppercase;
+    font-size: large;
+    font-weight: bold;
+}
+.toastr .content .title {
+    color: #fff;
+    font-size: large;
+    font-weight: bold;
+}
+.toastr .fa-xmark {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.88);
+}
+/* Kiểu toast theo loại */
+.toastr.success {
+    --color: #0abf30;
+}
+
+.toastr.error {
+    --color: #f24d4c;
+}
+
+.toastr.warning {
+    --color: #e9bd0c;
+}
+
+.toastr.info {
+    --color: #3498db;
+}
+
+/* Icon */
+.toastr .icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+/* Nội dung text */
+.toastr > span:nth-child(2) {
+    flex-grow: 1;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+/* Nút đóng */
+.toastr .close-btn {
+    cursor: pointer;
+    color: #666;
+    font-size: 1.1rem;
+    padding: 0 0.25rem;
+    transition: color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.toastr .close-btn:hover {
+    color: #000;
+}
+
+/* Animation hiển thị: vị trí top (slide từ trên xuống) */
+.toastr.show-top {
+    animation-name: slideInFromTop;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease;
+}
+
+/* Animation hiển thị: vị trí bottom (slide từ dưới lên) */
+.toastr.show-bottom {
+    animation-name: slideInFromBottom;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease;
+}
+
+/* Animation ẩn di chuyển lên */
+.toastr.hide-up {
+    animation-name: fadeUpOut;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+/* Animation ẩn di chuyển xuống */
+.toastr.hide-down {
+    animation-name: fadeDownOut;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+/* Keyframes slide in từ trên xuống */
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
-
-    td:last-child {
-        border: none;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        top: 10px;
-        font-weight: bold;
-        text-align: left;
-        color: #555;
+/* Keyframes slide in từ dưới lên */
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Keyframes ẩn fade + di chuyển lên */
+@keyframes fadeUpOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.8);
+    }
+}
+
+/* Keyframes ẩn fade + di chuyển xuống */
+@keyframes fadeDownOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
     }
 }

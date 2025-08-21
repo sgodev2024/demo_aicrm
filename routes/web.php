@@ -164,16 +164,19 @@ Route::middleware(['auth'])
                 Route::post('updateAdmin/{id}', [UserController::class, 'updateadmin'])->name('updateAdmin');
                 Route::get('search/phone', [UserController::class, 'findByPhone'])->name('findByPhone');
             });
-            Route::prefix('branch')->name('branch.')->group(function () {
-                Route::get('', [BranchController::class, 'index'])->name('store');
-                Route::get('update/{id}', [BranchController::class, 'edit'])->name('edit');
-                Route::post('update/{id}', [BranchController::class, 'update'])->name('update');
-                Route::get('add', [BranchController::class, 'addForm'])->name('addForm');
-                Route::post('add', [BranchController::class, 'add'])->name('add');
-                Route::delete('delete/{id}', [BranchController::class, 'delete'])->name('delete');
-                // Route::post('updateAdmin/{id}', [BranchController::class, 'updateadmin'])->name('updateAdmin');
-                // Route::get('search/phone', [BranchController::class, 'findByPhone'])->name('findByPhone');
-            });
+
+            Route::prefix('branchs')
+                ->controller(BranchController::class)
+                ->name('branchs.')
+                ->group(function () {
+                    Route::get('/',  'index')->name('index');
+                    Route::get('create',  'create')->name('create');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}/show',  'show')->name('show');
+                    Route::put('{id}',  'update')->name('update');
+                    Route::delete('/',  'destroy')->name('destroy');
+                    Route::patch('change-status',  'changeStatus')->name('status.update');
+                });
 
             Route::prefix('brand')->name('brand.')->group(function () {
                 Route::get('', [BrandController::class, 'index'])->name('store');
@@ -361,6 +364,7 @@ Route::middleware(['auth'])
 // bán hàng
 Route::middleware([CheckLogin::class, 'role:2'])->prefix('ban-hang')->name('staff.')->group(function () {
     Route::get('product/search', [StaffProductController::class, 'search'])->name('product.search');
+    Route::get('get-clients', [StaffProductController::class, 'getClients']);
     Route::get('', [StaffProductController::class, 'index'])->name('index');
     Route::post('/cart/add', [StaffProductController::class, 'addToCart'])->name('cart.add');
     Route::post('/cart/update', [StaffProductController::class, 'updateCart'])->name('cart.update');

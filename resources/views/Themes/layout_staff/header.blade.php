@@ -173,17 +173,17 @@
 @endif
 
 <body style="overflow-x: hidden; ">
-    <header class="header" id="header">
+    <header class="header bg-primary py-2" id="header">
         <div class="container-fluid">
-            <div class="row align-items-center">
+            <div class="d-flex align-items-center justify-content-between">
                 <!-- Left side: Search bar -->
-                <div class="col-8 col-md-8 left">
+                <div class="">
                     <a href="{{ route('staff.index') }}">
                         <img style="width: 100px; height: auto;" src="{{ asset('images/aicrm1.png') }}" alt="logo">
                     </a>
                 </div>
                 <!-- Right side: Icons -->
-                <div class="col-4 col-md-4 text-right right">
+                <div class="">
                     <a href="#" class="home-icon" id="homeIcon" style="font-size: 20px;">
                         <i style="color: white;" class="fas fa-user-tag"></i>
                     </a>

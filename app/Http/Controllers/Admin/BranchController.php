@@ -3,171 +3,193 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Responses\ApiResponse;
 use App\Models\Branch;
-use App\Models\Brand;
-use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class BranchController extends Controller
 {
     public function index(Request $request)
     {
-        try {
-            $title = "Danh sách chi nhánh";
-            $search = $request->input('search');
 
-            $query = Branch::query();
+        $searchText = $request->input('s');
 
-            // if ($search) {
-            //     $query->where(function ($q) use ($search) {
-            //         $q->where('phone', $search)
-            //             ->orWhere('name', 'like', '%' . $search . '%')
-            //             ->orWhere('email', 'like', '%' . $search . '%');
-            //     });
-            // }
+        $branchs = Branch::query()
+            ->when(!empty($searchText), function (Builder $query) use ($searchText) {
+                $query->where('name', 'like', "%$searchText%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->appends($request->query());
 
-            $user = $query->orderByDesc('created_at')
-                ->paginate(10)
-                ->appends($request->query());
 
-            return view('admin.branch.index', compact('user', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch user: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch user', 500);
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.branch.table', compact('branchs'))->render()
+            ], Response::HTTP_OK);
         }
+
+        return view('admin.branch.index', compact('branchs'));
     }
-    public function addForm()
+
+    public function show(string $id)
     {
-        $title = 'Thêm chi nhánh';
-        return view('admin.branch.add', compact('title'));
-    }
-    public function edit($id)
-    {
-        $title = "Sửa chi nhánh";
-        try {
-            $branch = Branch::find($id);
-            return view('admin.branch.edit', compact('title', 'branch'));
-        } catch (Exception $e) {
-            Log::error('Failed to find user: ' . $e->getMessage());
-            return ApiResponse::error('Failed to find user', 500);
+        if (!$branch = Branch::query()->where('user_id', Auth::id())->find($id)) {
+            return response()->json([
+                'message' => 'Dữ liệu không tồn tại trên hệ thống!'
+            ], Response::HTTP_NOT_FOUND);
         }
+
+        return response()->json([
+            'data' => $branch
+        ], Response::HTTP_OK);
     }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name'          => 'required|string|max:255',
+                'manager_name'  => 'nullable|string|max:255',
+                'address'       => 'required|string|max:500',
+                'phone'         => 'nullable|string|regex:/^0[0-9]{9}$/',
+                'email'         => 'nullable|email|max:255',
+                'status'        => 'required|in:0,1',
+            ],
+            __('request.messages'),
+            [
+                'name'         => 'Tên chi nhánh',
+                'manager_name' => 'Tên người quản lý',
+                'address'      => 'Địa chỉ',
+                'phone'        => 'Số điện thoại',
+                'email'        => 'Email',
+                'status'       => 'Trạng thái',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $credentials = $validator->validate();
+
+        $credentials['user_id'] = Auth::id();
+
+        Branch::create($credentials);
+
+        return response()->json([
+            'message' => 'Tạo chi nhánh thành công.'
+        ], Response::HTTP_CREATED);
+    }
+
     public function update(Request $request, $id)
     {
-        try {
-            // Validate dữ liệu
-            $validator = Validator::make($request->all(), [
-                'name'   => 'required|string|max:255',
-                'status' => 'required|in:0,1',
-            ], [
-                'name.required' => 'Tên chi nhánh là bắt buộc.',
-                'name.max'      => 'Tên chi nhánh không được vượt quá 255 ký tự.',
-                'status.required' => 'Trạng thái là bắt buộc.',
-                'status.in' => 'Trạng thái không hợp lệ.',
-            ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('branches', 'name')
+                        ->where(fn($query) => $query->where('user_id', Auth::id()))
+                        ->ignore($id), // bỏ qua chính record đang update
+                ],
+                'manager_name' => 'nullable|string|max:255',
+                'address'      => 'required|string|max:500',
+                'phone'        => 'nullable|string|regex:/^0[0-9]{9}$/',
+                'email'        => 'nullable|email|max:255',
+                'status'       => 'required|in:0,1',
+            ],
+            __('request.messages'),
+            [
+                'name'         => 'Tên chi nhánh',
+                'manager_name' => 'Tên người quản lý',
+                'address'      => 'Địa chỉ',
+                'phone'        => 'Số điện thoại',
+                'email'        => 'Email',
+                'status'       => 'Trạng thái',
+            ]
+        );
 
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            // Tìm chi nhánh cần update
-            $branch = Branch::findOrFail($id);
-
-            // Nếu status = 1 thì set tất cả chi nhánh khác về 0
-            if ($request->status == 1) {
-                Branch::where('id', '!=', $branch->id)->update(['status' => 0]);
-            }
-
-            // Cập nhật chi nhánh
-            $branch->update([
-                'name'   => $request->name,
-                'status' => $request->status,
-            ]);
-
-            return redirect()->route('admin.branch.store')->with('success', 'Cập nhật chi nhánh thành công');
-        } catch (Exception $e) {
-            Log::error('Failed to update branch: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật chi nhánh.');
-        }
-    }
-    public function add(Request $request)
-    {
-        try {
-            // Validate dữ liệu
-            $validator = Validator::make($request->all(), [
-                'name'   => 'required|string|max:255',
-                'status' => 'required|in:0,1',
-            ], [
-                'name.required' => 'Tên chi nhánh là bắt buộc.',
-                'name.max'      => 'Tên chi nhánh không được vượt quá 255 ký tự.',
-                'status.required' => 'Trạng thái là bắt buộc.',
-                'status.in' => 'Trạng thái không hợp lệ.',
-            ]);
-
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            // Nếu status = 1 thì update tất cả bản ghi khác về 0
-            if ($request->status == 1) {
-                Branch::where('status', 1)->update(['status' => 0]);
-            }
-
-            // Tạo mới chi nhánh
-            Branch::create([
-                // 'shop_id' => auth()->user()->shop_id ?? 1, // tuỳ bạn, hoặc lấy từ request
-                'name'    => $request->name,
-                'status'  => $request->status,
-                // 'unit_code' => uniqid('BR_'), // nếu cần sinh tự động
-                // 'subdomain' => strtolower(str_replace(' ', '', $request->name)) . '.yourdomain.com',
-            ]);
-            return redirect()->route('admin.branch.store')->with('success', 'Thêm chi nhánh thành công');
-        } catch (Exception $e) {
-            Log::error('Failed to add staff: ' . $e->getMessage());
-            return ApiResponse::error('Failed to add staff:', 500);
-        }
-    }
-     public function deleteStaff(int $id): void
-    {
-        DB::beginTransaction();
-        try {
-             $branch = Branch::find($id);
-            $branch->delete();
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error("Failed to delete staff: {$e->getMessage()}");
-            throw new Exception('Failed to delete staff');
-        }
-    }
-     public function delete($id)
-    {
-        try {
-            $this->deleteStaff($id);
-            $user = Branch::orderByDesc('created_at')->paginate(10); // Adjust this if you have specific filtering
-            $table = view('admin.branch.table', compact('user'))->render();
-            $pagination = $user->links('vendor.pagination.custom')->render();
-
+        if ($validator->fails()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Xóa chi nhánh thành công',
-                'table' => $table,
-                'pagination' => $pagination
-            ]);
-        } catch (Exception $e) {
-            Log::error('Failed to delete staff: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể xóa chi nhánh'
-            ]);
+                'message' => $validator->errors()->first()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        $credentials = $validator->validate();
+
+        $credentials['user_id'] = Auth::id();
+
+        $branch = Branch::where('id', $id)->where('user_id', Auth::id())->first();
+
+        if (!$branch) {
+            return response()->json([
+                'message' => 'Chi nhánh không tồn tại hoặc bạn không có quyền chỉnh sửa.'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Update
+        $branch->update($credentials);
+
+        return response()->json([
+            'message' => 'Cập nhật chi nhánh thành công.'
+        ], Response::HTTP_OK);
+    }
+
+
+    public function destroy(Request $request)
+    {
+        $data = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:branches,id',
+        ]);
+
+        if ($data->fails()) {
+            return response()->json([
+                'message' => $data->errors()->first()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $ids = $data->validate()['ids'];
+
+        Branch::query()->whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Xóa chi nhánh thành công.',
+        ], Response::HTTP_OK);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $data = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:branches,id',
+        ]);
+
+        if ($data->fails()) {
+            return response()->json([
+                'message' => $data->errors()->first()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $ids = $data->validate()['ids'];
+
+        Branch::query()->whereIn('id', $ids)
+            ->each(function ($branch) {
+                $branch->update(['status' => !$branch->status]);
+            });
+
+        return response()->json([
+            'message' => 'Thay đổi trạng thái thành công.',
+        ], Response::HTTP_OK);
     }
 }

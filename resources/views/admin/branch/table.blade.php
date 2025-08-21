@@ -1,36 +1,49 @@
-<table id="basic-datatables" class="display table table-striped table-hover dataTable" role="grid"
-    aria-describedby="basic-datatables_info">
+<table id="staff-table" class="table table-hover table-striped table-bordered mt-3">
     <thead>
         <tr role="row">
-            <th style="width: 10px;"><input type="checkbox"  id="check-all"></th>
-            <th class="" tabindex="0" style="width: 10px;" aria-controls="basic-datatables" rowspan="1" colspan="1" >STT </th>
-            <th class="" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1"
-                style="width: 150.375px;">Tên chi nhánh </th>
-            <th class="" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1"
-                style="width: 120.2656px;"> Hoạt động
-            </th>
+            <th style="width: 10px;"><input type="checkbox" id="check-all"></th>
+            <th style="width: 12%"># | NGÀY TẠO</th>
+            <th>TÊN CHI NHÁNH</th>
+            <th>ĐỊA CHỈ</th>
+            <th style="width: 18%">SỐ ĐIÊN THOẠI | EMAIL</th>
+            <th style="width: 12%">TRẠNG THÁI</th>
+            <th style="width: 10%">HÀNH ĐỘNG</th>
         </tr>
     </thead>
-
     <tbody>
-        @if ($user->count())
-            @foreach ($user as $key => $item)
+        @if ($branchs->isNotEmpty())
+            @foreach ($branchs as $branch)
                 <tr>
-                    <td><input type="checkbox" class="product-checkbox" value="{{ $item->id }}"></td> <!-- Checkbox item -->
-                    <td>{{ ($user->currentPage() - 1) * $user->perPage() + $loop->index + 1 }}</td>
-                    <td>{{ $item->name }}</td>
-                    <td>{{ $item->status_text  }}</td>
-                    
-                    <td style="display: flex;">
-                        <a style="margin-right: 20px" class="btn btn-warning"
-                            href="{{ route('admin.branch.edit', ['id' => $item->id]) }}"> <i class="fa-solid fa-pen"></i></a>
-                        <button class="btn btn-danger btn-delete" data-id="{{ $item->id }}"><i class="fa-solid fa-trash"></i></button>
+                    <td>
+                        <input type="checkbox" class="checked-item" value="{{ $branch->id }}">
+                    </td>
+                    <td>
+                        {{ $loop->iteration }} | {{ $branch->created_at->format('d/m/Y') }}
+                    </td>
+                    <td>{{ $branch->name }}</td>
+                    <td>{{ $branch->address }}</td>
+                    <td>
+                        {{ $branch->phone ?? '-' }} <br> {{ $branch->email ?? '-' }}
+                    </td>
+                    <td>{{ $branch->status_text }}</td>
+
+                    <td>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button class="btn btn-primary btn-sm btn-edit" data-id="{{ $branch->id }}">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $branch->id }}">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
                     </td>
                 </tr>
             @endforeach
         @else
             <tr>
-                <td class="text-center" colspan="5">
+                <td class="text-center" colspan="7">
                     <div class="">
                         Không có chi nhánh
                     </div>
@@ -38,5 +51,10 @@
             </tr>
         @endif
     </tbody>
-
 </table>
+
+<div class="row">
+    <div class="col-sm-12" id="pagination">
+        {{ $branchs->links('vendor.pagination.custom') }}
+    </div>
+</div>
