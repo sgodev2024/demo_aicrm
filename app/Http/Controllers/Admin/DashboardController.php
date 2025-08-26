@@ -102,7 +102,7 @@ class DashboardController extends Controller
             ->join('order_details as oi', 'o.id', '=', 'oi.order_id')
             ->where('o.status', 1)
             ->whereBetween(DB::raw('DATE(o.created_at)'), [$startDate, $endDate])
-            ->sum(DB::raw('oi.price * oi.quantity'));
+            ->sum(DB::raw('oi.p_price * oi.p_quantity'));
 
         // Tổng giá vốn
         $totalCost = DB::table('orders as o')
@@ -110,7 +110,7 @@ class DashboardController extends Controller
             ->join('products as p', 'oi.product_id', '=', 'p.id')
             ->where('o.status', 1)
             ->whereBetween(DB::raw('DATE(o.created_at)'), [$startDate, $endDate])
-            ->sum(DB::raw('p.priceBuy * oi.quantity'));
+            ->sum(DB::raw('p.priceBuy * oi.p_quantity'));
 
         // Biên LN gộp (%)
         $grossMargin = $totalRevenue > 0
@@ -186,7 +186,7 @@ class DashboardController extends Controller
             ->join('products as p', 'oi.product_id', '=', 'p.id')
             ->select(
                 'p.name',
-                DB::raw('SUM(oi.quantity) as total_sold')
+                DB::raw('SUM(oi.p_quantity) as total_sold')
             )
             ->where('o.status', 1) // chỉ lấy đơn hoàn thành
             ->groupBy('p.id', 'p.name')

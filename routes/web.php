@@ -387,6 +387,8 @@ Route::middleware([CheckLogin::class, 'role:2'])->prefix('ban-hang')->name('staf
     Route::get('warehome/delete', [WareHomeController::class, 'delete'])->name('warehome.delete');
     Route::post('warehome/addByCategory', [WareHomeController::class, 'addByCategory'])->name('warehome.addByCategory');
     Route::get('warehome/check', [WareHomeController::class, 'checkwerehouse'])->name('warehome.check');
+
+    Route::post('order', [StaffOrderController::class, 'store']);
 });
 
 Route::get('super-dang-nhap', [SuperAdminController::class, 'loginForm'])->name('super.dang.nhap');

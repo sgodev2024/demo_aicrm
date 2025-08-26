@@ -51,7 +51,7 @@
                     <a class="dropdown-toggle profile-pic" target="_blank" href="{{ route('staff.index') }}"
                         aria-expanded="false">
                         <i style="font-size: 16px; padding: 0px 5px; color: rgb(138, 135, 135)"
-                            class="fas fa-cart-plus"></i> Trang bán hàng
+                            class="fas fa-cart-plus  me-2"></i> Trang bán hàng
                     </a>
 
                 </li>

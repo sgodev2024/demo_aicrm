@@ -14,7 +14,8 @@
 
 <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
 
-<link rel="stylesheet" href="{{ asset('global/css/toastr.css') }}">
+<link rel="stylesheet"
+    href="{{ asset('global/css/toastr.css') }}?v={{ filemtime(public_path('global/css/toastr.css')) }}">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
 

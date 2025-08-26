@@ -387,37 +387,37 @@
             }
         }
 
-        // $(function() {
-        //     $('form').on('submit', function(e) {
-        //         e.preventDefault();
+        $(function() {
+            $('form').on('submit', function(e) {
+                e.preventDefault();
 
-        //         const formData = new FormData(this)
+                const formData = new FormData(this)
 
-        //         $.ajax({
-        //             url: window.location.href,
-        //             method: 'POST',
-        //             data: formData,
-        //             processData: false,
-        //             contentType: false,
-        //             headers: {
-        //                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        //             },
-        //             beforeSend: () => {
-        //                 $("#loadingOverlay").show();
-        //             },
-        //             // success: (res) => {
-        //             //     window.location.href = '/admin'
-        //             // },
-        //             error: (xhr) => {
-        //                 datgin.error(xhr.responseJSON?.message ??
-        //                     'Đã có lỗi xảy ra, vui lòng thử lại sau!');
-        //             },
-        //             complete: function() {
-        //                 $("#loadingOverlay").hide();
-        //             },
-        //         })
-        //     })
-        // })
+                $.ajax({
+                    url: window.location.href,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: () => {
+                        $("#loadingOverlay").show();
+                    },
+                    success: (res) => {
+                        window.location.href = res.data
+                    },
+                    error: (xhr) => {
+                        datgin.error(xhr.responseJSON?.message ??
+                            'Đã có lỗi xảy ra, vui lòng thử lại sau!');
+                    },
+                    complete: function() {
+                        $("#loadingOverlay").hide();
+                    },
+                })
+            })
+        })
     </script>
 </body>
 

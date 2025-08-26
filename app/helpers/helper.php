@@ -137,3 +137,27 @@ if (!function_exists('errorResponse')) {
         return $isResponse ? response()->json($response, $code) : $response;
     }
 }
+
+if (!function_exists('generateCode')) {
+
+    function generateCode($table, $prefix, $length = 10)
+    {
+        // Số ký tự còn lại sau prefix
+        $padLength = $length - strlen($prefix);
+
+        // Tập ký tự để random (chữ hoa + số)
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+
+        do {
+            $randomString = '';
+            for ($i = 0; $i < $padLength; $i++) {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            }
+
+            $code = $prefix . $randomString;
+        } while (DB::table($table)->where('code', $code)->exists());
+
+        return $code;
+    }
+}

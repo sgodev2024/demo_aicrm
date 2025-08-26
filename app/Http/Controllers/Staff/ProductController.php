@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Cart;
 use App\Models\Config;
 use App\Models\Product;
@@ -31,7 +32,7 @@ class ProductController extends Controller
         $storage_id = $user->storage_id;
 
         $title = "Quản lý bán hàng";
-        $config = Config::first();
+        $config = Config::query()->with(['user', 'bank'])->first();
         $clientgroup = $this->clientGroupService->getAllClientGroup();
         $user = Auth::user();
         $cart =  Cart::where('user_id', $user->id)->get();
@@ -44,7 +45,16 @@ class ProductController extends Controller
             $sum += $value->price * $value->amount;
         }
 
-        return view('Themes.pages.layout_staff.index', compact('cart', 'sum', 'config', 'title', 'clientgroup'));
+        $branchs = Branch::query()->where('status', true)->pluck('name', 'id')->toArray();
+
+        return view('Themes.pages.layout_staff.index', compact('cart', 'sum', 'config', 'title', 'clientgroup', 'branchs'));
+    }
+
+    public function getBranchs()
+    {
+        $branchs = Branch::query()->where('status', true)->pluck('name', 'id')->toArray();
+
+        return response()->json($branchs);
     }
 
     public function product(Request $request)

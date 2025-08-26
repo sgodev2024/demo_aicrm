@@ -18,7 +18,7 @@
     <script src="{{ asset('assets/js/setting-demo2.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
 
-    <script src="{{ asset('global/js/toastr.js') }}"></script>
+    <script src="{{ asset('global/js/toastr.js') }}?v={{ filemtime(public_path('global/js/toastr.js')) }}"></script>
 
     <script>
         $.ajaxSetup({
