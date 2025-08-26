@@ -50,7 +50,7 @@ class OrderController extends Controller
 
 
             return response()->json([
-                'html' => view('themes.pages.order.table', compact('orders'))->render(),
+                'html' => view('Themes.pages.order.table', compact('orders'))->render(),
             ]);
         }
 
