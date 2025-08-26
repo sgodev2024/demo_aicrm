@@ -30,7 +30,18 @@
                     @endif
                 </td>
                 <td class="align-middle">{{ number_format($order->total_money, 0, ',', '.') }}</td>
-                <td class="align-middle">{{ $order->payment_method }}</td>
+                @php
+                    $paymentMethods = [
+                        'cash' => 'Tiền mặt',
+                        'bank_transfer' => 'Chuyển khoản',
+                        'debt' => 'Công nợ',
+                    ];
+                @endphp
+
+                <td class="align-middle">
+                    {{ $paymentMethods[$order->payment_method] ?? $order->payment_method }}
+                </td>
+
                 <td class="align-middle">
                     @if ($order->status)
                         <span class="badge bg-success">Đã hoàn thành</span>
@@ -41,7 +52,7 @@
             </tr>
         @empty
             <tr>
-                <td class="text-center" colspan="7">Không có đơn hàng</td>
+                <td class="text-center" colspan="8">Không có đơn hàng</td>
             </tr>
         @endforelse
     </tbody>
