@@ -12,7 +12,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class BrandController extends Controller
 {
@@ -28,75 +30,81 @@ class BrandController extends Controller
     }
     public function index(Request $request)
     {
-        try {
-            $supplier = $this->supplierService->GetAllSupplier();
-            $title = 'Thương hiệu';
+        if ($request->ajax()) {
+            $searchText = $request->query('s');
 
-            $brand = Brand::orderByDesc('created_at')->paginate(10);
+            $brands = Brand::query()
+                ->where('user_id', Auth::id())
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    $query->where('name', 'like', "%{$searchText}%");
+                })
+                ->latest()
+                ->paginate(10);
 
-            if ($request->ajax()) {
-                $view = view('admin.brand.table', compact('brand'))->render();
-                $pagination = view('vendor.pagination.custom', ['paginator' => $brand])->render();
-                return response()->json(['success' => true, 'table' => $view, 'pagination' => $pagination]);
+            $html = view('admin.brand.table', compact('brands'))->render();
+
+            return response()->json(['html' => $html]);
+        }
+
+        return view('admin.brand.index');
+    }
+
+    public function create()
+    {
+        $title = 'Tạo mới thương hiệu';
+        $brand = null;
+        return view('admin.brand.form', compact('title', 'brand'));
+    }
+
+    public function store(Request $request)
+    {
+        $credentials = $this->validateRequest($request);
+
+        return transaction(function () use ($request, $credentials) {
+
+            $credentials['user_id'] = Auth::id();
+
+            if ($request->hasFile('logo')) {
+                $credentials['logo'] = uploadImages('logo', 'brands');
             }
 
-            return view('admin.brand.index', compact('brand', 'title', 'supplier'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch brands: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch brands', 500);
-        }
+            Brand::create($credentials);
+
+            return successResponse(message: 'Tạo mới thương hiệu thành công.', code: Response::HTTP_CREATED);
+        });
     }
 
+    public function edit(string $id)
+    {
 
-    public function findByName(Request $request)
-    {
-        try {
-            $supplier = $this->supplierService->GetAllSupplier();
-            $title = 'Thương hiêu ';
-            $brands = $this->brandService->brandByName($request->input('name'));
-            $brand = new LengthAwarePaginator(
-                $brands ? [$brands] : [],
-                $brands ? 1 : 0,
-                10,
-                1,
-                ['path' => Paginator::resolveCurrentPath()]
-            );
-            return view('admin.brand.index', compact('brand', 'title', 'supplier'));
-        } catch (Exception $e) {
-            Log::error('Failed to find brand: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to find brand'], 500);
-        }
-    }
-    public function addForm()
-    {
-        $supplier = $this->supplierService->GetAllSupplier();
-        $title = 'Thêm thương hiệu ';
-        return view('admin.brand.add', compact('title', 'supplier'));
+        $brand = Brand::findOrFail($id);
+        $title = "Cập nhật thương hiệu - {$brand->name}";
+
+        return view('admin.brand.form', compact('title', 'brand'));
     }
 
-    public function add(Request $request)
+    public function update(Request $request, string $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'images' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        if (!$brand = Brand::query()->find($id)) return errorResponse("Không tìm thấy dữ liệu trên hệ thống!", 404);
 
-        $brand = $this->brandService->createBrand($request);
-        return redirect()->route('admin.brand.store')->with('success', 'Thêm thành công');
-    }
+        $credentials = $this->validateRequest($request, $id);
 
-    public function edit($id)
-    {
-        $supplier = $this->supplierService->GetAllSupplier();
-        $title = 'Sửa thương hiệu';
-        $brand = $this->brandService->getBrandById($id);
-        return view('admin.brand.edit', compact('brand', 'title', 'supplier'));
-    }
+        return transaction(function () use ($brand, $credentials, $request) {
 
-    public function update($id, Request $request)
-    {
-        $brand = $this->brandService->updateBrand($id, $request);
-        return redirect()->route('admin.brand.store')->with('success', 'Sửa thành công');
+            $oldLogo = $brand->logo;
+
+            if ($request->hasFile('logo')) {
+                $credentials['logo'] = $request->file('logo')->store('brands', 'public');
+            }
+
+            $updated = $brand->update($credentials);
+
+            if ($updated && $request->hasFile('logo')) {
+                deleteImage($oldLogo);
+            }
+
+            return successResponse(message: 'Cập nhật thương hiệu thành công.', code: Response::HTTP_OK);
+        });
     }
 
     public function delete($id)
@@ -112,11 +120,22 @@ class BrandController extends Controller
         }
     }
 
-    public function findBySupplier(Request $request)
+    private function validateRequest($request, $id = null)
     {
-        $supplier = $this->companyService->getCompany();
-        $title = 'Thương hiệu ';
-        $brand = $this->brandService->findBrandBySupplier($request->input('supplier_id'));
-        return view('admin.brand.index', compact('brand', 'title', 'supplier'));
+        return $this->validate($request, [
+            'name' => 'required|max:255|unique:brands,name,' . $id,
+            'email' => 'nullable|email|max:255|unique:brands,email,' . $id,
+            'phone' => 'nullable|regex:/^[0-9]{10,11}$/|unique:brands,phone,' . $id,
+            'address' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:0,1'
+        ], __('request.messages'), [
+            'name' => 'Tên thương hiệu',
+            'email' => 'Email',
+            'phone' => 'Số điện thoại',
+            'address' => 'Địa chỉ',
+            'logo' => 'Logo',
+            'status' => 'Trạng thái'
+        ]);
     }
 }

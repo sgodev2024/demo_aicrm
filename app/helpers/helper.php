@@ -7,48 +7,6 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-function saveImages($request, string $inputName, string $directory = 'images', $width = 150, $height = 150, $isArray = false)
-{
-    $paths = [];
-
-    // Kiểm tra xem có file không
-    if ($request->hasFile($inputName)) {
-
-        // Lấy tất cả các file hình ảnh
-        $images = $request->file($inputName);
-
-        if (!is_array($images)) {
-            $images = [$images]; // Đưa vào mảng nếu chỉ có 1 ảnh
-        }
-
-        // Tạo instance của ImageManager
-        $manager = new ImageManager(new Driver());
-
-        foreach ($images as $key => $image) {
-
-            // Đọc hình ảnh từ đường dẫn thực
-            $img = $manager->read($image->getPathName());
-
-            // Thay đổi kích thước
-            $img->resize($width, $height);
-
-            // Tạo tên file duy nhất
-            $filename = time() . uniqid() . '.' . $image->getClientOriginalExtension();
-
-            // Lưu hình ảnh đã được thay đổi kích thước vào storage
-            Storage::disk('public')->put($directory . '/' . $filename, $img->encode());
-
-            // Lưu đường dẫn vào mảng
-            $paths[$key] = $directory . '/' . $filename;
-        }
-
-        // Trả về danh sách các đường dẫn
-        return $isArray ? $paths : $paths[0];
-    }
-
-    return null;
-}
-
 if (!function_exists('showImage')) {
     function showImage($image)
     {
@@ -59,7 +17,7 @@ if (!function_exists('showImage')) {
             return $storage->url($image);
         }
 
-        return asset('images/default.jpg');
+        return asset('assets/img/default-image.jpg');
     }
 }
 
@@ -159,5 +117,47 @@ if (!function_exists('generateCode')) {
         } while (DB::table($table)->where('code', $code)->exists());
 
         return $code;
+    }
+}
+
+if (!function_exists('uploadImages')) {
+    function uploadImages($flieName, string $directory = 'images', $resize = false, $width = 150, $height = 150, $isArray = false, $quality = 80)
+    {
+        $paths = [];
+
+        $images = request()->file($flieName);
+        if (!is_array($images)) {
+            $images = [$images];
+        }
+
+        $manager = new ImageManager(['driver' => 'gd']);
+        $storagePath = storage_path('app/public/' . trim($directory, '/'));
+
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0777, true);
+        }
+
+        foreach ($images as $key => $image) {
+            if ($image instanceof \Illuminate\Http\UploadedFile) {
+                $img = $manager->make($image->getRealPath());
+
+                // Resize nếu $resize = true, giữ tỷ lệ
+                if ($resize) {
+                    $img->resize($width, $height, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize(); // Không phóng to ảnh nhỏ
+                    });
+                }
+
+                $filename = time() . uniqid() . '.webp';
+
+                // Encode với chất lượng 80 (bạn có thể chỉnh từ 60 đến 90)
+                Storage::disk('public')->put($directory . '/' . $filename, $img->encode('webp', $quality));
+
+                $paths[$key] = $directory . '/' . $filename;
+            }
+        }
+
+        return $isArray ? $paths : $paths[0] ?? null;
     }
 }

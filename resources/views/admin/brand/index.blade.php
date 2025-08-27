@@ -1,189 +1,128 @@
 @extends('admin.layout.index')
+
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.brand.store') }}">Thương hiệu</a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Danh sách</a>
-                </li>
-            </ul>
-        </div>
+        <x-breadcrumb :items="[['label' => 'Thương hiệu', 'url' => route('admin.brand.index')]]" />
+
         <div class="row">
             <div class="col-md-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="card-title" style="text-align: center; color:white">Danh sách thương hiệu</h4>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Thao tác
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-delete">
+                                            <i class="fa-solid fa-trash me-2"></i> Xóa đã chọn
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-status">
+                                            <i class="fa-solid fa-toggle-on me-2"></i> Thay đổi trạng thái
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="d-flex justify-content-end align-items-center">
+                                <input type="text" name="search" class="form-control me-2" style="width: 300px;"
+                                    placeholder="Tìm kiếm...">
+
+                                <button type="button" class="btn" id="btn-reset"> <i
+                                        class="fa-solid fa-rotate"></i></button>
+                            </div>
+                        </div>
+                        <a href="/admin/brand/create" class="btn btn-primary" id="show-modal"><i
+                                class="fa-solid fa-plus"></i> Thêm mới</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <div id="basic-datatables_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-                                <div class="row mb-3">
-                                    <div class="col-12 d-flex justify-content-between align-items-center mb-2">
-                                        <a class="btn btn-primary" href="{{ route('admin.brand.addForm') }}">Thêm thương
-                                            hiệu</a>
-                                        {{-- <form action="{{ route('admin.brand.findBySupplier') }}" method="GET"
-                                            class="form-inline">
-                                            <div class="form-group mb-2">
-                                                <label for="supplier" class="sr-only">Nhà cung cấp</label>
-                                                <select class="form-control mr-2" id="supplier" name="supplier_id">
-                                                    <option value="">Chọn nhà cung cấp</option>
-                                                    @foreach ($supplier as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary mb-2">Tìm</button>
-                                        </form> --}}
-                                        <form action="{{ route('admin.brand.findByName') }}" method="GET"
-                                            class="form-inline">
-                                            <div class="form-group mb-2">
-                                                <label for="name" class="sr-only">Tên</label>
-                                                <input type="text" class="form-control" id="name" name="name"
-                                                    placeholder="Nhập tên" value="{{ old('name') }}">
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="col-sm-12" id="delete-selected-container" style="display: none;">
-                                        <button id="btn-delete-selected" class="btn" style="background: rgb(242, 91, 91); color: white" data-model='Brand'> Xóa </button>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12" id="brand-table">
-                                        @include('admin.brand.table', ['brand' => $brand])
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12" id="pagination">
-                                        {{ $brand->links('vendor.pagination.custom') }}
-                                    </div>
-                                </div>
-                            </div>
+
+
+                        <div id="table-wrapper">
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@endsection
 
-    <!-- Include Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-notify/0.2.0/js/bootstrap-notify.min.js"></script>
+
+@push('script')
     <script>
-        $(document).on('click', '.btn-delete', function(e) {
-            e.preventDefault(); // Prevent the default link behavior
+        $(function() {
+            let currentPage = 1;
+            let searchText = '';
+            let resetCooldown = false
 
-            if (confirm('Bạn có chắc chắn muốn xóa?')) {
-                var brandId = $(this).data('id'); // Ensure this is properly set in your HTML
-                var deleteUrl = '{{ route('admin.brand.delete', ['id' => ':id']) }}';
-                deleteUrl = deleteUrl.replace(':id', brandId);
+            $(document).on('click', 'a.page-link', function(e) {
+                e.preventDefault();
+
+                let url = $(this).attr('href');
+                let page = new URL(url).searchParams.get("page");
+
+                fetchBrands(page, searchText);
+            });
+
+            $('input[name="search"]').on('input', debounce(function() {
+                searchText = $(this).val();
+                fetchBrands(1, searchText); // reset về page 1 khi search
+            }));
+
+            $('#btn-reset').click(function() {
+                if (resetCooldown) return // đang cooldown thì bỏ qua
+
+                resetCooldown = true
+                fetchBrands()
+                $('input[name="search"]').val('')
+
+                setTimeout(() => resetCooldown = false, 1500) // 1.5s sau mới cho bấm lại
+            })
+
+            $(document).on('click', '.btn-delete', function() {
+                let id = $(this).data('id');
+                handleDestroy(function() {
+                    fetchBrands(1, searchText)
+                }, 'Brand', id)
+            });
+
+            $('#bulk-delete').click(function() {
+                handleDestroy(function() {
+                    fetchBrands(1, searchText)
+                }, 'Brand')
+            })
+
+            $('#bulk-status').click(function() {
+                handleChangeStatus(function() {
+                    fetchBrands(currentPage, searchText)
+                }, 'Brand')
+            })
+
+            const fetchBrands = (page = 1, search) => {
 
                 $.ajax({
-                    url: deleteUrl,
-                    type: 'POST',
+                    url: window.location.pathname,
+                    method: 'GET',
                     data: {
-                        _token: '{{ csrf_token() }}',
-                        _method: 'DELETE'
+                        page,
+                        s: search
                     },
-                    success: function(response) {
-                        if (response.success) {
-                            // Cập nhật bảng thương hiệu
-                            $('#brand-table').html(response.table);
-                            $('#pagination').html(response
-                            .pagination); // Ensure you include pagination in the response
-                            $.notify({
-                                icon: 'icon-bell',
-                                title: 'Thương hiệu',
-                                message: response.message,
-                            }, {
-                                type: 'success',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                time: 1000,
-                            });
-                        } else {
-                            $.notify({
-                                icon: 'icon-bell',
-                                title: 'Thương hiệu',
-                                message: response.message,
-                            }, {
-                                type: 'danger',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                time: 1000,
-                            });
-                        }
+                    success: (res) => {
+                        $('#table-wrapper').html(res.html)
+                        currentPage = page
                     },
-                    error: function(xhr) {
-                        $.notify({
-                            icon: 'icon-bell',
-                            title: 'Thương hiệu',
-                            message: 'Xóa thương hiệu thất bại!',
-                        }, {
-                            type: 'danger',
-                            placement: {
-                                from: "bottom",
-                                align: "right"
-                            },
-                            time: 1000,
-                        });
-                    }
-                });
-            }
-        });
-    </script>
+                    error: (xhr) => {
 
-    @if (session('success'))
-        <script>
-            $(document).ready(function() {
-                $.notify({
-                    icon: 'icon-bell',
-                    title: 'Thương hiệu',
-                    message: '{{ session('success') }}',
-                }, {
-                    type: 'secondary',
-                    placement: {
-                        from: "bottom",
-                        align: "right"
                     },
-                    time: 1000,
-                });
-            });
-        </script>
-    @endif
-    @if (session('error'))
-        <script>
-            $(document).ready(function() {
-                $.notify({
-                    icon: 'icon-bell',
-                    title: 'Thương hiệu',
-                    message: '{{ session('error') }}',
-                }, {
-                    type: 'danger',
-                    placement: {
-                        from: "bottom",
-                        align: "right"
-                    },
-                    time: 1000,
-                });
-            });
-        </script>
-    @endif
-@endsection
+                })
+            }
+
+            fetchBrands()
+        })
+    </script>
+@endpush

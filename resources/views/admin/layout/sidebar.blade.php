@@ -36,7 +36,7 @@
                         <p>Sản phẩm</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.index', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'show' : '' }}"
                         id="product">
                         <ul class="nav nav-collapse">
                             <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">
@@ -49,8 +49,8 @@
                                     <span class="sub-item">Quản lý danh mục</span>
                                 </a>
                             </li>
-                            <li class=" {{ request()->routeIs('admin.brand.store') ? 'active' : '' }}">
-                                <a href="{{ route('admin.brand.store') }}">
+                            <li class=" {{ request()->routeIs('admin.brand.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.brand.index') }}">
                                     <span class="sub-item">Quản lý thương hiệu</span>
                                 </a>
                             </li>

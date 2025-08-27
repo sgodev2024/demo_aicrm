@@ -103,14 +103,6 @@
             let currentPage = 1
             let searchText = '';
 
-            function debounce(fn, delay = 500) {
-                let timer;
-                return function(...args) {
-                    clearTimeout(timer);
-                    timer = setTimeout(() => fn.apply(this, args), delay);
-                };
-            }
-
             $(document).on('click', 'a.page-link', function(e) {
                 e.preventDefault();
 

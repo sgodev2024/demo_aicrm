@@ -126,6 +126,102 @@
                 }
             });
         }
+
+        function debounce(fn, delay = 500) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function previewImage(event, imgId) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function() {
+                const imgElement = document.getElementById(imgId);
+                imgElement.src = reader.result;
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleSubmit(formId, successCallback, url = null, errorCallback = null) {
+
+            $(formId).on("submit", function(e) {
+                e.preventDefault();
+
+                const $form = $(this);
+
+                // ✅ Validate toàn bộ form dùng formValidator
+                if (
+                    typeof formValidator !== "undefined" &&
+                    typeof formValidator.validate === "function"
+                ) {
+                    if (!formValidator.validate()) {
+                        $btn.prop("disabled", false).html(originalText);
+                        return;
+                    }
+                }
+
+                // ✅ Cập nhật dữ liệu từ CKEditor nếu có
+                if (typeof CKEDITOR !== "undefined") {
+                    for (const instance in CKEDITOR.instances) {
+                        CKEDITOR.instances[instance].updateElement();
+                    }
+                }
+
+                const formData = new FormData(this);
+
+                // ✅ Xóa dấu chấm trong các input có class `format-price`
+                $form.find(".format-price").each(function() {
+                    const name = $(this).attr("name");
+                    if (!name) return; // bỏ qua nếu không có name
+                    const raw = $(this).val().replace(/\./g, "");
+                    formData.set(name, raw); // Ghi đè vào FormData
+                });
+
+                $.ajax({
+                    url: url || window.location.href,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: () => {
+                        $("#loadingOverlay").show();
+                    },
+                    success: function(response) {
+                        if (typeof successCallback === "function") {
+                            successCallback(response, $form);
+                        }
+                    },
+                    error: function(xhr) {
+                        if (
+                            xhr.status === 403 &&
+                            xhr.getResponseHeader("Content-Type")?.includes("text/html")
+                        ) {
+                            document.open();
+                            document.write(xhr.responseText);
+                            document.close();
+                            return;
+                        }
+
+                        if (typeof errorCallback === "function") {
+                            errorCallback(xhr);
+                        }
+
+                        datgin?.error(
+                            xhr.responseJSON?.message ||
+                            "Đã có lỗi xảy ra, vui lòng thử lại sau!"
+                        );
+                    },
+                    complete: function() {
+                        $("#loadingOverlay").hide();
+                    },
+                });
+            });
+        }
     </script>
 
     @stack('script')

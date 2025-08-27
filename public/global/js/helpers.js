@@ -1,9 +1,4 @@
 function submitForm(formId, successCallback, url = null, errorCallback = null) {
-    let submitAction = null;
-
-    $(`${formId} button[type="submit"]`).on("click", function () {
-        submitAction = $(this).val();
-    });
 
     $(formId).on("submit", function (e) {
         e.preventDefault();
@@ -30,8 +25,6 @@ function submitForm(formId, successCallback, url = null, errorCallback = null) {
 
         const formData = new FormData(this);
 
-        formData.append("submit_action", submitAction);
-
         // ✅ Xóa dấu chấm trong các input có class `format-price`
         $form.find(".format-price").each(function () {
             const name = $(this).attr("name");
@@ -51,7 +44,7 @@ function submitForm(formId, successCallback, url = null, errorCallback = null) {
             },
             success: function (response) {
                 if (typeof successCallback === "function") {
-                    successCallback(response, $form, submitAction);
+                    successCallback(response, $form);
                 }
             },
             error: function (xhr) {

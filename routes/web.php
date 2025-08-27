@@ -183,16 +183,17 @@ Route::middleware(['auth'])
                     Route::patch('change-status',  'changeStatus')->name('status.update');
                 });
 
-            Route::prefix('brand')->name('brand.')->group(function () {
-                Route::get('', [BrandController::class, 'index'])->name('store');
-                Route::get('add', [BrandController::class, 'addForm'])->name('addForm');
-                Route::post('add', [BrandController::class, 'add'])->name('add');
-                Route::delete('delete/{id}', [BrandController::class, 'delete'])->name('delete');
-                Route::get('update/{id}', [BrandController::class, 'edit'])->name('edit');
-                Route::post('update/{id}', [BrandController::class, 'update'])->name('update');
-                Route::get('search/name', [BrandController::class, 'findByName'])->name('findByName');
-                Route::get('search/supplier', [BrandController::class, 'findBySupplier'])->name('findBySupplier');
-            });
+            Route::prefix('brand')
+                ->controller(BrandController::class)
+                ->name('brand.')
+                ->group(function () {
+                    Route::get('',  'index')->name('index');
+                    Route::get('create',  'create')->name('create');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}/edit',  'edit')->name('edit');
+                    Route::put('{id}',  'update')->name('update');
+                });
+
             Route::prefix('client')->name('client.')->group(function () {
                 Route::get('/', [ClientController::class, 'index'])->name('index');
                 Route::get('/detail/{id}', [ClientController::class, 'edit'])->name('detail');
