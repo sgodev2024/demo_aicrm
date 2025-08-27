@@ -40,6 +40,7 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\SupportController;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\BulkController;
 use App\Http\Controllers\MultipleController;
 use App\Http\Controllers\SuperAdmin\CampaignController;
 use App\Http\Controllers\SuperAdmin\ZnsMessageController;
@@ -93,6 +94,8 @@ Route::middleware(['auth'])
     ->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
+        Route::post('bulk/{type}', [BulkController::class, 'bulk'])->name('bulk');
+
         Route::middleware(['role:1'])->group(function () {
             Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
             Route::prefix('transaction')->name('transaction.')->group(function () {
@@ -144,15 +147,17 @@ Route::middleware(['auth'])
             Route::get('/detail/{id}', [AdminController::class, 'getAdminInfor'])->name('detail');
             Route::post('/update/{id}', [AdminController::class, 'updateAdminInfor'])->name('update');
             Route::post('/changePassword', [AdminController::class, 'changePassword'])->name('changePassword');
-            Route::prefix('category')->name('category.')->group(function () {
-                Route::get('/',  [CategorieController::class, 'index'])->name('index');
-                Route::get('create', [CategorieController::class, 'add'])->name('add');
-                Route::post('create', [CategorieController::class, 'store'])->name('store');
-                Route::delete('delete/{id}', [CategorieController::class, 'delete'])->name('delete');
-                Route::get('detail/{id}', [CategorieController::class, 'edit'])->name('detail');
-                Route::post('update/{id}', [CategorieController::class, 'update'])->name('update');
-                Route::get('search/name', [CategorieController::class, 'findByName'])->name('findName');
-            });
+
+            Route::prefix('category')
+                ->controller(CategorieController::class)
+                ->name('category.')
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}',  'show')->name('show');
+                    Route::put('{id}',  'update')->name('update');
+                    Route::delete('delete/{id}',  'destroy')->name('destroy');
+                });
 
             Route::prefix('user')->name('staff.')->group(function () {
                 Route::get('', [UserController::class, 'index'])->name('store');

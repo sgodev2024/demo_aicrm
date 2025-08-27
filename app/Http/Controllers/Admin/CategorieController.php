@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\CategoryRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Categories;
 use App\Services\CategoryService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CategorieController extends Controller
@@ -20,85 +21,69 @@ class CategorieController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $title = 'Danh mục';
-        try {
-            $category = $this->categoryService->getCategoryAll();
-            if (request()->ajax()) {
-                $view = view('admin.category.table', compact('category'))->render(); // Tạo view cho bảng danh mục
-                return response()->json(['success' => true, 'table' => $view]);
-            }
-            return view('admin.category.index', compact('category', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch Category: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch Category', 500);
+
+        if ($request->ajax()) {
+            $searchTerm = $request->query('s');
+
+            $categories = Categories::query()
+                ->where('user_id', Auth::id())
+                ->when($searchTerm, function ($query, $searchTerm) {
+                    $query->where('name', 'like', '%' . $searchTerm . '%');
+                })
+                ->latest()
+                ->paginate(10);
+
+            $html = view('admin.category.table', compact('categories'))->render();
+            return response()->json(['html' => $html]);
         }
+
+        return view('admin.category.index', compact('title'));
     }
-    public function findByName(Request $request)
+
+    public function store(CategoryRequest $request)
     {
-        $title = 'Danh mục';
-        try {
-            $category = $this->categoryService->findCategoryByName($request->input('name'));
-            return view('admin.category.index', compact('category', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fin category: ' . $e->getMessage());
-            return ApiResponse::error('Failed to find category', 500);
-        }
-    }
-    public function add()
-    {
-        $title = 'Thêm danh mục';
-        return view('admin.category.add', compact('title'));
-    }
-    public function store(StoreCategoryRequest $request)
-    {
-        try {
-            $category = $this->categoryService->createCategory($request->validated());
-            session()->flash('success', 'Thêm danh mục mới thành công');
-            return redirect()->route('admin.category.index');
-        } catch (Exception $e) {
-            Log::error('Failed to create category: ' . $e->getMessage());
-        }
+        return transaction(function () use ($request) {
+            $credentials = $request->validated();
+
+            $credentials['user_id'] = Auth::id();
+
+            Categories::create($credentials);
+
+            return successResponse("Thêm mới danh mục thành công");
+        });
     }
     public function delete($id)
     {
-        try{
+        try {
             $this->categoryService->deleteCategory($id);
 
             $category = Categories::orderByDesc('created_at')->paginate(10);
             $view = view('admin.category.table', compact('category'))->render();
 
             return response()->json(['success' => true, 'message' => 'Xoá danh mục thành công!', 'table' => $view]);
-        }
-        catch(Exception $e){
-            Log::error('Failed to delete category: ' .$e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Failed to delete category: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Không thể xóa danh mục']);
         }
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $title = 'Sửa danh muc';
 
-        try {
-            $category = $this->categoryService->findOrFailCategory($id);
-            return view('admin.category.detail', compact('category', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to find category: ' . $e->getMessage());
-        }
+        if (!$category = Categories::find($id))  return errorResponse('Không tìm thấy danh mục này trên hệ thông!', 404);
+
+        return successResponse(data: $category);
     }
 
-    public function update($id, Request $request)
+    public function update($id, CategoryRequest $request)
     {
+        if (!$category = Categories::find($id))  return errorResponse('Không tìm thấy danh mục này trên hệ thông!', 404);
 
-        try {
-            $category = $this->categoryService->updateCategory($id, $request->all());
-            session()->flash('success', 'Cập nhật danh mục thành công');
-            return redirect()->route('admin.category.index');
-        } catch (Exception $e) {
-            Log::error('Failed to update category: ' . $e->getMessage());
-            return ApiResponse::error('Failed to update category', 500);
-        }
+        $category->update($request->validated());
+
+        return successResponse('Cập nhật danh mục thành công');
     }
 }

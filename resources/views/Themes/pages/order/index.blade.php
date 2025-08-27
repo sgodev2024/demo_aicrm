@@ -112,6 +112,7 @@
             }));
 
             $('#btn-reset').click(function() {
+                $('input[name="search"]').val('');
                 fetchOrders()
             })
 

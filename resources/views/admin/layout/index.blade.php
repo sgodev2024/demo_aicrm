@@ -19,7 +19,7 @@
         <div class="main-panel">
 
             @include('admin.layout.header');
-            
+
             <div class="container">
                 @yield('content')
             </div>

@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Categories extends Model
 {
     use HasFactory;
-    protected $table = 'categories';
     protected $fillable = [
-        "name",
-        "description",
+        'user_id',
+        'name',
+        'description',
+        'status'
+    ];
+
+    protected $casts = [
+        'status' => 'boolean'
     ];
 }

@@ -221,20 +221,6 @@
 
             })
 
-            $(document).on('click', '#check-all', function() {
-
-                let isChecked = $(this).prop('checked');
-
-                $('.checked-item').prop('checked', isChecked)
-            })
-
-            $(document).on('click', '.checked-item', function() {
-                let total = $('.checked-item').length;
-                let checked = $('.checked-item:checked').length;
-
-                $('#check-all').prop('checked', checked === total);
-            })
-
             $('#bulk-delete').click(function() {
                 const ids = $('.checked-item:checked').map((i, el) => $(el).val()).get()
 
@@ -250,38 +236,6 @@
 
                 handleChangeStatus(ids)
             })
-
-            function handleDestroy(ids) {
-                Swal.fire({
-                    title: "Xác nhận xóa?",
-                    text: "Chi nhánh sẽ bị xóa vĩnh viễn và không thể khôi phục.",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Vâng, xóa ngay!",
-                    cancelButtonText: "Hủy"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-
-                        $.ajax({
-                            url: '/admin/branchs',
-                            method: 'DELETE',
-                            data: {
-                                ids
-                            },
-                            success: (res) => {
-                                datgin.success(res.message)
-                                $('input[name="search"]').trigger('input')
-                                $('input[type="checkbox"]').prop('checked', false);
-                            },
-                            error: (xhr) => {
-                                datgin.error('Đã có lỗi xảy ra. Vui lòng thử lại sau!');
-                            }
-                        })
-                    }
-                });
-            }
 
             function handleChangeStatus(ids) {
                 Swal.fire({
