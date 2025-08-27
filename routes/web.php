@@ -124,16 +124,16 @@ Route::middleware(['auth'])
                 Route::post('product-status', [ProductController::class, 'Changestatus'])->name('changestatus');
             });
 
-            Route::prefix('company')->name('company.')->group(function () {
-                Route::get("/", [CompanyController::class, 'index'])->name('index');
-                Route::get('findByName', [CompanyController::class, 'findByName'])->name('findByName');
-                Route::get('/add', [CompanyController::class, 'add'])->name('add');
-                Route::post('/store', [CompanyController::class, 'store'])->name('store');
-                Route::get('detail/{id}', [CompanyController::class, 'edit'])->name('detail');
-                Route::post('update/{id}', [CompanyController::class, 'update'])->name('update');
-                Route::delete('delete/{id}', [CompanyController::class, 'delete'])->name('delete');
-                Route::get('filter', [CompanyController::class, 'companyFilter'])->name('filter');
-            });
+            Route::prefix('company')
+                ->controller(CompanyController::class)
+                ->name('company.')
+                ->group(function () {
+                    Route::get("/",  'index')->name('index');
+                    Route::get('create',  'create')->name('create');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}/edit',  'edit')->name('edit');
+                    Route::put('{id}',  'update')->name('update');
+                });
 
             Route::prefix('profit')->name('profit.')->group(function () {
                 Route::get('', [ReportController::class, 'profitIndex'])->name('index');

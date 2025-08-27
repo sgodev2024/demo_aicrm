@@ -30,13 +30,13 @@
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'active' : '' }}">
+                    class="nav-item {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.create', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#product">
                         <i class="fas fa-box"></i>
                         <p>Sản phẩm</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.index', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.create', 'admin.category.detail', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'show' : '' }}"
                         id="product">
                         <ul class="nav nav-collapse">
                             <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">

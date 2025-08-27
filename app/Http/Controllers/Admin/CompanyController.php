@@ -11,10 +11,9 @@ use App\Services\CompanyService;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Http\Requests\Company\CompanyStoreRequest;
+use App\Http\Requests\Company\CompanyRequest;
 use App\Http\Requests\Company\CompanyUpdateRequest;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -24,111 +23,68 @@ class CompanyController extends Controller
         $this->companyService = $companyService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        try {
-            $title = "Nhà cung cấp";
-            $cities = City::get();
-            $companies = $this->companyService->getAllCompany();
-            // dd($companies);
-            if (request()->ajax()) {
-                $view = view('admin.company.table', compact('companies', 'cities'))->render();
-                return response()->json(['success' => true, 'table' => $view]);
-            }
-            return view('admin.company.index', compact('companies', 'title', 'cities'));
-        } catch (Exception $e) {
-            Log::error("Failed to find Companies: " . $e->getMessage());
-            return ApiResponse::error('Failed to get Companies', 500);
+        if ($request->ajax()) {
+            $searchText = $request->query('s');
+
+            $companies = Company::query()
+                ->where('user_id', Auth::id())
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    $query->where('name', 'like', "%{$searchText}%");
+                })
+                ->latest()
+                ->paginate(10);
+
+            $html = view('admin.company.table', compact('companies'))->render();
+
+            return response()->json(['html' => $html]);
         }
+
+        return view('admin.company.index');
     }
 
-    public function findByName(Request $request)
+    public function create()
     {
-        try {
-            $companies = $this->companyService->getCompanyByName($request->input('name'));
-            return view('admin.company.index', compact('companies'));
-        } catch (Exception $e) {
-            Log::error('Failed to find company: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to find company']);
-        }
+        $banks = Bank::query()->pluck('name', 'id')->toArray();
+        $cities = City::query()->pluck('name', 'id')->toArray();
+        $title = 'Tạo mới nhà cung cấp';
+        $company = null;
+        return view('admin.company.form', compact('banks', 'cities', 'title', 'company'));
     }
 
-    public function companyFilter(Request $request)
+    public function store(CompanyRequest $request)
     {
-        $name = $request->input('name_filter'); // Changed from 'name' to 'name_filter'
-        $city_id = $request->input('city_id');
-        $title = 'Nhà cung cấp';
-        $cities = City::get();
-        try {
-            $companies = $this->companyService->companyFilter($name, $city_id);
-            return view('admin.company.index', compact('companies', 'title', 'cities'));
-        } catch (Exception $e) {
-            Log::error('Failed to find Company: ' . $e->getMessage());
-            return redirect()->route('admin.company.index')->with('error', 'Failed to find Company');
-        }
+        return transaction(function () use ($request) {
+            $credentials = $request->validated();
+
+            $credentials['user_id'] = Auth::id();
+
+            Company::create($credentials);
+
+            return successResponse("Tạo mới nhà cung cấp thành công.", code: 201);
+        });
     }
 
-    public function add()
+    public function edit(string $id)
     {
-        $bank = Bank::get();
-        $cities = City::get();
-        return view('admin.company.add', compact('bank', 'cities'));
+        $company = Company::findOrFail($id);
+        $banks = Bank::query()->pluck('name', 'id')->toArray();
+        $cities = City::query()->pluck('name', 'id')->toArray();
+        $title = "Chỉnh sửa nhà cung cấp - {$company->name}";
+        return view('admin.company.form', compact('banks', 'cities', 'title', 'company'));
     }
 
-    public function store(CompanyStoreRequest $request)
+    public function update(string $id, CompanyRequest $request)
     {
-        try {
-            $companies = $this->companyService->addCompany($request->all());
-            session()->flash('success', 'Thêm nhà cung cấp thành công');
-            return redirect()->route('admin.company.index');
-        } catch (Exception $e) {
-            return ApiResponse::error('Failed to create Companies', 500);
-        }
-    }
+        if (!$company = Company::findOrFail($id)) return errorResponse("Không tìm thấy nhà cung cấp.", 404);
 
-    public function edit($id)
-    {
-        try {
-            $cities = City::get();
-            $bank = Bank::get();
-            $companies = $this->companyService->findCompanyById($id);
-            return view('admin.company.edit', compact('companies', 'bank', 'cities'));
-        } catch (Exception $e) {
-            Log::error('Failed to find company information: ' . $e->getMessage());
-        }
-    }
+        return transaction(function () use ($request, $company) {
+            $credentials = $request->validated();
 
-    public function update($id, CompanyUpdateRequest $request)
-    {
-        try {
-            $companies = $this->companyService->updateCompany($request->all(), $id);
-            session()->flash('success', 'Cập nhật thông tin nhà cung cấp thành công');
-            return redirect()->route('admin.company.index');
-        } catch (Exception $e) {
-            return ApiResponse::error('Failed to update company information', 500);
-        }
-    }
+            $company->update($credentials);
 
-    public function delete($id)
-    {
-        try {
-            $this->companyService->deleteCompany($id);
-            $companies = Company::orderByDesc('created_at')->paginate(10);
-            $table = view('admin.company.table', compact('companies'))->render();
-            // $pagination = $companies->links('vendor.pagination.custom')->render();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Xóa nhà cung cấp thành công',
-                'table' => $table,
-                // 'pagination' => $pagination,
-            ]);
-        } catch (Exception $e) {
-            Log::error('Failed to delete company: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể xóa nhà cung cấp'
-            ]);
-        }
+            return successResponse("Cập nhật nhà cung cấp thành công.");
+        });
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Company;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CompanyStoreRequest extends FormRequest
+class CompanyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,16 +21,19 @@ class CompanyStoreRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id') ?? null;
+
         return [
-           'name' => 'required|unique:companies',
-           'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/',
-           'email' => 'required|email|unique:companies',
-           'address' => 'required',
-           'tax_number' => 'required',
-           'bank_account' => 'required',
-           'bank_id' => 'required|exists:banks,id',
-           'note' => 'nullable',
-           'city_id' => 'required|exists:city,id',
+            'name' => 'required|max:255|unique:companies,name,' . $id,
+            'phone' => 'required|regex:/^[0-9]{10,11}$/|unique:companies,phone,' . $id,
+            'email' => 'required|email|unique:companies,email,' . $id,
+            'address' => 'required|max:255',
+            'tax_number' => 'required|max:255',
+            'bank_account' => 'required|max:255',
+            'bank_id' => 'required|exists:banks,id',
+            'note' => 'nullable|max:255',
+            'city_id' => 'required|exists:city,id',
+            'status' => 'required|in:0,1',
         ];
     }
 
@@ -42,7 +45,7 @@ class CompanyStoreRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'Tên công ty',
+            'name' => 'Tên nhà cung cấp',
             'phone' => 'Số điện thoại',
             'email' => 'Email',
             'address' => 'Địa chỉ',
@@ -51,6 +54,7 @@ class CompanyStoreRequest extends FormRequest
             'bank_id' => 'Ngân hàng',
             'note' => 'Ghi chú',
             'city_id' => 'Thành phố',
+            'status' => 'Trạng thái',
         ];
     }
 }

@@ -8,17 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     use HasFactory;
-    protected $table = 'companies';
     protected $fillable = [
+        'user_id',
         'name',
         'phone',
-        'email',
         'address',
+        'email',
         'tax_number',
         'bank_account',
         'bank_id',
-        'note',
         'city_id',
+        'note',
+        'status'
+    ];
+
+    protected $casts = [
+        'status' => 'boolean'
     ];
 
     public function city()

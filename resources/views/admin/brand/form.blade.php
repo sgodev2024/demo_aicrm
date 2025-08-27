@@ -15,7 +15,7 @@
                 <div class="col-md-9">
                     <div class="card">
                         <div class="card-body">
-                            <div class="row gy-3">
+                            <div class="row gy-4">
                                 <div class="col-md-12">
                                     <label for="name" class="form-label mb-1 fw-bold">Tên thương hiệu</label>
                                     <input type="text" class="form-control" name="name"
@@ -60,8 +60,8 @@
                         </div>
                         <div class="card-body">
                             <select name="status" class="form-select form-control">
-                                <option value="1" @checked(optional($brand)->status == 1)>Kích hoạt</option>
-                                <option value="0" @checked(optional($brand)->status == 0)>Không kích hoạt</option>
+                                <option value="1" @selected(optional($brand)->status == 1)>Kích hoạt</option>
+                                <option value="0" @selected(optional($brand)->status == 0)>Không kích hoạt</option>
                             </select>
                         </div>
                     </div>
