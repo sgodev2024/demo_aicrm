@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CheckInventoryController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
@@ -124,6 +125,17 @@ Route::middleware(['auth'])
                 Route::post('product-status', [ProductController::class, 'Changestatus'])->name('changestatus');
             });
 
+            Route::prefix('users')
+                ->controller(UserController::class)
+                ->name('users.')
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('{id}/edit', 'edit')->name('edit');
+                    Route::put('{id}', 'update')->name('update');
+                });
+
             Route::prefix('company')
                 ->controller(CompanyController::class)
                 ->name('company.')
@@ -159,16 +171,16 @@ Route::middleware(['auth'])
                     Route::delete('delete/{id}',  'destroy')->name('destroy');
                 });
 
-            Route::prefix('user')->name('staff.')->group(function () {
-                Route::get('', [UserController::class, 'index'])->name('store');
-                Route::get('update/{id}', [UserController::class, 'edit'])->name('edit');
-                Route::post('update/{id}', [UserController::class, 'update'])->name('update');
-                Route::get('add', [UserController::class, 'addForm'])->name('addForm');
-                Route::post('add', [UserController::class, 'add'])->name('add');
-                Route::delete('delete/{id}', [UserController::class, 'delete'])->name('delete');
-                Route::post('updateAdmin/{id}', [UserController::class, 'updateadmin'])->name('updateAdmin');
-                Route::get('search/phone', [UserController::class, 'findByPhone'])->name('findByPhone');
-            });
+            Route::prefix('employees')
+                ->controller(EmployeeController::class)
+                ->name('employees.')
+                ->group(function () {
+                    Route::get('/',  'index')->name('index');
+                    Route::get('create',  'create')->name('create');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}/edit',  'edit')->name('edit');
+                    Route::put('{id}',  'update')->name('update');
+                });
 
             Route::prefix('branchs')
                 ->controller(BranchController::class)
@@ -331,6 +343,7 @@ Route::middleware(['auth'])
                     Route::get('/', 'index')->name('index');
                     Route::delete('destroy', 'destroy')->name('destroy');
                 });
+
             Route::prefix('accounts')
                 ->controller(AccountController::class)
                 ->name('accounts.')
@@ -368,7 +381,7 @@ Route::middleware(['auth'])
     });
 
 // bán hàng
-Route::middleware([CheckLogin::class, 'role:2'])->prefix('ban-hang')->name('staff.')->group(function () {
+Route::middleware([CheckLogin::class, 'role:3'])->prefix('ban-hang')->name('staff.')->group(function () {
     Route::get('product/search', [StaffProductController::class, 'search'])->name('product.search');
     Route::get('get-clients', [StaffProductController::class, 'getClients']);
     Route::get('', [StaffProductController::class, 'index'])->name('index');

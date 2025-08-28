@@ -27,6 +27,19 @@
             }
         })
 
+        @php
+            $types = ['success', 'error', 'info', 'warning'];
+        @endphp
+
+        @foreach ($types as $type)
+            @if (session()->has($type))
+                setTimeout(function() {
+                    datgin.{{ $type }}(@json(session($type)));
+                }, 600);
+                @break
+            @endif
+        @endforeach
+
         $(function() {
             $(document).on('click', '#check-all', function() {
 

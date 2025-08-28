@@ -30,10 +30,19 @@ class AuthController extends Controller
             if (Auth::attempt($credentials, $remember)) {
                 $user = Auth::user();
 
+                if ($user->status === 'inactive') {
+                    Auth::logout();
+                    return errorResponse('Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.', 403);
+                }
+
+                if ($user->status === 'locked') {
+                    Auth::logout();
+                    return errorResponse('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.', 403);
+                }
+
                 $redirect = match ($user->role_id) {
-                    1 => '/admin',
-                    2 => '/ban-hang',
-                    3 => '/admin/transactions/cash',
+                    1, 2 => '/admin',
+                    3 => '/ban-hang',
                     default => abort(403, 'Access denied'),
                 };
 
@@ -46,35 +55,6 @@ class AuthController extends Controller
             return errorResponse("Mật khẩu không chính xác!", 404);
         });
     }
-    // public function authenticate(Request $request)
-    // {
-    //     $credentials = $request->validate([
-    //         'email' => 'required|email',
-    //         'password' => 'required'
-    //     ]);
-
-    //     if (Auth::attempt($credentials, $request->filled('remember'))) {
-    //         $request->session()->regenerate();
-
-    //         // Chuyển hướng theo role
-    //         if (auth()->user()->role_id == 1) {
-    //             return redirect()->route('admin.dashboard');
-    //         }
-
-    //         if (auth()->user()->role_id == 2) {
-    //             return redirect()->route('staff.index');
-    //         }
-
-    //         if (auth()->user()->role_id == 3) {
-    //             return redirect()->route('admin.transactions.cash.index');
-    //         }
-    //         abort(403, 'Access denied');
-    //     }
-
-    //     return back()->withErrors([
-    //         'email' => 'Thông tin đăng nhập không chính xác.',
-    //     ])->onlyInput('email');
-    // }
 
     public function logout(Request $request)
     {

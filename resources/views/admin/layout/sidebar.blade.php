@@ -108,7 +108,6 @@
                     </div>
                 </li>
 
-
                 <li
                     class="nav-item {{ request()->routeIs('admin.quanlythuchi.receipts.index', 'admin.quanlythuchi.expense.index') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#sidebarthuchi">
@@ -269,19 +268,23 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item {{ request()->routeIs('admin.branch.store') ? 'active' : '' }}">
-                    <a href="/admin/branchs">
-                        <i class="fas fa-home"></i>
-                        <p>Chi nhánh cửa hàng</p>
+
+                @if (Auth::user()->role_id === 1)
+                    <li class="nav-item {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
+                        <a href="/admin/users">
+                            <i class="fas fa-user-plus"></i>
+                            <p>Tạo tài khoản quản trị</p>
+                        </a>
+                    </li>
+                @endif
+
+                <li class="nav-item {{ request()->routeIs('admin.employees.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.employees.index') }}">
+                        <i class="fas fa-user-tie"></i>
+                        <p>Quản lý nhân viên</p>
                     </a>
                 </li>
 
-                <li class="nav-item {{ request()->routeIs('admin.staff.store') ? 'active' : '' }}">
-                    <a href="{{ route('admin.staff.store') }}">
-                        <i class="fas fa-user-tie"></i>
-                        <p>Nhân viên</p>
-                    </a>
-                </li>
                 <li class="nav-item {{ request()->routeIs('admin.config.detail') ? 'active' : '' }}">
                     <a href="{{ route('admin.config.detail') }}">
                         <i class="fas fa-cog"></i>

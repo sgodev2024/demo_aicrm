@@ -15,25 +15,16 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'users';
-
     protected $fillable = [
+        'manager_id',
         'name',
         'phone',
         'email',
-        'company_name',
         'password',
-        'dob',
         'status',
         'role_id',
-        'city_id',
-        'tax_code',
-        'store_name',
-        'field_id',
-        'domain',
         'address',
         'storage_id',
-        'wallet',
         'img_url'
     ];
 

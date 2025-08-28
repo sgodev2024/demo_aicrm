@@ -45,9 +45,10 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof ModelNotFoundException) {
-            return response()->json([
-                'message' => 'Không tìm thấy dữ liệu!',
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Không tìm thấy dữ liệu!',
+            // ], 404);
+            abort(404);
         }
 
         return parent::render($request, $exception);
