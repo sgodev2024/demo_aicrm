@@ -388,7 +388,7 @@ Route::middleware([CheckLogin::class, 'role:3'])->prefix('ban-hang')->name('staf
     Route::post('/cart/update', [StaffProductController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/update_price', [StaffProductController::class, 'updatePriceCart'])->name('cart.update.price');
     Route::post('/cart/remove', [StaffProductController::class, 'removeFromCart'])->name('cart.remove');
-    Route::post('/client/add', [StaffClientController::class, 'addClient'])->name('client.add');
+    Route::post('clients/add', [StaffClientController::class, 'addClient'])->name('client.add');
     Route::post('pay', [StaffClientController::class, 'pay'])->name('pay');
     Route::get('cart', [StaffClientController::class, 'cart'])->name('cart.data');
     Route::get('order', [StaffOrderController::class, 'index'])->name('order');

@@ -427,7 +427,7 @@
     <script>
         $(function() {
             // --------- Helpers ---------
-            const money = n => (n || 0).toLocaleString('vi-VN');
+            const money = n => (parseFloat(n) || 0).toLocaleString('vi-VN');
             const qs = (s, el = document) => el.querySelector(s);
             const qsa = (s, el = document) => [...el.querySelectorAll(s)];
 
@@ -516,7 +516,7 @@
             });
 
             function renderProductResults(products) {
-
+                const path = "{{ config('app.url') }}"
                 productList.innerHTML = '';
 
                 if (products.length === 0) {
@@ -526,15 +526,13 @@
                 }
 
                 products.forEach(p => {
-                    let image = "{{ config('app.url') }}/" +
-                        `storage/${p.images[0].image_path}`;
 
                     const row = document.createElement('button');
                     row.type = 'button';
                     row.className = 'list-group-item list-group-item-action product-row';
                     row.innerHTML = `
                     <div class="d-flex align-items-center gap-3">
-                        <img class="product-thumb" src="${image}" alt="${p.name}" />
+                        <img class="product-thumb" src="${path}/storage/${p.thumbnail}" alt="${p.name}" />
                         <div class="flex-grow-1">
                         <div class="fw-semibold">${p.name}</div>
                         <div class="small text-muted">${money(p.price_buy)}</div>
@@ -590,6 +588,7 @@
             }
 
             function renderCart() {
+                const path = "{{ config('app.url') }}"
 
                 cartBody.innerHTML = '';
                 if (cart.size === 0) {
@@ -601,13 +600,12 @@
                             product,
                             qty
                         }] of cart.entries()) {
-                        let image = `/storage/${ product.images[0]?.image_path}`;
 
                         const row = document.createElement('div');
                         row.className = 'cart-row';
                         row.dataset.rowId = id;
                         row.innerHTML = `
-                        <img class="cart-thumb" src="${image}" alt="${product.name}">
+                        <img class="cart-thumb" src="${path}/storage/${product.thumbnail}" alt="${product.name}">
                         <div class="cart-info">
                         <div class="fw-semibold">${product.name}</div>
                         <div class="small text-muted">Giá: ${money(product.price_buy)}</div>
@@ -848,7 +846,7 @@
                 };
 
                 let bankCode = "{{ $config->bank->code }}"
-                let bankAccount = "{{ $config->bank_account }}"
+                let bankAccount = "{{ $config->bank_account_number }}"
 
                 // https: //img.vietqr.io/image/MB-1080128122002-compact.png?amount=1000&addInfo=
                 $('#qr-code').attr('src',

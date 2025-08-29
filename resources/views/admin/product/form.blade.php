@@ -106,7 +106,7 @@
                         </div>
                         <div class="card-body">
                             <select name="status" class="form-select form-control">
-                                <option value="1" @selected(optional($product)->status == 1)>Kích hoạt</option>
+                                <option value="1" @selected((optional($product)->status ?? 1) == 1)>Kích hoạt</option>
                                 <option value="0" @selected(optional($product)->status == 0)>Không kích hoạt</option>
                             </select>
                         </div>

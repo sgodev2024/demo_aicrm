@@ -24,6 +24,7 @@ class ProductController extends Controller
             $searchText = $request->input('s');
 
             $products = Product::query()
+                ->where('user_id', Auth::id())
                 ->when(!empty($searchText), function ($query) use ($searchText) {
                     $query->where('name', 'like', "%$searchText%");
                 })

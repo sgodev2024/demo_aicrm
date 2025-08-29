@@ -123,12 +123,12 @@ class OrderController extends Controller
 
         foreach ($credentials['items'] as $item) {
             $product = Product::where('id', $item['id'])
-                ->where('status', 'published')
+                ->where('status', true)
                 ->first();
 
             if (!$product) {
                 return response()->json([
-                    'message' => "Sản phẩm {$item['name']} không tồn tại hoặc chưa được publish!",
+                    'message' => "Sản phẩm {$item['name']} không tồn tại hoặc chưa được xuất bản!",
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
@@ -172,11 +172,16 @@ class OrderController extends Controller
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
+        $user = Auth::user();
+
+        $userId = $user->role_id === 3 ? $user->manager_id : $user->id;
+
         DB::beginTransaction();
+
         try {
             $order = Order::create([
                 'client_id'      => $credentials['customer']['id'] ?? null,
-                'user_id'        => Auth::id(),
+                'user_id'        => $userId,
                 'code' => generateCode('orders', 'ODR'),
                 'name'  => $credentials['customer']['name'],
                 'email' => $credentials['customer']['email'] ?? null,
@@ -188,6 +193,7 @@ class OrderController extends Controller
                 'discount_type'       => $credentials['discountType'],
                 'total_money'    => $grand,
                 'status'         => 0, // Trạng thái đơn hàng, 0 = chờ xử lý
+                'created_by' => $user->id
             ]);
 
             foreach ($items as $i) {

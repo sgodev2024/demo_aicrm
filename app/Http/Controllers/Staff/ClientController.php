@@ -57,29 +57,14 @@ class ClientController extends Controller
 
     public function addClient(Request $request)
     {
-        // try {
-        //     $listphone = $this->clientService->getAllClientStaff()->pluck('phone');
-        //     if ($listphone->contains($request->phone)) {
-        //         return redirect()->back()->with('fail', 'Khách hàng đã tồn tại');
-        //     } else {
-        //         $data = [
-        //             'name' => $request->name,
-        //             'email' => $request->email,
-        //             'address' => $request->address,
-        //             'phone' => $request->phone,
-        //             'clientgroup_id' => $request->clientgroup ?? 3
-        //         ];
-        //         $client = $this->clientService->addClient($data);
-        //         return redirect()->back()->with('action', 'Thêm khách hàng thành công');
-        //     }
-        // } catch (Exception $e) {
-        //     Log::error('Failed to fetch clients: ' . $e->getMessage());
-        //     return ApiResponse::error('Failed to fetch clients', 500);
-        // }
+        $user = Auth::user();
+
+        $userId = $user->role_id === 3 ? $user->manager_id : $user->id;
+
         $data = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:clients,email',
-            'phone' => 'required|max:11|min:10|unique:clients,phone',
+            'email' => 'required|email|max:255|unique:clients,email,' . $userId,
+            'phone' => 'required|max:11|min:10|unique:clients,phone,' . $userId,
             'address' => 'nullable|max:255'
         ], __('request.messages'), [
             'name' => 'Tên khách hàng',
@@ -96,7 +81,7 @@ class ClientController extends Controller
 
         $credentials = $data->validate();
 
-        $credentials['clientgroup_id'] = 3;
+        $credentials['user_id'] = $userId;
 
         $client =  Client::create($credentials);
 

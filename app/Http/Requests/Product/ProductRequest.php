@@ -23,7 +23,7 @@ class ProductRequest extends FormRequest
     {
         $id = $this->route('id') ?? null;
         return [
-            'name'         => 'required|string|max:255|unique:products,name,' . $id,
+            'name'         => 'required|string|max:255',
             'price'        => 'required|numeric|min:0',
             'price_buy'    => 'required|numeric|min:0',
             'product_unit' => 'required|string|max:50',

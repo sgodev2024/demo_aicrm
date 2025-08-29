@@ -10,6 +10,7 @@ class Client extends Model
     use HasFactory;
     protected $table = 'clients'; // Tên bảng trong cơ sở dữ liệu
     protected $fillable = [
+        'user_id',
         'name',
         'phone',
         'zip_code',
@@ -17,13 +18,5 @@ class Client extends Model
         'dob',
         'email',
         'gender',
-        'clientgroup_id'
     ];
-
-    protected $appends = ['clientgroup'];
-
-    public function getClientgroupAttribute(){
-        return ClientGroup::where('id',$this->attributes['clientgroup_id'])->first();
-    }
-
 }

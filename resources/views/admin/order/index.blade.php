@@ -104,7 +104,7 @@
                                                         </td>
                                                         <td>
                                                             <a style="color:black"
-                                                                href="{{ route('admin.staff.edit', ['id' => $order->user->id]) }}">
+                                                                href="">
                                                                 {{ $order->user->name ?? '' }}
                                                             </a>
                                                         </td>

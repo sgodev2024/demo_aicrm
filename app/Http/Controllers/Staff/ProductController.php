@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Cart;
+use App\Models\Client;
 use App\Models\Config;
 use App\Models\Product;
 use App\Models\ProductStorage;
@@ -45,9 +46,7 @@ class ProductController extends Controller
             $sum += $value->price * $value->amount;
         }
 
-        $branchs = Branch::query()->where('status', true)->pluck('name', 'id')->toArray();
-
-        return view('Themes.pages.layout_staff.index', compact('cart', 'sum', 'config', 'title', 'clientgroup', 'branchs'));
+        return view('Themes.pages.layout_staff.index', compact('cart', 'sum', 'config', 'title', 'clientgroup'));
     }
 
     public function getBranchs()
@@ -66,10 +65,17 @@ class ProductController extends Controller
         //     ->where('quantity', '>', 0)
         //     ->orderByDesc('created_at')
         //     ->get();
+        $user = Auth::user();
+        $userId = $user->id;
+
+        if ($user->role_id === 3) {
+            $userId = $user->manager_id;
+        }
 
         $searchText = $request->input('searchText');
 
         $products = Product::query()
+            ->where('user_id', $userId)
             ->when(!empty($searchText), function ($query) use ($searchText) {
                 $query->where('name', 'like', "%$searchText%");
             })
@@ -80,8 +86,17 @@ class ProductController extends Controller
 
     public function getClients(Request $request)
     {
+        $user = Auth::user();
+
+        $userId = $user->role_id === 3 ? $user->manager_id : $user->id;
+
         $searchText = $request->input('searchText');
-        $clients = $this->clientService->getAllClientStaff($searchText);
+        $clients = Client::query()
+            ->where('user_id', $userId)
+            ->when(!empty($searchText), function ($query) use ($searchText) {
+                $query->where('name', 'like', "%{$searchText}%");
+            })
+            ->get();
         return response()->json($clients);
     }
 

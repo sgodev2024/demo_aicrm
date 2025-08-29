@@ -27,7 +27,8 @@ class Order extends Model
         'discount_type',
         'payment_method',
         'status',
-        'note'
+        'note',
+        'created_by'
     ];
 
     protected $casts = [
