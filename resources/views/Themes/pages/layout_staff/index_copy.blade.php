@@ -259,7 +259,7 @@
                                     <p class="card-title product-name">${product.name}</p>
                                     <p class="product-quantity-unit">còn ${item.quantity} ${product.product_unit}</p>
                                     <div class="product-info">
-                                        <p class="card-title product-price">${numberFormat(product.priceBuy)}đ</p>
+                                        <p class="card-title product-price">${numberFormat(product.price_buy)}đ</p>
                                         <p class="add-to-cart"><i class="fas fa-shopping-cart fa-lg"></i></p>
                                     </div>
                                 </div>
@@ -309,7 +309,7 @@
                                                     <p class="card-title product-name">${item.name}</p>
                                                     <p class="product-quantity-unit">${item.quantity} ${item.product_unit}</p>
                                                     <div class="product-info">
-                                                        <p class="card-title product-price">${numberFormat(item.priceBuy)}đ</p>
+                                                        <p class="card-title product-price">${numberFormat(item.price_buy)}đ</p>
                                                         <p class="add-to-cart"><i class="fas fa-shopping-cart fa-lg"></i></p>
                                                     </div>
                                                 </div>
@@ -564,12 +564,12 @@
                 orderBill.empty();
 
                 cart.forEach(function(item) {
-                    var itemTotal = item.amount * item.priceBuy;
+                    var itemTotal = item.amount * item.price_buy;
                     var orderItem = `
                         <tr>
                             <td>${item.product_name}</td>
                             <td>${item.amount}</td>
-                            <td>${item.priceBuy.toLocaleString('en-US')}</td>
+                            <td>${item.price_buy.toLocaleString('en-US')}</td>
                             <td>${itemTotal.toLocaleString('en-US')}</td>
                         </tr>
                     `;
@@ -605,11 +605,11 @@
                             '<div class="d-flex" style="margin-right: 109px; width: 100%; justify-content: space-between;">' +
                             '<strong style="width: 130px;">' + details.product_name +
                             '<div style="margin: 0; font-size: 13px; color: #888;"  contenteditable="true" class="change_price" ' +
-                            'data-id = "' + details.id + '"' + ' >' + details.priceBuy + '</div>' +
+                            'data-id = "' + details.id + '"' + ' >' + details.price_buy + '</div>' +
                             '</strong>' +
                             '<span><input type="number"' + 'data-id = "' + details.product_id + '"' +
                             '  min="1" max="' + details.quantity + '"  class="custom-input" value="' + details.amount + '"></span>' +
-                            '<span style="width: 80px;">' + numberFormat(details.priceBuy * details.amount) +
+                            '<span style="width: 80px;">' + numberFormat(details.price_buy * details.amount) +
                             'đ</span>' +
                             '</div>' +
                             '</div>';

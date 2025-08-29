@@ -194,7 +194,7 @@
                                                             <td>{{ $value->quantity ?? '0' }}
                                                                 {{ $value->product->product_unit ?? 'đơn vị' }}</td>
                                                             <td>{{ number_format($value->product->price) ?? '0' }} đ</td>
-                                                            <td>{{ number_format($value->product->priceBuy) ?? '0' }} đ</td>
+                                                            <td>{{ number_format($value->product->price_buy) ?? '0' }} đ</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>

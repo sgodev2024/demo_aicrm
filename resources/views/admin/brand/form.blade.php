@@ -4,7 +4,6 @@
     <div class="page-inner">
         <x-breadcrumb :items="[['label' => 'Thương hiệu', 'url' => route('admin.brand.index')], ['label' => $title]]" />
 
-
         <form id="myForm">
 
             @if (!empty($brand))

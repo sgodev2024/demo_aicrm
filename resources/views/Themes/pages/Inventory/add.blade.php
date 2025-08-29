@@ -250,7 +250,7 @@
                                                 <span class="sugg-unit ng-binding"></span>
                                             </p>
                                             <p class="ng-binding">
-                                                <span class="ng-binding">Giá: {{ $item->priceBuy }}</span>
+                                                <span class="ng-binding">Giá: {{ $item->price_buy }}</span>
                                             </p> <span class="ng-binding">Tồn: {{ $item->quantity }}</span>
                                             <span class="split txtC"></span>
                                         </div>

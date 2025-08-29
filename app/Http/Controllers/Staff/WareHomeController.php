@@ -59,7 +59,7 @@ class WareHomeController extends Controller
             ]);
         }else{
             $difference	 = $reality -  $wareHouse->product->quantity;
-            $gia_chenh_lech	 = $reality * $wareHouse->product->priceBuy -  $wareHouse->product->quantity * $wareHouse->product->priceBuy;
+            $gia_chenh_lech	 = $reality * $wareHouse->product->price_buy -  $wareHouse->product->quantity * $wareHouse->product->price_buy;
             $wareHouse ->update([
                 'reality' => $reality,
                 'difference' => $difference,

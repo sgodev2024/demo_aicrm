@@ -110,7 +110,7 @@ class DashboardController extends Controller
             ->join('products as p', 'oi.product_id', '=', 'p.id')
             ->where('o.status', 1)
             ->whereBetween(DB::raw('DATE(o.created_at)'), [$startDate, $endDate])
-            ->sum(DB::raw('p.priceBuy * oi.p_quantity'));
+            ->sum(DB::raw('p.price_buy * oi.p_quantity'));
 
         // Biên LN gộp (%)
         $grossMargin = $totalRevenue > 0

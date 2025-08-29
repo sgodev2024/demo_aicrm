@@ -124,7 +124,7 @@ class ReportController extends Controller
                         $quantityBeforeImport = $currentQuantity + $soldQuantity - $importedQuantity;
                         $beforeImportValue = $quantityBeforeImport * $productStorage->product->price;
                         $importedValue = $importedQuantity * $latestImportDetail->price;
-                        $soldValue = $soldQuantity * $productStorage->product->priceBuy;
+                        $soldValue = $soldQuantity * $productStorage->product->price_buy;
                         $currentValue = $currentQuantity * $productStorage->product->price;
                     }
                 }

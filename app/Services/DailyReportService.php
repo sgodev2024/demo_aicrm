@@ -37,7 +37,7 @@ class DailyReportService
             foreach ($orderDetails as $orderDetail) {
                 $productId = $orderDetail->product_id;
                 $quantity = $orderDetail->quantity;
-                $price = $orderDetail->product->priceBuy;
+                $price = $orderDetail->product->price_buy;
                 $total = $price * $quantity;
 
                 if (!isset($productSales[$productId])) {

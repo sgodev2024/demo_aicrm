@@ -138,13 +138,13 @@ class OrderController extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $lineTotal = $product->priceBuy * $item['qty'];
+            $lineTotal = $product->price_buy * $item['qty'];
             $subtotal += $lineTotal;
 
             $items[] = [
                 'id'    => $product->id,
                 'name'  => $product->name,
-                'price' => $product->priceBuy,
+                'price' => $product->price_buy,
                 'qty'   => $item['qty'],
                 'total' => $lineTotal,
             ];

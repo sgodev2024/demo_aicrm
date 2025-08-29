@@ -537,7 +537,7 @@
                         <img class="product-thumb" src="${image}" alt="${p.name}" />
                         <div class="flex-grow-1">
                         <div class="fw-semibold">${p.name}</div>
-                        <div class="small text-muted">${money(p.priceBuy)}</div>
+                        <div class="small text-muted">${money(p.price_buy)}</div>
                         </div>
                         <div class="text-end">
                         <span class="badge border badge-stock text-dark">Tồn: ${p.quantity}</span>
@@ -610,7 +610,7 @@
                         <img class="cart-thumb" src="${image}" alt="${product.name}">
                         <div class="cart-info">
                         <div class="fw-semibold">${product.name}</div>
-                        <div class="small text-muted">Giá: ${money(product.priceBuy)}</div>
+                        <div class="small text-muted">Giá: ${money(product.price_buy)}</div>
                         <div class="small text-muted">Tồn kho: ${product.quantity}</div>
                         </div>
                         <div class="cart-actions">
@@ -647,7 +647,7 @@
                     }
                     of cart.values()) {
 
-                    sum += product.priceBuy * qty;
+                    sum += product.price_buy * qty;
                 }
                 return sum;
             }
@@ -758,8 +758,8 @@
                             <td>${index + 1}</td>
                             <td class="text-start">${product.name}</td>
                             <td>${qty}</td>
-                            <td> ${ money(product.priceBuy) }</td>
-                            <td>${ money(product.priceBuy * qty) }</td>
+                            <td> ${ money(product.price_buy) }</td>
+                            <td>${ money(product.price_buy * qty) }</td>
                         </tr>`;
                 })
 
@@ -946,7 +946,7 @@
                     }) => ({
                         id: product.id,
                         name: product.name,
-                        price: product.priceBuy,
+                        price: product.price_buy,
                         qty
                     })),
                     subtotal: calcSubtotal(),

@@ -284,7 +284,7 @@ class ClientController extends Controller
         $cartItems = Cart::where('user_id', $user->id)->get();
 
         $totalAmount = $cartItems->sum(function ($item) {
-            return $item->quantity * $item->priceBuy;
+            return $item->quantity * $item->price_buy;
         });
 
         // Trả về dữ liệu giỏ hàng và tổng tiền dưới dạng JSON

@@ -130,7 +130,7 @@ class ProductStorageService
                         $importedValue = $importedQuantity * $latestImportDetail->price;
 
                         //Tính giá trị đã bán
-                        $soldValue = $soldQuantity * $productStorage->product->priceBuy;
+                        $soldValue = $soldQuantity * $productStorage->product->price_buy;
 
                         //Tính giá trị hiện tại
                         $currentValue = $currentQuantity * $productStorage->product->price;

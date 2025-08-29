@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Models\User;
 use App\Services\AdminService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -18,35 +21,68 @@ class AdminController extends Controller
         $this->adminService = $adminService;
     }
 
-    public function getAdminInfor($id)
+    public function profile()
     {
-        $title = 'Thông tin người dùng';
-        try {
-            $admin = $this->adminService->getUserById($id);
-            return view('admin.admin.edit', compact('admin', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch info: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch info', 500);
-        }
+        $title = "Thông tin tài khoản";
+        $user = Auth::user();
+        return view('admin.admin.edit', compact('title', 'user'));
     }
 
-    public function updateAdminInfor(Request $request, $id)
+    public function updateProfile(Request $request)
     {
-        try {
-            Log::info("Received request to update admin with ID: $id", $request->all());
+        $userId = Auth::id();
 
-            $this->adminService->updateUser($id, $request);
+        // Validate dữ liệu
+        $credentials = $request->validate(
+            [
+                'name' => 'required|string|max:255',
+                'email' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email')->ignore($userId),
+                ],
+                'phone' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                    Rule::unique('users', 'phone')->ignore($userId),
+                ],
+                'address' => 'nullable|string|max:255',
+                'img_url' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ],
+            __('request.messages'),
+            [
+                'name' => 'Tên',
+                'email' => 'Email',
+                'phone' => 'Số điện thoại',
+                'address' => 'Địa chỉ',
+                'img_url' => 'Ảnh đại diện',
+            ]
+        );
 
-            Log::info("Successfully updated admin with ID: $id");
+        return transaction(function () use ($credentials, $request, $userId) {
 
-            session()->flash('success', 'Thay đổi thông tin thành công');
+            $user = User::query()->find($userId);
 
-            return redirect()->back();
-        } catch (Exception $e) {
-            Log::error('Failed to update admin info: ' . $e->getMessage());
-            return ApiResponse::error('Failed to update admin info', 500);
-        }
+            $oldImgae = $user->img_url ?? null;
+
+            if ($request->hasFile('img_url')) {
+                $credentials['img_url'] = uploadImages('img_url', 'avatar');
+            }
+
+            $updated =  $user->update($credentials);
+
+            if ($updated && $request->hasFile('img_url')) {
+                deleteImage($oldImgae);
+            }
+
+            Auth::setUser($user->fresh());
+
+            return successResponse('Cập nhật hồ sơ thành công.', Auth::user());
+        });
     }
+
     public function changePassword(Request $request)
     {
         if ($request->session()->has('authUser')) {

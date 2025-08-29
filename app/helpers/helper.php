@@ -161,3 +161,13 @@ if (!function_exists('uploadImages')) {
         return $isArray ? $paths : $paths[0] ?? null;
     }
 }
+
+
+if (!function_exists('formatPrice')) {
+    function formatPrice($price)
+    {
+        if (!empty($price)) return 0;
+        
+        return number_format($price, 0, ',', '.');
+    }
+}

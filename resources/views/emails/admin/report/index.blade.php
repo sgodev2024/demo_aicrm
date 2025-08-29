@@ -221,8 +221,8 @@
                                                 <td>{{ $item->quantity }}</td>
                                                 <td>{{ $item->total_imports }}</td>
                                                 <td>{{ $item->total_orders }}</td>
-                                                <td>{{ number_format($item->priceBuy) }}</td>
-                                                <td>{{ number_format($item->priceBuy * $item->quantity) }}</td>
+                                                <td>{{ number_format($item->price_buy) }}</td>
+                                                <td>{{ number_format($item->price_buy * $item->quantity) }}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>

@@ -30,17 +30,17 @@
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.create', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'active' : '' }}">
+                    class="nav-item {{ request()->routeIs('admin.products.index', 'admin.products.create', 'admin.products.edit', 'admin.category.index', 'admin.category.create', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#product">
                         <i class="fas fa-box"></i>
                         <p>Sản phẩm</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.create', 'admin.category.detail', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.products.index', 'admin.products.create', 'admin.products.edit', 'admin.category.index', 'admin.category.create', 'admin.category.detail', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'show' : '' }}"
                         id="product">
                         <ul class="nav nav-collapse">
-                            <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">
-                                <a href="{{ route('admin.product.store') }}">
+                            <li class=" {{ request()->routeIs('admin.products.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.products.index') }}">
                                     <span class="sub-item">Quản lý sản phẩm</span>
                                 </a>
                             </li>
@@ -285,10 +285,10 @@
                     </a>
                 </li>
 
-                <li class="nav-item {{ request()->routeIs('admin.config.detail') ? 'active' : '' }}">
-                    <a href="{{ route('admin.config.detail') }}">
+                <li class="nav-item {{ request()->routeIs('admin.config.form') ? 'active' : '' }}">
+                    <a href="{{ route('admin.config.form') }}">
                         <i class="fas fa-cog"></i>
-                        <p>Cấu hình</p>
+                        <p>Cấu hình chung</p>
                     </a>
                 </li>
             </ul>

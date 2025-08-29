@@ -108,22 +108,18 @@ Route::middleware(['auth'])
                 Route::get('generateQR', [TransactionController::class, 'generateQrCode'])->name('generate');
             });
 
-            Route::prefix('product')->name('product.')->group(function () {
-                Route::get('export1', [ProductController::class, 'export1'])->name('export1');
-                Route::get('productFilter', [ProductController::class, 'productFilter'])->name('productFilter');
-                Route::get('', [ProductController::class, 'index'])->name('store');
-                Route::get('import', [ProductController::class, 'formimport'])->name('formimport');
-                Route::post('import', [ProductController::class, 'import'])->name('import');
-                Route::get('export', [ProductController::class, 'export'])->name('export');
-                Route::get('add', [ProductController::class, 'addForm'])->name('addForm');
-                Route::post('add', [ProductController::class, 'addSubmit'])->name('add');
-                Route::get('{id}', [ProductController::class, 'editForm'])->name('edit');
-                Route::post('{id}', [ProductController::class, 'update'])->name('update');
-                Route::delete('/delete/{id}', [ProductController::class, 'delete'])->name('delete');
-                Route::get('product-images/{id}', [ProductController::class, 'deleteImagesProduct'])->name('deleteImagesProduct');
-                Route::post('product-category', [ProductController::class, 'Changecategory'])->name('changecategory');
-                Route::post('product-status', [ProductController::class, 'Changestatus'])->name('changestatus');
-            });
+            Route::prefix('products')
+                ->controller(ProductController::class)
+                ->name('products.')
+                ->group(function () {
+                    Route::get('/',  'index')->name('index');
+                    Route::get('create',  'create')->name('create');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}/edit',  'edit')->name('edit');
+                    Route::put('{id}',  'update')->name('update');
+                    Route::post('import',  'import')->name('import');
+                    Route::get('export',  'export')->name('export');
+                });
 
             Route::prefix('users')
                 ->controller(UserController::class)
@@ -156,8 +152,8 @@ Route::middleware(['auth'])
             Route::get('/dashboard/day', [DashboardController::class, 'StatisticsByDay'])->name('dashboard.day');
             Route::get('/dashboard/month', [DashboardController::class, 'StatisticsByMonth'])->name('dashboard.month');
             Route::get('/dashboard/year', [DashboardController::class, 'StatisticsByYear'])->name('dashboard.year');
-            Route::get('/detail/{id}', [AdminController::class, 'getAdminInfor'])->name('detail');
-            Route::post('/update/{id}', [AdminController::class, 'updateAdminInfor'])->name('update');
+            Route::get('profile', [AdminController::class, 'profile'])->name('profile');
+            Route::post('profile', [AdminController::class, 'updateProfile'])->name('update');
             Route::post('/changePassword', [AdminController::class, 'changePassword'])->name('changePassword');
 
             Route::prefix('category')
@@ -231,10 +227,13 @@ Route::middleware(['auth'])
                 Route::get('/detail/{id}', [OrderController::class, 'detail'])->name('detail');
             });
 
-            Route::prefix('config')->name('config.')->group(function () {
-                Route::get('/detail', [ConfigController::class, 'index'])->name('detail');
-                Route::post('/update', [ConfigController::class, 'updateConfig'])->name('update');
-            });
+            Route::prefix('config')
+                ->controller(ConfigController::class)
+                ->name('config.')
+                ->group(function () {
+                    Route::get('/',  'index')->name('form');
+                    Route::post('/',  'save')->name('save');
+                });
 
 
             Route::prefix('support')->name('support.')->group(function () {

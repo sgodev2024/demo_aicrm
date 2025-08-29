@@ -368,10 +368,10 @@
                         <td>${item.product.code}</td>
                         <td>${item.product.name}</td>
                         <td>${item.quantity}</td>
-                        <td>${item.product.priceBuy * item.quantity}</td>
+                        <td>${item.product.price_buy * item.quantity}</td>
                         <td>${item.product.price * item.quantity}</td>
-                        <td>${item.product.priceBuy * item.quantity - item.product.price * item.quantity }</td>
-                        <td>${(100 * (item.product.priceBuy * item.quantity - item.product.price * item.quantity) / (item.product.priceBuy * item.quantity)).toFixed(2)}%</td>
+                        <td>${item.product.price_buy * item.quantity - item.product.price * item.quantity }</td>
+                        <td>${(100 * (item.product.price_buy * item.quantity - item.product.price * item.quantity) / (item.product.price_buy * item.quantity)).toFixed(2)}%</td>
                     </tr>`;
                     tableBody.append(newRow);
                 });

@@ -10,25 +10,28 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    protected $table = 'products';
-    protected $fillable = [
-        "name",
-        "price",
-        "priceBuy",
-        "product_unit",
-        "quantity",
-        "description",
-        "is_featured",
-        "is_new_arrival",
-        "category_id",
-        "status",
-        "discount_id",
-        "brands_id",
-        "code",
 
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'brand_id',
+        'code',
+        'name',
+        'price',
+        'price_buy',
+        'thumbnail',
+        'product_unit',
+        'quantity',
+        'description',
+        'is_featured',
+        'status'
     ];
 
-    protected $appends = ['category', 'images', 'brands'];
+    protected $casts = [
+        'is_featured' => 'boolean',
+        'status' => 'boolean',
+    ];
+
     public function getImagesAttribute()
     {
         return ProductImages::where('product_id', $this->attributes['id'])->get();
@@ -42,7 +45,7 @@ class Product extends Model
         return Brand::where('id', $this->attributes['brands_id'])->first();
     }
 
-    public function brands()
+    public function brand()
     {
         return $this->belongsTo(Brand::class);
     }
@@ -50,9 +53,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Cart::class);
     }
-    public function categories()
+    public function category()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Categories::class);
     }
 
     public function company()
@@ -70,16 +73,5 @@ class Product extends Model
         return $this->belongsToMany(Storage::class, 'product_storage')
             ->withPivot('quantity')
             ->withTimestamps();
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $latastproduct = self::orderBy('id', 'desc')->first();
-            $nextNumber = $latastproduct ? ((int)substr($latastproduct->code, 2)) + 1 : 1;
-            $model->code = 'KH' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
-        });
     }
 }

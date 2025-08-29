@@ -113,7 +113,7 @@ class ProductController extends Controller
 
             Cart::create([
                 'product_id' => $productId,
-                'price' => $product->priceBuy,
+                'price' => $product->price_buy,
                 'user_id' => $user->id,
                 'amount' => $amount
             ]);
@@ -136,7 +136,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -182,7 +182,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -213,7 +213,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -245,7 +245,7 @@ class ProductController extends Controller
             $products[] = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'priceBuy' => $product->priceBuy,
+                'price_buy' => $product->price_buy,
                 'quantity' => $storage->quantity,
                 'product_unit' => $product->product_unit,
                 'images' => $product->images
@@ -282,7 +282,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];

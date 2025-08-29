@@ -104,16 +104,16 @@
                     <td>{{ $item['product']->name }}</td>
                     <td>{{ $item['quantity'] }}</td>
                     <td>{{ number_format($item['product']->price * $item['quantity'], 2) }}</td>
-                    <td>{{ number_format($item['product']->priceBuy * $item['quantity'], 2) }}</td>
+                    <td>{{ number_format($item['product']->price_buy * $item['quantity'], 2) }}</td>
                     <td
-                        class="{{ ($item['product']->price * $item['quantity'] - $item['product']->priceBuy * $item['quantity']) >= 0 ? 'profit' : 'loss' }}">
-                        {{ number_format($item['product']->price * $item['quantity'] - $item['product']->priceBuy *
+                        class="{{ ($item['product']->price * $item['quantity'] - $item['product']->price_buy * $item['quantity']) >= 0 ? 'profit' : 'loss' }}">
+                        {{ number_format($item['product']->price * $item['quantity'] - $item['product']->price_buy *
                         $item['quantity'], 2) }}
                     </td>
                     <td>
                         @php
                         $revenue = $item['product']->price * $item['quantity'];
-                        $cost = $item['product']->priceBuy * $item['quantity'];
+                        $cost = $item['product']->price_buy * $item['quantity'];
                         $profit = $revenue - $cost;
                         $profitMargin = ($cost > 0) ? (100 * $profit / $cost) : 0;
                         @endphp
