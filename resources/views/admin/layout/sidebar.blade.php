@@ -84,16 +84,6 @@
                                     <span class="sub-item">Nhập hàng</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#">
-                                    <span class="sub-item">Xuất kho</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <span class="sub-item">Chuyển kho</span>
-                                </a>
-                            </li>
                             <li class="{{ request()->routeIs('admin.check.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.check.index') }}">
                                     <span class="sub-item">Phiếu kiểm kho</span>
@@ -108,7 +98,7 @@
                     </div>
                 </li>
 
-                <li
+                {{-- <li
                     class="nav-item {{ request()->routeIs('admin.quanlythuchi.receipts.index', 'admin.quanlythuchi.expense.index') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#sidebarthuchi">
                         <i class="fas fa-coins"></i>
@@ -130,7 +120,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
+                </li> --}}
 
                 <li
                     class="nav-item {{ request()->routeIs(

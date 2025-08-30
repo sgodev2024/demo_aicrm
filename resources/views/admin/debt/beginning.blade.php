@@ -3,21 +3,7 @@
 
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <span class="text-muted">Nhập công nợ đầu kỳ</span>
-                </li>
-            </ul>
-        </div>
+        <x-breadcrumb :items="[['label' => 'Nhập công nợ đầu kỳ']]" />
 
         <form id="myForm" enctype="multipart/form-data">
 
@@ -38,7 +24,7 @@
                                         <label class="form-label required">Loại đối tượng</label>
                                         <select name="object_type" id="object-type" class="form-select">
                                             <option value=""></option>
-                                            <option value="customer">Khách hàng</option>
+                                            <option value="client">Khách hàng</option>
                                             <option value="supplier">Nhà cung cấp</option>
                                         </select>
                                     </div>

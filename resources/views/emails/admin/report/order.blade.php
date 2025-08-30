@@ -178,11 +178,11 @@
                                                     <tr>
                                                         <td>
                                                             <a style="color: black; font-weight:bold"
-                                                                href="{{ route('admin.order.detail', ['id' => $order->id]) }}">{{ $order->id }}</a>
+                                                                href="{{ route('admin.order.show', $order->id) }}">{{ $order->id }}</a>
                                                         </td>
                                                         <td>
                                                             <a style="color:black"
-                                                                href="{{ route('admin.staff.edit', ['id' => $order->user->id]) }}">
+                                                                href="">
                                                                 {{ $order->user->name ?? '' }}
                                                             </a>
                                                         </td>

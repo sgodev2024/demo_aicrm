@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
+        {{-- <div class="page-header">
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ route('admin.dashboard') }}">
@@ -22,7 +22,7 @@
                     <span class="text-muted">Tạo phiếu thu chi tiền mặt</span>
                 </li>
             </ul>
-        </div>
+        </div> --}}
 
         <div class="form-container">
             <form id="myForm">
@@ -52,7 +52,7 @@
                                     <label class="form-label required">Loại đối tượng</label>
                                     <select name="obj_type" id="object-type" class="form-select">
                                         <option value=""></option>
-                                        <option value="customer" @selected(optional($contraEntry)->tableable_type === 'App\Models\Customer')>Khách hàng</option>
+                                        <option value="client" @selected(optional($contraEntry)->tableable_type === 'App\Models\Client')>Khách hàng</option>
                                         <option value="supplier" @selected(optional($contraEntry)->tableable_type === 'App\Models\Supplier')>Nhà cung cấp</option>
                                     </select>
                                 </div>
@@ -360,7 +360,7 @@
                 }
             });
 
-            let basePath = window.location.pathname.includes('/transactions-bank') ?
+            let basePath = window.location.pathname.includes('/transactions/bank') ?
                 '/admin/transactions/bank' :
                 '/admin/transactions/cash';
 

@@ -2,21 +2,8 @@
 
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <span class="text-muted">Thu chi ngân hàng</span>
-                </li>
-            </ul>
-        </div>
+
+        <x-breadcrumb :items="[['label' => 'Thu chi ngân hàng']]" />
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
@@ -38,11 +25,8 @@
                 <div class="filter-section">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex gap-2">
-                            <a href="/admin/bank-transactions/save" class="btn btn-success btn-sm">
-                                <i class="bi bi-plus-circle me-1"></i>
-                                Thêm mới
-                            </a>
-                            <div class="dropdown">
+
+                            {{-- <div class="dropdown">
                                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                     id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Thao tác
@@ -74,26 +58,15 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> --}}
+
+                            <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
                         </div>
                         <div class="row g-3 justify-content-end align-items-center">
-                            <div class="col-md-5">
-                                <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
-                            </div>
-                            <div class="col-md-5">
-                                <div class="input-group">
-                                    <input type="text" id="minAmount" name="min_amount"
-                                        class="form-control usd-price-format" placeholder="Từ số tiền">
-                                    <span class="input-group-text px-2">–</span>
-                                    <input type="text" id="maxAmount" name="max_amount"
-                                        class="form-control usd-price-format" placeholder="Đến số tiền">
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <button type="button" id="filterButton" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Lọc
-                                </button>
-                            </div>
+                            <a href="/admin/transactions/bank/save" class="btn btn-primary">
+                                <i class="fa-solid fa-plus"></i>
+                                Thêm mới
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -168,11 +141,11 @@
     <script>
         $(document).ready(function() {
 
-            document.getElementById('import-excel').addEventListener('click', function(e) {
-                e.preventDefault();
-                var modal = new bootstrap.Modal(document.getElementById('importExcelModal'));
-                modal.show();
-            });
+            // document.getElementById('import-excel').addEventListener('click', function(e) {
+            //     e.preventDefault();
+            //     var modal = new bootstrap.Modal(document.getElementById('importExcelModal'));
+            //     modal.show();
+            // });
 
             let start = moment();
             let end = moment().add(1, 'month');
@@ -213,9 +186,9 @@
                     'DD/MM/YYYY'));
             });
 
-            // $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
-            //     $(this).val('');
-            // });
+            $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
 
             // Khi click vào checkbox "checked-all"
             $('#checked-all').on('change', function() {
@@ -415,17 +388,9 @@
         });
 
         function triggerFilter() {
-            const rawMin = $('#minAmount').val().replace(/,/g, '').trim();
-            const rawMax = $('#maxAmount').val().replace(/,/g, '').trim();
-
-            let amounts = '';
-            if (rawMin || rawMax) {
-                amounts = `${rawMin || ''} - ${rawMax || ''}`.trim();
-            }
 
             let filters = {
                 date_range: $('#dateFilter').val(),
-                amounts: amounts
             };
 
             loadBankTransactions(filters);

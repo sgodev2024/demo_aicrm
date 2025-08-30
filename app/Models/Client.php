@@ -19,4 +19,13 @@ class Client extends Model
         'email',
         'gender',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->code = generateCode('clients', 'KH');
+        });
+    }
 }

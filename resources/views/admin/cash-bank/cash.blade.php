@@ -3,21 +3,7 @@
 @section('content')
     <div class="page-inner">
 
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <span class="text-muted">Thu chi tiền mặt</span>
-                </li>
-            </ul>
-        </div>
+        <x-breadcrumb :items="[['label' => 'Thu chi tiền mặt']]" />
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
@@ -39,11 +25,8 @@
                 <div class="filter-section">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex gap-2">
-                            <a href="/admin/transactions/cash/save" class="btn btn-success btn-sm">
-                                <i class="bi bi-plus-circle me-1"></i>
-                                Thêm mới
-                            </a>
-                            <div class="dropdown">
+
+                            {{-- <div class="dropdown">
                                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                     id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Thao tác
@@ -61,7 +44,7 @@
                                         </a>
                                     </li>
 
-                                    {{-- <li>
+                                    <li>
                                         <a class="dropdown-item" href="#" id="import-excel">
                                             <i class="fas fa-file-import me-1"></i> Import Excel
                                         </a>
@@ -73,28 +56,17 @@
                                             id="download-sample">
                                             <i class="fas fa-file-download me-1"></i> Tải file mẫu
                                         </a>
-                                    </li> --}}
+                                    </li>
                                 </ul>
-                            </div>
+                            </div> --}}
+
+                            <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
                         </div>
                         <div class="row g-3 justify-content-end align-items-center">
-                            <div class="col-md-5">
-                                <input type="text" id="dateFilter" class="form-control" placeholder="Chọn khoảng ngày">
-                            </div>
-                            <div class="col-md-5">
-                                <div class="input-group">
-                                    <input type="text" id="minAmount" name="min_amount"
-                                        class="form-control usd-price-format" placeholder="Từ số tiền">
-                                    <span class="input-group-text px-2">–</span>
-                                    <input type="text" id="maxAmount" name="max_amount"
-                                        class="form-control usd-price-format" placeholder="Đến số tiền">
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <button type="button" id="filterButton" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Lọc
-                                </button>
-                            </div>
+                            <a href="/admin/transactions/cash/save" class="btn btn-primary">
+                                <i class="fa-solid fa-plus"></i>
+                                Thêm mới
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -168,19 +140,19 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
-        $(document).ready(function() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
-            });
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
 
+        $(document).ready(function() {
             document.getElementById('import-excel')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 var modal = new bootstrap.Modal(document.getElementById('importExcelModal'));
@@ -224,10 +196,12 @@
             $('#dateFilter').on('apply.daterangepicker', function(ev, picker) {
                 $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format(
                     'DD/MM/YYYY'));
+                loadCashTransactions()
             });
 
             $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
-                $(this).val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+                $(this).val('');
+                loadCashTransactions()
             });
 
             // Khi click vào checkbox "checked-all"
@@ -250,9 +224,6 @@
 
             loadCashTransactions()
 
-            $('#filterButton').on('click', function() {
-                loadCashTransactions()
-            })
         });
 
         $(document).on('click', '#delete-selected', function() {
@@ -400,17 +371,9 @@
         });
 
         function loadCashTransactions() {
-            const rawMin = $('#minAmount').val().replace(/,/g, '').trim();
-            const rawMax = $('#maxAmount').val().replace(/,/g, '').trim();
-
-            let amounts = '';
-            if (rawMin || rawMax) {
-                amounts = `${rawMin || ''} - ${rawMax || ''}`.trim();
-            }
 
             let filters = {
                 date_range: $('#dateFilter').val(),
-                amounts: amounts
             };
 
             $.ajax({

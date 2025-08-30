@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Transaction extends Model
 {
     protected $fillable = [
+        'user_id',
         'transaction_date',
         'description',
         'reference_number',

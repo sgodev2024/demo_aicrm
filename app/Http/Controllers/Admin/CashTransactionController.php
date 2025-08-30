@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Imports\CashTransactionImport;
 use App\Models\Account;
 use App\Models\CashTransaction;
+use App\Models\Client;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Supplier;
@@ -88,12 +89,12 @@ class CashTransactionController extends Controller
     {
         $credentials = $request->validate([
             'transaction_date'   => 'required|date_format:Y-m-d',
-            'obj_type'           => ['required', Rule::in(['customer', 'supplier'])],
+            'obj_type'           => ['required', Rule::in(['client', 'supplier'])],
             'account_id'         => ['required', 'exists:accounts,id'], // tài khoản tiền
             'obj_id'             => [
                 'required',
                 'integer',
-                Rule::when($request->obj_type === 'customer', ['exists:customers,id']),
+                Rule::when($request->obj_type === 'client', ['exists:clients,id']),
                 Rule::when($request->obj_type === 'supplier', ['exists:suppliers,id']),
             ],
             'type'               => ['required', Rule::in(['income', 'expense'])],
@@ -138,6 +139,7 @@ class CashTransactionController extends Controller
 
             // Tạo phiếu giao dịch
             $transaction = Transaction::create([
+                'user_id'            => Auth::id(),
                 'transaction_date'   => $credentials['transaction_date'],
                 'description'        => $credentials['description'] ?? null,
                 'reference_number'   => $credentials['reference_number'] ?? null,
@@ -148,16 +150,16 @@ class CashTransactionController extends Controller
             ]);
 
             // Xác định đối tượng liên quan
-            $tableableType = $credentials['obj_type'] === 'customer'
-                ? 'App\\Models\\Customer'
+            $tableableType = $credentials['obj_type'] === 'client'
+                ? 'App\\Models\\Client'
                 : 'App\\Models\\Supplier';
             $tableableId = $credentials['obj_id'];
 
             // Tự xác định tài khoản đối ứng theo type + obj_type
             $contraCode = match ([$credentials['type'], $credentials['obj_type']]) {
-                ['income', 'customer']  => '131',
+                ['income', 'client']  => '131',
                 ['income', 'supplier']  => '331',
-                ['expense', 'customer'] => '131',
+                ['expense', 'client'] => '131',
                 ['expense', 'supplier'] => '331',
             };
 
@@ -271,12 +273,12 @@ class CashTransactionController extends Controller
         $credentials = $request->validate([
             'transaction_id'     => 'required|integer|exists:transactions,id',
             'transaction_date'   => 'required|date_format:Y-m-d',
-            'obj_type'           => ['required', Rule::in(['customer', 'supplier'])],
+            'obj_type'           => ['required', Rule::in(['client', 'supplier'])],
             'account_id'         => ['required', 'exists:accounts,id'], // tài khoản tiền
             'obj_id'             => [
                 'required',
                 'integer',
-                Rule::when($request->obj_type === 'customer', ['exists:customers,id']),
+                Rule::when($request->obj_type === 'client', ['exists:clients,id']),
                 Rule::when($request->obj_type === 'supplier', ['exists:suppliers,id']),
             ],
             'type'               => ['required', Rule::in(['income', 'expense'])],
@@ -340,9 +342,9 @@ class CashTransactionController extends Controller
 
             // Tự xác định tài khoản đối ứng dựa vào type + obj_type
             $contraCode = match ([$credentials['type'], $credentials['obj_type']]) {
-                ['income', 'customer']  => '131',
+                ['income', 'client']  => '131',
                 ['income', 'supplier']  => '331',
-                ['expense', 'customer'] => '131',
+                ['expense', 'client'] => '131',
                 ['expense', 'supplier'] => '331',
             };
 
@@ -356,8 +358,8 @@ class CashTransactionController extends Controller
             }
 
             // Xác định đối tượng
-            $tableableType = $credentials['obj_type'] === 'customer'
-                ? 'App\\Models\\Customer'
+            $tableableType = $credentials['obj_type'] === 'client'
+                ? 'App\\Models\\Client'
                 : 'App\\Models\\Supplier';
             $tableableId = $credentials['obj_id'];
             $amount = $credentials['amount'];
@@ -448,7 +450,7 @@ class CashTransactionController extends Controller
         }
 
         $query = match ($type) {
-            'customer' => Customer::query()->where('name', 'like', "%$keyword%"),
+            'client' => Client::query()->where('name', 'like', "%$keyword%"),
             'supplier' => Supplier::query()->where('name', 'like', "%$keyword%"),
             default => null,
         };
@@ -462,13 +464,12 @@ class CashTransactionController extends Controller
                 'id' => $item->id,
                 'code' => $item->code,
                 'name' => match ($type) {
-                    'customer', 'supplier' => $item->name ?? '',
+                    'client', 'supplier' => $item->name ?? '',
                     default => '',
                 },
                 'phone' => $item->phone ?? '',
             ]
         );
-
 
         return response()->json($results);
     }
@@ -488,16 +489,6 @@ class CashTransactionController extends Controller
     public function list(Request $request)
     {
         $dateRange = $request->query('date_range');
-        $amounts = $request->query('amounts');
-
-        $minAmount = null;
-        $maxAmount = null;
-
-        if ($amounts) {
-            [$minRaw, $maxRaw] = array_pad(explode('-', $amounts), 2, null);
-            $minAmount = is_numeric(trim($minRaw)) ? floatval(trim($minRaw)) : null;
-            $maxAmount = is_numeric(trim($maxRaw)) ? floatval(trim($maxRaw)) : null;
-        }
 
         if ($dateRange) {
             [$from, $to] = explode(' - ', $dateRange);
@@ -519,6 +510,7 @@ class CashTransactionController extends Controller
             ->pluck('id');
 
         $entries = DB::table('transactions as t')
+            ->where('t.user_id', Auth::id())
             ->join('transaction_entries as te', 'te.transaction_id', '=', 't.id')
             ->join('accounts as ma', 'ma.id', '=', 'te.account_id')
 
@@ -530,9 +522,9 @@ class CashTransactionController extends Controller
             ->join('accounts as contra_acc', 'contra_acc.id', '=', 'te_contra.account_id')
 
             // Lấy thông tin KH/NCC từ dòng đối ứng
-            ->leftJoin('customers as c', function ($q) {
+            ->leftJoin('clients as c', function ($q) {
                 $q->on('c.id', '=', 'te_contra.tableable_id')
-                    ->where('te_contra.tableable_type', 'App\\Models\\Customer');
+                    ->where('te_contra.tableable_type', 'App\\Models\\Client');
             })
             ->leftJoin('suppliers as s', function ($q) {
                 $q->on('s.id', '=', 'te_contra.tableable_id')
@@ -543,8 +535,6 @@ class CashTransactionController extends Controller
             ->where('t.type', '!=', 'other')
             ->whereIn('te.account_id', $cashAccountIds)
             ->whereBetween('t.transaction_date', [$from, $to])
-            ->when(!is_null($minAmount), fn($q) => $q->havingRaw('SUM(te.debit_amount) >= ?', [$minAmount]))
-            ->when(!is_null($maxAmount), fn($q) => $q->havingRaw('SUM(te.debit_amount) <= ?', [$maxAmount]))
 
             ->groupBy(
                 't.id',

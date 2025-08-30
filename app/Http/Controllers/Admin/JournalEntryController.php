@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
@@ -29,11 +29,12 @@ class JournalEntryController extends Controller
             }
 
             $transactions = DB::table('transactions as t')
+                ->where('t.user_id', Auth::id())
                 ->join('transaction_entries as te', 't.id', '=', 'te.transaction_id')
                 ->join('accounts as acc', 'te.account_id', '=', 'acc.id')
-                ->leftJoin('customers as c', function ($join) {
+                ->leftJoin('clients as c', function ($join) {
                     $join->on('te.tableable_id', '=', 'c.id')
-                        ->where('te.tableable_type', '=', 'App\\Models\\Customer');
+                        ->where('te.tableable_type', '=', 'App\\Models\\Client');
                 })
                 ->leftJoin('suppliers as s', function ($join) {
                     $join->on('te.tableable_id', '=', 's.id')

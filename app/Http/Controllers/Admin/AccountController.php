@@ -216,57 +216,57 @@ class AccountController extends Controller
             }
 
             $query = "
-            WITH RECURSIVE account_tree AS (
-                SELECT ma.id, ma.code, ma.name, ma.parent_id, ma.level, CAST(ma.code AS CHAR(255)) AS path
-                FROM accounts ma
-                WHERE ma.parent_id IS NULL
+                WITH RECURSIVE account_tree AS (
+                    SELECT ma.id, ma.code, ma.name, ma.parent_id, ma.level, CAST(ma.code AS CHAR(255)) AS path
+                    FROM accounts ma
+                    WHERE ma.parent_id IS NULL
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT child.id, child.code, child.name, child.parent_id, child.level, CONCAT(parent.path, '-', child.code) AS path
-                FROM accounts child
-                JOIN account_tree parent ON child.parent_id = parent.id
-            )
-            SELECT
-                at.id AS account_id,
-                at.code AS account_code,
-                at.name AS account_name,
-                at.level,
-                at.path,
+                    SELECT child.id, child.code, child.name, child.parent_id, child.level, CONCAT(parent.path, '-', child.code) AS path
+                    FROM accounts child
+                    JOIN account_tree parent ON child.parent_id = parent.id
+                )
+                SELECT
+                    at.id AS account_id,
+                    at.code AS account_code,
+                    at.name AS account_name,
+                    at.level,
+                    at.path,
 
-                GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0),0) AS opening_debit,
-                GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0),0) AS opening_credit,
+                    GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0),0) AS opening_debit,
+                    GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0),0) AS opening_credit,
 
-                GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0),0) AS period_debit,
-                GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0),0) AS period_credit,
+                    GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0),0) AS period_debit,
+                    GREATEST(COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0),0) AS period_credit,
 
-                GREATEST((
-                    COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0)
-                    + COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0)
-                    - COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0)
-                    - COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0)
-                ),0) AS closing_balance_debit,
+                    GREATEST((
+                        COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0)
+                        + COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0)
+                        - COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0)
+                        - COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0)
+                    ),0) AS closing_balance_debit,
 
-                GREATEST((
-                    COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0)
-                    + COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0)
-                    - COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0)
-                    - COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0)
-                ),0) AS closing_balance_credit
+                    GREATEST((
+                        COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.credit_amount ELSE 0 END),0)
+                        + COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.credit_amount ELSE 0 END),0)
+                        - COALESCE(SUM(CASE WHEN t.transaction_date < ? THEN te.debit_amount ELSE 0 END),0)
+                        - COALESCE(SUM(CASE WHEN t.transaction_date BETWEEN ? AND ? THEN te.debit_amount ELSE 0 END),0)
+                    ),0) AS closing_balance_credit
 
-            FROM account_tree at
-                LEFT JOIN transaction_entries te
-                ON te.account_id = at.id
-                AND te.tableable_type IS  NULL
-                AND te.tableable_id IS  NULL
-            LEFT JOIN transactions t
-                ON t.id = te.transaction_id
-                AND t.type != 'other'
-
-            WHERE (at.code LIKE ? OR at.name LIKE ?)
-            GROUP BY at.id, at.code, at.name, at.level, at.path
-            ORDER BY at.path
-            ";
+                FROM account_tree at
+                    LEFT JOIN transaction_entries te
+                        ON te.account_id = at.id
+                        AND te.tableable_type IS NULL
+                        AND te.tableable_id IS NULL
+                    LEFT JOIN transactions t
+                        ON t.id = te.transaction_id
+                        AND t.type != 'other'
+                        AND t.user_id = ?   -- ✅ thêm điều kiện user_id
+                WHERE (at.code LIKE ? OR at.name LIKE ?)
+                GROUP BY at.id, at.code, at.name, at.level, at.path
+                ORDER BY at.path
+                ";
 
             $bindings = [
                 $startDate,
@@ -287,6 +287,7 @@ class AccountController extends Controller
                 $startDate,
                 $startDate,
                 $endDate,
+                Auth::id(),  // ✅ binding user_id
                 "%{$searchInput}%",
                 "%{$searchInput}%"
             ];

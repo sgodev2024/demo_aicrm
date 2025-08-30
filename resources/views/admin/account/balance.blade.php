@@ -2,21 +2,8 @@
 
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <span class="text-muted">báo cáo tổng hợp theo tài khoản</span>
-                </li>
-            </ul>
-        </div>
+
+        <x-breadcrumb :items="[['label' => 'báo cáo tổng hợp theo tài khoản']]" />
 
         <div class="card">
             <div class="card-header">
@@ -157,6 +144,8 @@
 
 
 @push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
     <style>
         .financial-table {
             font-size: 14px;

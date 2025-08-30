@@ -63,10 +63,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($customerDebts as $index => $debt)
+                    @forelse($clientDebts as $index => $debt)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td class="text-start">{{ $debt->customer_name }} <br /> SDT: {{ $debt->customer_phone }}</td>
+                            <td class="text-start">{{ $debt->client_name }} <br /> SDT: {{ $debt->client_phone }}</td>
                             <td class="text-end">{{ formatPrice($debt->opening_debit) }}</td>
                             <td class="text-end">{{ formatPrice($debt->opening_credit) }}</td>
                             <td class="text-end">{{ formatPrice($debt->period_debit) }}</td>
@@ -161,7 +161,7 @@
                 tbody += `
             <tr>
                 <td>${index + 1}</td>
-                <td class="text-start">${debt.customer_phone} - ${debt.customer_name}</td>
+                <td class="text-start">${debt.client_phone} - ${debt.client_name}</td>
                 <td class="text-end">${debt.opening_debit != 0 ? formatNumber(debt.opening_debit) : ''}</td>
                 <td class="text-end">${debt.opening_credit != 0 ? formatNumber(debt.opening_credit) : ''}</td>
                 <td class="text-end">${debt.period_debit != 0 ? formatNumber(debt.period_debit) : ''}</td>

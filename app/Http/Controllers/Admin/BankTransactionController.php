@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\MoneyAccount;
@@ -27,16 +28,6 @@ class BankTransactionController extends Controller
     public function list(Request $request)
     {
         $dateRange = $request->query('date_range');
-        $amounts = $request->query('amounts');
-
-        $minAmount = null;
-        $maxAmount = null;
-
-        if ($amounts) {
-            [$minRaw, $maxRaw] = array_pad(explode('-', $amounts), 2, null);
-            $minAmount = is_numeric(trim($minRaw)) ? floatval(trim($minRaw)) : null;
-            $maxAmount = is_numeric(trim($maxRaw)) ? floatval(trim($maxRaw)) : null;
-        }
 
         if ($dateRange) {
             [$from, $to] = explode(' - ', $dateRange);
@@ -58,6 +49,7 @@ class BankTransactionController extends Controller
             ->pluck('id');
 
         $entries = DB::table('transactions as t')
+            ->where('t.user_id', Auth::id())
             ->join('transaction_entries as te', 'te.transaction_id', '=', 't.id')
             ->join('accounts as ma', 'ma.id', '=', 'te.account_id')
 
@@ -69,9 +61,9 @@ class BankTransactionController extends Controller
             ->join('accounts as contra_acc', 'contra_acc.id', '=', 'te_contra.account_id')
 
             // Lấy thông tin KH/NCC từ dòng đối ứng
-            ->leftJoin('customers as c', function ($q) {
+            ->leftJoin('clients as c', function ($q) {
                 $q->on('c.id', '=', 'te_contra.tableable_id')
-                    ->where('te_contra.tableable_type', 'App\\Models\\Customer');
+                    ->where('te_contra.tableable_type', 'App\\Models\\Client');
             })
             ->leftJoin('suppliers as s', function ($q) {
                 $q->on('s.id', '=', 'te_contra.tableable_id')
@@ -82,9 +74,6 @@ class BankTransactionController extends Controller
             ->where('t.type', '!=', 'other')
             ->whereIn('te.account_id', $bankAccountIds)
             ->whereBetween('t.transaction_date', [$from, $to])
-            ->when(!is_null($minAmount), fn($q) => $q->havingRaw('SUM(te.debit_amount) >= ?', [$minAmount]))
-            ->when(!is_null($maxAmount), fn($q) => $q->havingRaw('SUM(te.debit_amount) <= ?', [$maxAmount]))
-
             ->groupBy(
                 't.id',
                 't.transaction_date',
@@ -134,7 +123,7 @@ class BankTransactionController extends Controller
         $transactionId = $request->input('transactionId', null);
 
         // Lấy danh sách tài khoản ngân hàng (con của 112)
-        $moneyAccounts = MoneyAccount::query()
+        $moneyAccounts = Account::query()
             ->whereHas('parent', function ($q) {
                 $q->where('code', 112);
             })
@@ -196,12 +185,12 @@ class BankTransactionController extends Controller
     {
         $credentials = $request->validate([
             'transaction_date'   => 'required|date_format:Y-m-d',
-            'obj_type'           => ['required', Rule::in(['customer', 'supplier'])],
+            'obj_type'           => ['required', Rule::in(['client', 'supplier'])],
             'account_id'         => ['required', 'exists:accounts,id'], // tài khoản tiền
             'obj_id'             => [
                 'required',
                 'integer',
-                Rule::when($request->obj_type === 'customer', ['exists:customers,id']),
+                Rule::when($request->obj_type === 'client', ['exists:clients,id']),
                 Rule::when($request->obj_type === 'supplier', ['exists:suppliers,id']),
             ],
             'type'               => ['required', Rule::in(['debit_notice', 'credit_notice'])],
@@ -213,7 +202,8 @@ class BankTransactionController extends Controller
         ]);
 
         return DB::transaction(function () use ($credentials, $request) {
-            $credentials['created_by'] = Auth::guard('admin')->id();
+            $userId = Auth::id();
+            $credentials['created_by'] = $userId;
 
             // Nếu là phiếu chi, kiểm tra số dư tài khoản tiền
             if ($credentials['type'] === 'debit_notice') {
@@ -246,6 +236,7 @@ class BankTransactionController extends Controller
 
             // Tạo phiếu (transaction)
             $transaction = Transaction::create([
+                'user_id'            => $userId,
                 'transaction_date'   => $credentials['transaction_date'],
                 'description'        => $credentials['description'] ?? null,
                 'reference_number'   => $credentials['reference_number'] ?? null,
@@ -256,20 +247,20 @@ class BankTransactionController extends Controller
             ]);
 
             // Xác định đối tượng
-            $tableableType = $credentials['obj_type'] === 'customer'
-                ? 'App\\Models\\Customer'
+            $tableableType = $credentials['obj_type'] === 'client'
+                ? 'App\\Models\\Client'
                 : 'App\\Models\\Supplier';
             $tableableId = $credentials['obj_id'];
 
             // Tự xác định tài khoản đối ứng theo type + obj_type
             $contraCode = match ([$credentials['type'], $credentials['obj_type']]) {
-                ['credit_notice', 'customer']  => '131',
+                ['credit_notice', 'client']  => '131',
                 ['credit_notice', 'supplier']  => '331',
-                ['debit_notice', 'customer'] => '131',
+                ['debit_notice', 'client'] => '131',
                 ['debit_notice', 'supplier'] => '331',
             };
 
-            $contraAccountId = MoneyAccount::where('code', $contraCode)->value('id');
+            $contraAccountId = Account::where('code', $contraCode)->value('id');
 
             if (!$contraAccountId) {
                 return response()->json([
@@ -318,7 +309,7 @@ class BankTransactionController extends Controller
             return response()->json([
                 'success'  => true,
                 'message'  => 'Tạo phiếu thu/chi thành công.',
-                'redirect' => '/admin/bank-transactions'
+                'redirect' => '/admin/transactions/bank'
             ]);
         });
     }
@@ -379,12 +370,12 @@ class BankTransactionController extends Controller
         $credentials = $request->validate([
             'transaction_id'     => 'required|integer|exists:transactions,id',
             'transaction_date'   => 'required|date_format:Y-m-d',
-            'obj_type'           => ['required', Rule::in(['customer', 'supplier'])],
+            'obj_type'           => ['required', Rule::in(['client', 'supplier'])],
             'account_id'         => ['required', 'exists:accounts,id'], // tài khoản tiền
             'obj_id'             => [
                 'required',
                 'integer',
-                Rule::when($request->obj_type === 'customer', ['exists:customers,id']),
+                Rule::when($request->obj_type === 'client', ['exists:clients,id']),
                 Rule::when($request->obj_type === 'supplier', ['exists:suppliers,id']),
             ],
             'type'               => ['required', Rule::in(['debit_notice', 'credit_notice'])],
@@ -446,13 +437,13 @@ class BankTransactionController extends Controller
 
             // Tự xác định tài khoản đối ứng theo type + obj_type
             $contraCode = match ([$credentials['type'], $credentials['obj_type']]) {
-                ['credit_notice', 'customer']  => '131',
+                ['credit_notice', 'client']  => '131',
                 ['credit_notice', 'supplier']  => '331',
-                ['debit_notice', 'customer'] => '131',
+                ['debit_notice', 'client'] => '131',
                 ['debit_notice', 'supplier'] => '331',
             };
 
-            $contraAccountId = MoneyAccount::where('code', $contraCode)->value('id');
+            $contraAccountId = Account::where('code', $contraCode)->value('id');
 
             if (!$contraAccountId) {
                 return response()->json([
@@ -461,8 +452,8 @@ class BankTransactionController extends Controller
                 ], 400);
             }
 
-            $tableableType = $credentials['obj_type'] === 'customer'
-                ? 'App\\Models\\Customer'
+            $tableableType = $credentials['obj_type'] === 'client'
+                ? 'App\\Models\\Client'
                 : 'App\\Models\\Supplier';
             $tableableId = $credentials['obj_id'];
 

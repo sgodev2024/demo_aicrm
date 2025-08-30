@@ -234,6 +234,28 @@
                     },
                 });
             });
+
+        }
+
+        function formatNumber(amount) {
+            if (!amount) return "0";
+
+            const formatted = new Intl.NumberFormat("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(amount);
+
+            // Remove .00 if present
+            if (formatted.endsWith(".00")) {
+                return formatted.slice(0, -3);
+            }
+
+            // Remove trailing 0 if present
+            if (formatted.endsWith("0")) {
+                return formatted.slice(0, -1);
+            }
+
+            return formatted;
         }
     </script>
 

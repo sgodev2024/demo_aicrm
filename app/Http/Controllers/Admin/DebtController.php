@@ -30,49 +30,49 @@ class DebtController extends Controller
             $startDate = $endDate->copy()->subMonth()->startOfDay();
         }
 
-        $customersQuery = DB::table('customers as c')
+        $clientsQuery = DB::table('clients as c')
             ->select('c.id', 'c.name', 'c.code', 'c.phone');
 
         if ($nameFilter) {
-            $customersQuery->where('c.name', 'like', "%$nameFilter%");
+            $clientsQuery->where('c.name', 'like', "%$nameFilter%");
         }
 
-        $debtReports = $customersQuery->get()
-            ->map(function ($customer) use ($startDate, $endDate) {
+        $debtReports = $clientsQuery->get()
+            ->map(function ($client) use ($startDate, $endDate) {
                 $so_du_no_dau = DB::table('transaction_entries as te')
                     ->join('transactions as t', 't.id', '=', 'te.transaction_id')
-                    ->where('te.tableable_type', 'App\\Models\\Customer')
-                    ->where('te.tableable_id', $customer->id)
+                    ->where('te.tableable_type', 'App\\Models\\Client')
+                    ->where('te.tableable_id', $client->id)
                     ->where('t.transaction_date', '<', $startDate)
                     ->sum('te.debit_amount');
 
                 $so_du_co_dau = DB::table('transaction_entries as te')
                     ->join('transactions as t', 't.id', '=', 'te.transaction_id')
-                    ->where('te.tableable_type', 'App\\Models\\Customer')
-                    ->where('te.tableable_id', $customer->id)
+                    ->where('te.tableable_type', 'App\\Models\\Client')
+                    ->where('te.tableable_id', $client->id)
                     ->where('t.transaction_date', '<', $startDate)
                     ->sum('te.credit_amount');
 
                 $ghi_no = DB::table('transaction_entries as te')
                     ->join('transactions as t', 't.id', '=', 'te.transaction_id')
-                    ->where('te.tableable_type', 'App\\Models\\Customer')
-                    ->where('te.tableable_id', $customer->id)
+                    ->where('te.tableable_type', 'App\\Models\\Client')
+                    ->where('te.tableable_id', $client->id)
                     ->whereBetween('t.transaction_date', [$startDate, $endDate])
                     ->sum('te.debit_amount');
 
                 $ghi_co = DB::table('transaction_entries as te')
                     ->join('transactions as t', 't.id', '=', 'te.transaction_id')
-                    ->where('te.tableable_type', 'App\\Models\\Customer')
-                    ->where('te.tableable_id', $customer->id)
+                    ->where('te.tableable_type', 'App\\Models\\Client')
+                    ->where('te.tableable_id', $client->id)
                     ->whereBetween('t.transaction_date', [$startDate, $endDate])
                     ->sum('te.credit_amount');
 
                 $so_du_rong = ($so_du_no_dau + $ghi_no) - ($so_du_co_dau + $ghi_co);
 
                 return (object)[
-                    'customer_code' => $customer->code,
-                    'customer_name' => $customer->name,
-                    'customer_phone' => $customer->phone,
+                    'client_code' => $client->code,
+                    'client_name' => $client->name,
+                    'client_phone' => $client->phone,
                     'opening_debit' => $so_du_no_dau,
                     'opening_credit' => $so_du_co_dau,
                     'period_debit' => $ghi_no,
@@ -92,7 +92,7 @@ class DebtController extends Controller
         }
 
         return view('admin.debt.customer', [
-            'customerDebts' => $debtReports,
+            'clientDebts' => $debtReports,
             'startDate' => $startDate,
             'endDate' => $endDate
         ]);
@@ -186,14 +186,14 @@ class DebtController extends Controller
     {
         $credentials = Validator::make($request->all(), [
             'transaction_date' => 'required|date_format:Y-m-d',
-            'object_type'      => 'required|in:customer,supplier',
+            'object_type'      => 'required|in:client,supplier',
             'type'             => 'required|in:income,expense',
             'amount'           => 'required|numeric|min:0',
             'description'      => 'nullable|max:255',
             'object_id'        => [
                 'required',
                 'integer',
-                Rule::when($request->object_type === 'customer', ['exists:customers,id']),
+                Rule::when($request->object_type === 'client', ['exists:clients,id']),
                 Rule::when($request->object_type === 'supplier', ['exists:suppliers,id']),
             ],
         ], [
@@ -201,7 +201,7 @@ class DebtController extends Controller
             'transaction_date.required' => 'Vui lòng chọn ngày giao dịch.',
             'transaction_date.date_format' => 'Ngày giao dịch không đúng định dạng (Y-m-d).',
             'object_type.required' => 'Vui lòng chọn loại đối tượng.',
-            'object_type.in' => 'Loại đối tượng không hợp lệ (chỉ customer hoặc supplier).',
+            'object_type.in' => 'Loại đối tượng không hợp lệ (chỉ client hoặc supplier).',
             'type.required' => 'Vui lòng chọn loại giao dịch.',
             'type.in' => 'Loại giao dịch không hợp lệ (chỉ income hoặc expense).',
             'amount.required' => 'Vui lòng nhập số tiền.',
@@ -235,11 +235,12 @@ class DebtController extends Controller
                 'description' => $credentials['description'],
                 'type' => 'other', // phiếu công nợ đầu kỳ
                 'created_by' => Auth::id(),
+                'user_id' => Auth::id(),
             ]);
 
             // Xác định đối tượng (customer hoặc supplier)
-            $tableableType = $credentials['object_type'] === 'customer'
-                ? 'App\\Models\\Customer'
+            $tableableType = $credentials['object_type'] === 'client'
+                ? 'App\\Models\\Client'
                 : 'App\\Models\\Supplier';
             $tableableId = $credentials['object_id'];
 
@@ -267,7 +268,7 @@ class DebtController extends Controller
 
             $message = "Tạo công nợ đầu kỳ thành công.";
 
-            $redirect = $credentials['object_type'] === 'customer'
+            $redirect = $credentials['object_type'] === 'client'
                 ? '/admin/debts/customer'
                 : '/admin/debts/supplier';
 

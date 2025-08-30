@@ -209,7 +209,7 @@ Route::middleware(['auth'])
                 Route::delete('/delete/{id}', [ClientController::class, 'delete'])->name('delete');
                 Route::get('/filter', [ClientController::class, 'findClient'])->name('filter');
                 Route::get('/clientgroup', [ClientController::class, 'clientgroup'])->name('clientgroup.index');
-                Route::get('/export', [ClientController::class, 'export'])->name('export');
+                Route::get('export', [ClientController::class, 'export'])->name('export');
             });
 
 
@@ -224,7 +224,7 @@ Route::middleware(['auth'])
             });
             Route::prefix('order')->name('order.')->group(function () {
                 Route::get('/', [OrderController::class, 'index'])->name('index');
-                Route::get('/detail/{id}', [OrderController::class, 'detail'])->name('detail');
+                Route::get('{id}', [OrderController::class, 'show'])->name('show');
             });
 
             Route::prefix('config')
@@ -321,12 +321,12 @@ Route::middleware(['auth'])
 
         // kế toán
         Route::middleware(['role:3'])->group(function () {
-            Route::prefix('debts')->name('debts.')->group(function () {
-                Route::get('/client', [DebtClientController::class, 'index'])->name('client');
-                Route::get('/client/detail/{id}', [DebtClientController::class, 'detail'])->name('client.detail');
-                Route::get('/supplier', [DebtNccController::class, 'index'])->name('supplier');
-                Route::get('/supplier/detail/{id}', [DebtNccController::class, 'detail'])->name('supplier.detail');
-            });
+            // Route::prefix('debts')->name('debts.')->group(function () {
+            //     Route::get('/client', [DebtClientController::class, 'index'])->name('client');
+            //     Route::get('/client/detail/{id}', [DebtClientController::class, 'detail'])->name('client.detail');
+            //     Route::get('/supplier', [DebtNccController::class, 'index'])->name('supplier');
+            //     Route::get('/supplier/detail/{id}', [DebtNccController::class, 'detail'])->name('supplier.detail');
+            // });
 
             Route::prefix('debts')->controller(DebtController::class)->name('debts.')->group(function () {
                 Route::get('customer', 'customer')->name('customer');
@@ -373,6 +373,8 @@ Route::middleware(['auth'])
                 ->name('transactions.bank.')
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
+                    Route::get('save', 'save')->name('save');
+                    Route::post('store', 'store')->name('store');
                     Route::get('ajax/list', 'list')->name('list');
                 });
         });
