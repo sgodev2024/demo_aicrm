@@ -237,7 +237,7 @@
                                 <label class="form-label">Phương thức thanh toán</label>
                                 <select id="paymentMethod" class="form-select">
                                     <option value="cash">Tiền mặt</option>
-                                    <option value="transfer">Chuyển khoản</option>
+                                    <option value="bank_transfer">Chuyển khoản</option>
                                     <option value="cod">Công nợ</option>
                                 </select>
                             </div>
