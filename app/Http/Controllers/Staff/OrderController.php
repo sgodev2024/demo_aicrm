@@ -192,7 +192,7 @@ class OrderController extends Controller
                 'discount_value'       => $discount,
                 'discount_type'       => $credentials['discountType'],
                 'total_money'    => $grand,
-                'status'         => 0, // Trạng thái đơn hàng, 0 = chờ xử lý
+                'status'         => 1, // Trạng thái đơn hàng, 0 = chờ xử lý
                 'created_by' => $user->id
             ]);
 
