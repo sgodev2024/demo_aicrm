@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Responses\ApiResponse;
-use App\Services\DashboardService;
-use App\Services\OrderService;
 use Exception;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Services\OrderService;
+use App\Services\DashboardService;
 use Illuminate\Support\Facades\DB;
+use App\Http\Responses\ApiResponse;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
@@ -31,6 +32,7 @@ class DashboardController extends Controller
         $aovStats           = $this->getAverageOrderValue($startDate, $endDate);
         $topSellingProducts = $this->getTopSellingProducts($startDate, $endDate);
         $lowStockProducts   = $this->getLowStockProducts();
+        $latestOrders = $this->getLatestOrders();
 
         return view('welcome', compact(
             'stats',
@@ -39,7 +41,8 @@ class DashboardController extends Controller
             'inventoryStats',
             'aovStats',
             'topSellingProducts',
-            'lowStockProducts'
+            'lowStockProducts',
+            'latestOrders'
         ));
     }
 
@@ -127,12 +130,12 @@ class DashboardController extends Controller
     {
         // Tổng tồn kho (tính tổng quantity)
         $totalStock = DB::table('products')
-            ->where('status', 'published')
+            ->where('status', 1)
             ->sum('quantity');
 
         // Số sản phẩm sắp hết
         $lowStockCount = DB::table('products')
-            ->where('status', 'published')
+            ->where('status', 1)
             ->where('quantity', '<=', $lowStockThreshold)
             ->count();
 
@@ -204,7 +207,7 @@ class DashboardController extends Controller
     {
         return DB::table('products')
             ->select('name', 'quantity')
-            ->where('status', 'published')
+            ->where('status', 1)
             ->orderBy('quantity', 'asc')
             ->limit($limit)
             ->get()
@@ -213,6 +216,23 @@ class DashboardController extends Controller
                 $product->status_class = $product->quantity <= $lowStockThreshold ? 'low-stock' : 'in-stock';
                 return $product;
             })
+            ->toArray();
+    }
+    private function getLatestOrders($limit = 6): array
+    {
+        return DB::table('orders as o')
+            ->leftJoin('users as u', 'o.user_id', '=', 'u.id')
+            ->leftJoin('clients as c', 'o.client_id', '=', 'c.id')
+            ->select(
+                'o.id as order_id',
+                'o.code as order_code',
+                DB::raw("COALESCE(o.name, c.name, u.name, 'Khách lạ') as customer_name"),
+                'o.total_money',
+                'o.payment_method'
+            )
+            ->orderByDesc('o.created_at')
+            ->limit($limit)
+            ->get()
             ->toArray();
     }
 }
