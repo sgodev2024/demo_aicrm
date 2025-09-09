@@ -45,7 +45,9 @@ class ReportController extends Controller
             $latestImportCoupon = ImportCoupon::where('storage_id', $storage_id)
                 ->orderBy('created_at', 'desc')
                 ->first();
+
             $latestImportDate = $latestImportCoupon ? $latestImportCoupon->created_at : null;
+
             $yesterday = now()->subDay()->toDateString();
 
             return view('admin.inventory.index', compact('title', 'products', 'storages', 'storage', 'latestImportDate', 'yesterday'));

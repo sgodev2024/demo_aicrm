@@ -207,9 +207,9 @@
                     _token: '{{ csrf_token() }}',
                 },
                 success: function(response) {
-                    var exportPdfBtn = $('#exportPdf');
+                    // var exportPdfBtn = $('#exportPdf');
                     updateTable(response.product);
-                    exportPdfBtn.show();
+                    // exportPdfBtn.show();
                 }
             });
             $('#storageSelect').change(function() {
@@ -248,7 +248,7 @@
                                         },
                                         success: function(response) {
                                             updateTable(response.product);
-                                            exportPdfBtn.show();
+                                            // exportPdfBtn.show();
                                         }
                                     });
                                 } else {
@@ -268,68 +268,68 @@
                                 },
                                 success: function(response) {
                                     updateTable(response.product);
-                                    exportPdfBtn.show();
+                                    // exportPdfBtn.show();
                                 }
                             });
                         }
 
-                        exportPdfBtn.off('click').click(function() {
-                            if (period == 6) {
-                                var startDate = $('#startDate').val();
-                                var endDate = $('#endDate').val();
-                                $.ajax({
-                                    url: '{{ route('admin.profit.getProfitReportByFilterPDF') }}',
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        storage_id: storageId,
-                                        filter: period,
-                                        startDate: startDate,
-                                        endDate: endDate
-                                    },
-                                    xhrFields: {
-                                        responseType: 'blob'
-                                    },
-                                    success: function(response) {
-                                        var link = document.createElement('a');
-                                        var url = window.URL.createObjectURL(
-                                            response);
-                                        link.href = url;
-                                        link.download = 'profit_report.pdf';
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        window.URL.revokeObjectURL(url);
-                                        document.body.removeChild(link);
-                                    }
-                                });
+                        // exportPdfBtn.off('click').click(function() {
+                        //     if (period == 6) {
+                        //         var startDate = $('#startDate').val();
+                        //         var endDate = $('#endDate').val();
+                        //         $.ajax({
+                        //             url: '{{ route('admin.profit.getProfitReportByFilterPDF') }}',
+                        //             type: 'POST',
+                        //             data: {
+                        //                 _token: '{{ csrf_token() }}',
+                        //                 storage_id: storageId,
+                        //                 filter: period,
+                        //                 startDate: startDate,
+                        //                 endDate: endDate
+                        //             },
+                        //             xhrFields: {
+                        //                 responseType: 'blob'
+                        //             },
+                        //             success: function(response) {
+                        //                 var link = document.createElement('a');
+                        //                 var url = window.URL.createObjectURL(
+                        //                     response);
+                        //                 link.href = url;
+                        //                 link.download = 'profit_report.pdf';
+                        //                 document.body.appendChild(link);
+                        //                 link.click();
+                        //                 window.URL.revokeObjectURL(url);
+                        //                 document.body.removeChild(link);
+                        //             }
+                        //         });
 
-                            } else {
-                                $.ajax({
-                                    url: '{{ route('admin.profit.getProfitReportByFilterPDF') }}',
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        storage_id: storageId,
-                                        filter: period,
-                                    },
-                                    xhrFields: {
-                                        responseType: 'blob'
-                                    },
-                                    success: function(response) {
-                                        var link = document.createElement('a');
-                                        var url = window.URL.createObjectURL(
-                                            response);
-                                        link.href = url;
-                                        link.download = 'profit_report.pdf';
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        window.URL.revokeObjectURL(url);
-                                        document.body.removeChild(link);
-                                    }
-                                });
-                            }
+                        //     } else {
+                        //         $.ajax({
+                        //             url: '{{ route('admin.profit.getProfitReportByFilterPDF') }}',
+                        //             type: 'POST',
+                        //             data: {
+                        //                 _token: '{{ csrf_token() }}',
+                        //                 storage_id: storageId,
+                        //                 filter: period,
+                        //             },
+                        //             xhrFields: {
+                        //                 responseType: 'blob'
+                        //             },
+                        //             success: function(response) {
+                        //                 var link = document.createElement('a');
+                        //                 var url = window.URL.createObjectURL(
+                        //                     response);
+                        //                 link.href = url;
+                        //                 link.download = 'profit_report.pdf';
+                        //                 document.body.appendChild(link);
+                        //                 link.click();
+                        //                 window.URL.revokeObjectURL(url);
+                        //                 document.body.removeChild(link);
+                        //             }
+                        //         });
+                        //     }
 
-                        })
+                        // })
 
 
                     });

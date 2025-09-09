@@ -10,7 +10,10 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\Response;
 
 class StorageController extends Controller
 {
@@ -20,89 +23,64 @@ class StorageController extends Controller
         $this->storageService = $storageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $title = 'Kho hàng';
-        try {
-            $storages  = $this->storageService->getPaginatedStorage();
-            return view('admin.storage.index', compact('title', 'storages'));
-        } catch (Exception $e) {
-            Log::error("Failed to fetch Storages: " . $e->getMessage());
-            return response()->json(['error' => 'Failed to fetch Storages'], 500);
-        }
-    }
-    public function getProductInStorage()
-    {
-    }
-    public function findStorageByName(Request $request)
-    {
-        try {
-            $storages = $this->storageService->findStorageByName($request->name);
-            $storages = new LengthAwarePaginator(
-                $storages,
-                $storages->count(),
-                10,
-                LengthAwarePaginator::resolveCurrentPage(),
-                ['path' => Paginator::resolveCurrentPath()]
-            );
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'table' => view('admin.storage.table', ['storages' => $storages])->render(),
-                    'pagination' => $storages->appends($request->except('page'))->links('vendor.pagination.custom')->toHtml()
-                ]);
-            }
+        if ($request->ajax()) {
+            $searchText = $request->query('s');
 
-            return view('admin.storage.index', compact('storages'));
-        } catch (Exception $e) {
-            Log::error('Failed to find storage: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to find Storage'], 500);
+            $storages = Storage::query()
+                ->where('user_id', Auth::id())
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    $query->where('name', 'like', "%{$searchText}%");
+                })
+                ->latest()
+                ->paginate(10);
+
+            $html = view('admin.storage.table', compact('storages'))->render();
+
+            return response()->json(['html' => $html]);
         }
-    }
-    public function edit($id)
-    {
-        $title = "Sửa thông tin kho hàng";
-        try {
-            $storages = $this->storageService->getStorageById($id);
-            return view('admin.storage.edit', compact('title', 'storages'));
-        } catch (Exception $e) {
-            Log::error('Failed to find Storage: ' . $e->getMessage());
-        }
-    }
-    public function add()
-    {
-        $title = "Thêm kho hàng";
-        return view('admin.storage.add', compact('title'));
+
+        return view('admin.storage.index');
     }
 
-    public function create(Request $request)
+    public function show($id)
     {
-        $storages = $this->storageService->addStorage($request->all());
-        return redirect()->route('admin.storage.index')->with('success', 'Thêm kho hàng thành công');
-    }
-    public function update($id, Request $request)
-    {
-        try {
-            $storages = $this->storageService->updateStorage($id, $request->all());
-            session()->flash('success', 'Cập nhật thông tin kho hàng thành công');
-            return redirect()->route('admin.storage.index');
-        } catch (Exception $e) {
-            Log::error('Failed to update Storage: ' . $e->getMessage());
-            return ApiResponse::error('Failed to update storage', 500);
-        }
+        $storage = Storage::query()
+            ->where('user_id', Auth::id())
+            ->find($id);
+
+        if (!$storage) return errorResponse('Không tin thấy kho tên hệ thống!', Response::HTTP_NOT_FOUND);
+
+        return successResponse(data: $storage, isToastr: false);
     }
 
-    public function delete($id)
+    public function store(Request $request)
     {
-        try {
-            $this->storageService->deleteStorage($id);
-            $storages = Storage::orderByDesc('created_at')->paginate(10);
-            $view = view('admin.storage.table', compact('storages'))->render();
-            return response()->json(['success' => true, 'message' => 'Xóa kho hàng thành công', 'table' => $view]);
-        } catch (Exception $e) {
-            Log::error('Failed to delete Storage: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Không thể xóa kho hàng']);
-        }
+        $credentials = $this->validateRequest($request);
+
+        return transaction(function () use ($credentials) {
+            $credentials['user_id'] = Auth::id();
+            Storage::create($credentials);
+
+            return successResponse('Tạo mới kho thành công.', code: Response::HTTP_CREATED);
+        });
+    }
+    public function update(Request $request, string $id)
+    {
+        $credentials = $this->validateRequest($request, $id);
+
+        return transaction(function () use ($credentials, $id) {
+
+            $userId = Auth::id();
+
+            if (!$storage = Storage::query()->where('user_id', $userId)->find($id)) return errorResponse('Không tìm thấy kho trên hệ thống!', Response::HTTP_NOT_FOUND);
+
+            $storage->update($credentials);
+
+            return successResponse('Cập nhật kho thành công.', code: Response::HTTP_OK);
+        });
     }
 
     public function detail($id)
@@ -115,5 +93,22 @@ class StorageController extends Controller
             Log::error('Failed to find Storage info: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to fetch Storage info'], 500);
         }
+    }
+
+    private function validateRequest($request, $id = null)
+    {
+        return $request->validate([
+            'name' => [
+                'required',
+                'max:255',
+                Rule::unique('storages') // thay bằng tên bảng thực tế
+                    ->where(fn($q) => $q->where('user_id', Auth::id()))
+                    ->ignore($id),
+            ],
+            'location' => 'nullable|max:255',
+        ], __('request.messages'), [
+            'name' => 'Tên kho',
+            'location' => 'Địa chỉ',
+        ]);
     }
 }

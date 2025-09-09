@@ -293,6 +293,7 @@ Route::middleware(['auth'])
                 Route::post('report', [ReportController::class, 'getReportByStorage'])->name('getReportByStorage');
                 Route::get('exportPdf', [ReportController::class, 'exportPdf'])->name('exportPdf');
             });
+
             Route::prefix('importproduct')->name('importproduct.')->group(function () {
                 Route::get('/', [ImportProductController::class, 'index'])->name('index');
                 Route::get('/add', [ImportProductController::class, 'add'])->name('add');
@@ -302,20 +303,22 @@ Route::middleware(['auth'])
                 Route::post('/import/update/price', [ImportProductController::class, 'importupdateprice'])->name('import.update.price');
                 Route::get('/import/delete', [ImportProductController::class, 'importdelete'])->name('import.delete');
                 Route::post('/import/addCategory', [ImportProductController::class, 'addCategory'])->name('import.addCategory');
+                
                 // tạo phiếu
                 Route::post('/importCoupon', [importCouponController::class, 'add'])->name('importCoupon.add');
                 Route::get('/detail/{id}', [ImportProductController::class, 'importdetail'])->name('importCoupon.detail');
             });
-            Route::prefix('storage')->name('storage.')->group(function () {
-                Route::get('', [StorageController::class, 'index'])->name('index');
-                Route::get('detail/{id}', [StorageController::class, 'edit'])->name('detail');
-                Route::post('update/{id}', [StorageController::class, 'update'])->name('update');
-                Route::get('add', [StorageController::class, 'add'])->name('add');
-                Route::post('create', [StorageController::class, 'create'])->name('create');
-                Route::get('findByName', [StorageController::class, 'findStorageByName'])->name('findByName');
-                Route::delete('delete/{id}', [StorageController::class, 'delete'])->name('delete');
-                Route::get('/products/{id}', [StorageController::class, 'detail'])->name('products');
-            });
+
+            Route::prefix('storage')
+                ->controller(StorageController::class)
+                ->name('storage.')
+                ->group(function () {
+                    Route::get('/',  'index')->name('index');
+                    Route::post('/',  'store')->name('store');
+                    Route::get('{id}',  'show')->name('show');
+                    Route::put('{id}',  'update')->name('update');
+                    Route::get('/products/{id}',  'detail')->name('products');
+                });
         });
         //end kho
 

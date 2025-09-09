@@ -9,12 +9,11 @@ class Storage extends Model
 {
     use HasFactory;
 
-    protected $table = 'storages';
     protected $fillable = [
+        'user_id',
         'name',
         'location',
     ];
-
 
     public function products()
     {
