@@ -267,34 +267,26 @@
                                         <th>Mã đơn</th>
                                         <th>Khách hàng</th>
                                         <th>Giá trị</th>
-                                        <th>Trạng thái</th>
+                                        <th>Phương thức thanh toán</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><strong>#DH001</strong></td>
-                                        <td>Nguyễn Văn A</td>
-                                        <td>1.250.000 ₫</td>
-                                        <td><span class="status-badge status-completed">Hoàn thành</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>#DH002</strong></td>
-                                        <td>Trần Thị B</td>
-                                        <td>890.000 ₫</td>
-                                        <td><span class="status-badge status-pending">Đang xử lý</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>#DH003</strong></td>
-                                        <td>Lê Văn C</td>
-                                        <td>2.100.000 ₫</td>
-                                        <td><span class="status-badge status-completed">Hoàn thành</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>#DH004</strong></td>
-                                        <td>Phạm Thị D</td>
-                                        <td>450.000 ₫</td>
-                                        <td><span class="status-badge status-cancelled">Đã hủy</span></td>
-                                    </tr>
+                                    @foreach ($latestOrders as $order)
+                                        <tr>
+                                            <td>{{ $order->order_code }}</td>
+                                            <td>{{ $order->customer_name }}</td>
+                                            <td>{{ number_format($order->total_money) }} đ</td>
+                                            <td>
+                                                @if ($order->payment_method === 'cash')
+                                                    Tiền mặt
+                                                @elseif($order->payment_method === 'bank_transfer')
+                                                    Chuyển khoản
+                                                @else
+                                                    {{ ucfirst($order->payment_method) }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
