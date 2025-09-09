@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CustomerLogin;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Models\OTP;
 use App\Services\UserService;
@@ -13,75 +14,53 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
-    protected $userService;
-    public function __construct(UserService $userService)
+    public function login()
     {
-        $this->userService = $userService;
+        return view('auth.login');
     }
-    public function login(Request $request)
+
+    public function authenticate(LoginRequest $request)
     {
-        try {
-            // Xác định trường dùng để đăng nhập: email hoặc username
-            $loginField = filter_var($request->input('username'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $credentials = $request->validated();
 
-            // Tạo credentials từ request
-            $credentials = [
-                $loginField => $request->input('username'),
-                'password'  => $request->input('password'),
-            ];
+        return transaction(function () use ($credentials, $request) {
 
-            $remember = $request->boolean('remember');
+            $remember = $request->filled('remember');
 
-            // Tìm người dùng
-            $user = User::where($loginField, $credentials[$loginField])->first();
+            if (Auth::attempt($credentials, $remember)) {
+                $user = Auth::user();
 
-            // Kiểm tra nếu tài khoản không tồn tại
-            if (!$user) {
-                return redirect()->back()->with('error', 'Tài khoản hoặc mật khẩu không chính xác!');
-                // return back();
-            }
-
-            // Kiểm tra nếu tài khoản không được kích hoạt
-            if ($user->status !== 'active') {
-                // toastr()->error('Tài khoản của bạn chưa được kích hoạt. Vui lòng liên hệ quản trị viên.');
-                return back();
-            }
-
-            // Xác thực thông tin đăng nhập
-            if (auth()->attempt($credentials, $remember)) {
-                session()->put('authUser', auth()->user());
-
-                // toastr()->success('Đăng nhập thành công.');
-
-                // Điều hướng theo role_id
-                switch (auth()->user()->role_id) {
-                    case 1:
-                        return redirect()->route('admin.dashboard');
-                    case 2:
-                        return redirect()->route('staff.index');
-                    case 3:
-                        return redirect()->route('sa.store.index');
-                    default:
-                        return redirect()->route('dashboard'); // fallback nếu không khớp
+                if ($user->status === 'inactive') {
+                    Auth::logout();
+                    return errorResponse('Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.', 403);
                 }
-            } else {
-                // toastr()->error('Tài khoản hoặc mật khẩu không chính xác!');
-                return back();
+
+                if ($user->status === 'locked') {
+                    Auth::logout();
+                    return errorResponse('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.', 403);
+                }
+
+                $redirect = match ($user->role_id) {
+                    1, 2 => '/admin',
+                    3 => '/ban-hang',
+                    default => abort(403, 'Access denied'),
+                };
+
+                return successResponse(
+                    'Đăng nhập thành công!',
+                    $redirect
+                );
             }
-        } catch (\Exception $e) {
-            return $this->handleLoginError($request, $e);
-        }
+
+            return errorResponse("Mật khẩu không chính xác!", 404);
+        });
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-        $request->session()->flush();
-        return redirect()->route('formlogin');
-    }
-
-    protected function handleLoginError($request, \Exception $e)
-    {
-        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('auth.login');
     }
 }

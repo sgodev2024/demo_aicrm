@@ -1,147 +1,139 @@
 @extends('admin.layout.index')
 
 @section('content')
-
-
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Đơn hàng</a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Danh sách</a>
-                </li>
-            </ul>
-        </div>
+        <x-breadcrumb :items="[['label' => 'Đơn hàng']]" />
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title" style="text-align: center; color:white">Báo cáo đơn hàng</h4>
-                    </div>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="search-container">
+                    <input type="text" id="dateFilter" style="width: 350px" class="form-control search-input"
+                        placeholder="Chọn khoảng ngày">
+                </div>
 
-                    <div class="card-body">
-                        <div class="">
-                            <!-- Filter Form -->
-                            <form action="{{ route('admin.order.index') }}" method="GET">
-                                <div class="row">
-                                    <!-- Start Date Input -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="start_date">Ngày bắt đầu</label>
-                                        <input type="date" name="start_date" id="start_date" class="form-control"
-                                               value="{{ request('start_date') }}">
-                                    </div>
+                <div class="d-flex justify-content-end align-items-center">
+                    <input type="search" name="search" class="form-control me-2" style="width: 300px;"
+                        placeholder="Tìm kiếm...">
 
-                                    <!-- End Date Input -->
-                                    <div class="col-md-6 mb-3">
-                                        <label for="end_date">Ngày kết thúc</label>
-                                        <input type="date" name="end_date" id="end_date" class="form-control"
-                                               value="{{ request('end_date') }}">
-                                    </div>
-
-                                    <!-- Phone / Name / Email Input -->
-                                    {{-- <div class="col-md-4 mb-3">
-                                        <label for="phone">Tìm số điện thoại</label>
-                                        <input type="text" name="search" id="phone" class="form-control"
-                                               placeholder="Nhập tên, số điện thoại hoặc email"
-                                               value="{{ request('search') }}">
-                                    </div> --}}
-                                </div>
-
-                                <div class="row">
-                                    <div class="text-center mt-2">
-                                        <div class="d-inline-block">
-                                            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-                                        </div>
-                                        <div class="d-inline-block ml-2">
-                                            <button type="button"
-                                                onclick="window.location.href='{{ route('admin.order.index') }}'"
-                                                class="btn btn-danger"><i class="fa fa-refresh"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <!-- End Filter Form -->
-
-                            <!-- Table -->
-                            <div id="basic-datatables_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <table id="basic-datatables"
-                                            class="display table table-striped table-hover dataTable" role="grid"
-                                            aria-describedby="basic-datatables_info">
-                                            <thead>
-                                                <tr role="row">
-                                                    <th>STT</th>
-                                                    <th>Mã đơn hàng</th>
-                                                    <th>Nhân viên</th>
-                                                    <th>Ngày tạo</th>
-                                                    <th>Khách hàng</th>
-                                                    <th>Trạng thái</th>
-                                                    <th>Tổng tiền</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($orders as $order)
-                                                    <tr>
-                                                        <td>{{ ($orders->currentPage() - 1) * $orders->perPage() + $loop->index + 1 }}</td>
-                                                        <td>
-                                                            <a style="color: black; font-weight:bold"
-                                                                href="{{ route('admin.order.detail', ['id' => $order->id]) }}">{{ $order->id }}</a>
-                                                        </td>
-                                                        <td>
-                                                            <a style="color:black"
-                                                                href="{{ route('admin.staff.edit', ['id' => $order->user->id]) }}">
-                                                                {{ $order->user->name ?? '' }}
-                                                            </a>
-                                                        </td>
-                                                        <td>{{ $order->created_at->format('d/m/y') }}</td>
-                                                        <td>
-                                                            {{-- <a style="color:black" --}}
-                                                                {{-- href="{{ route('admin.client.detail', ['id' => $order->client->id]) }}"> --}}
-                                                                {{ $order->client ? $order->client->name : '' }}
-                                                            {{-- </a> --}}
-                                                        </td>
-                                                        <td>
-                                                            @if ($order->status == 1)
-                                                                <span class="badge badge-success">Đã thanh toán</span>
-                                                            @else
-                                                                <span class="badge badge-danger">Công nợ</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ number_format($order->total_money) }} vnđ</td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td class="text-center" colspan="6">Không có đơn hàng nào</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-
-                                        <!-- Pagination -->
-                                        {{ $orders->appends(request()->query())->links('vendor.pagination.custom') }}
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- End Table -->
-                        </div>
-                    </div>
+                    <button type="button" class="btn" id="btn-reset"> <i class="fa-solid fa-rotate"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="table-wrapper">
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script>
+        $(function() {
+            let currentPage = 1
+            let searchText = '';
+
+            let start = moment().subtract(1, 'month');
+            let end = moment();
+
+            $('#dateFilter').daterangepicker({
+                startDate: start,
+                endDate: end,
+                autoUpdateInput: true,
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    cancelLabel: 'Hủy',
+                    applyLabel: 'Áp dụng',
+                    customRangeLabel: 'Tùy chọn',
+                    daysOfWeek: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                    monthNames: [
+                        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+                    ],
+                    firstDay: 1
+                },
+                ranges: {
+                    'Hôm nay': [moment(), moment()],
+                    'Ngày mai': [moment().add(1, 'days'), moment().add(1, 'days')],
+                    'Tuần này': [moment().startOf('week'), moment().endOf('week')],
+                    'Tuần sau': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf(
+                        'week')],
+                    'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                    'Tháng sau': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf(
+                        'month')]
+                }
+            });
+
+            // Hiển thị mặc định trên input khi load
+            $('#dateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+            $('#dateFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format(
+                    'DD/MM/YYYY'));
+
+                let dateRange = $(this).val();
+                fetchOrders(1, searchText, dateRange);
+            });
+
+            $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+                let dateRange = $(this).val();
+                fetchOrders(1, searchText, dateRange);
+            });
+
+            $(document).on('click', 'a.page-link', function(e) {
+                e.preventDefault();
+
+                let url = $(this).attr('href');
+                let page = new URL(url).searchParams.get("page");
+
+                fetchOrders(page, searchText);
+            });
+
+            function debounce(fn, delay = 500) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            $('input[name="search"]').on('input', debounce(function() {
+                searchText = $(this).val();
+                fetchOrders(1, searchText); // reset về page 1 khi search
+            }));
+
+            $('#btn-reset').click(function() {
+                $('input[name="search"]').val('');
+                fetchOrders()
+            })
+
+            const fetchOrders = (page = 1, search, dateRange) => {
+                $.ajax({
+                    url: window.location.pathname,
+                    method: 'GET',
+                    data: {
+                        page,
+                        s: search,
+                        date_range: dateRange
+                    },
+                    success: (res) => {
+                        $('#table-wrapper').html(res.html);
+                    },
+                    error: (xhr) => {
+                        console.log(xhr);
+                    }
+                })
+            }
+
+            fetchOrders();
+        })
+    </script>
+@endpush
+
+@push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+@endpush

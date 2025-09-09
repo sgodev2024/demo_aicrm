@@ -5,95 +5,95 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Bank;
 use App\Models\Config;
-use App\Models\User;
-use App\Services\ConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class ConfigController extends Controller
 {
-    protected $configService;
 
-    public function __construct(ConfigService $configService)
-    {
-        $this->configService = $configService;
-    }
 
     public function index()
     {
         $title = 'Thông tin cửa hàng';
-        try {
-            $data = Config::where('user_id', Auth::user()->id)->first();
-            // dd($data);
-            $bank = Bank::get();
-            return view('admin.configuration.config', compact('data', 'bank', 'title'));
-        } catch (\Exception $e) {
-            Log::error('Failed to get configuration: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to get configuration');
-        }
+        $config = Config::query()->where('user_id', Auth::id())->first();
+        $banks = Bank::query()->orderBy('name')->pluck('name', 'id')->toArray();
+        return view('admin.configuration.config', compact('config', 'banks', 'title'));
     }
 
-
-    public function updateConfig(Request $request)
+    public function save(Request $request)
     {
-        try {
-            // Lấy user hiện tại
-            $user = Auth::user();
+        $credentials = $this->validateRequest($request);
 
-            // Lấy hoặc tạo Config theo user_id
-            $config = Config::firstOrCreate(['user_id' => $user->id]);
+        return transaction(function () use ($credentials, $request) {
+            $userId = Auth::id();
 
-            // Validate request (nếu cần)
-            $data = $request->validate([
-                'receiver' => 'nullable|string',
-                'store_name' => 'nullable|string',
-                'phone' => 'nullable|string',
-                'email' => 'nullable|email',
-                'address' => 'nullable|string',
-                'company_name' => 'nullable|string',
-                'bank_account' => 'nullable|string',
-                'bank' => 'nullable|exists:banks,id',
-                'logo' => 'nullable|image|max:2048', // validate logo file nếu cần
-            ]);
+            $config = Config::query()->where('user_id', $userId)->first();
 
-            // Cập nhật Config
-            $config->receiver = $data['receiver'] ?? $config->receiver;
-            $config->user_id = $user->id;
+            $oldLogo = $config->logo ?? null;
 
-            if (!empty($data['bank_account']) && !empty($data['bank'])) {
-                $bank = Bank::find($data['bank']);
-                if ($bank) {
-                    $config->bank_account = $data['bank_account'];
-                    $config->bank_id = $bank->id;
-                    $config->qr = "https://img.vietqr.io/image/{$bank->code}-{$data['bank_account']}-compact.jpg";
-                }
-            }
-
-            // Xử lý upload logo (nếu có)
             if ($request->hasFile('logo')) {
-                $logo = $request->file('logo');
-                $logoFileName = 'image_' . time() . '_' . $logo->getClientOriginalName();
-                $logoFilePath = $logo->storeAs('public/config', $logoFileName);
-                $config->logo = str_replace('public/', 'storage/', $logoFilePath);
+                $credentials['logo'] = uploadImages('logo', 'logo');
             }
 
-            $config->save();
+            $credentials['user_id'] = $userId;
 
-            // Cập nhật User
-            $user->store_name = $data['store_name'] ?? $user->store_name;
-            $user->phone = $data['phone'] ?? $user->phone;
-            $user->email = $data['email'] ?? $user->email;
-            $user->address = $data['address'] ?? $user->address;
-            $user->company_name = $data['company_name'] ?? $user->company_name;
-            $user->save();
+            $config = Config::updateOrCreate(
+                ['user_id' => $userId], // điều kiện tìm
+                $credentials            // dữ liệu cập nhật / tạo mới
+            );
 
-            session()->flash('success', 'Thay đổi thông tin thành công');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            Log::error('Failed to update configuration: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật thông tin!');
-        }
+            if ($config && $request->hasFile('logo')) {
+                deleteImage($oldLogo);
+            }
+
+            return successResponse('Lưu thay đổi thành công.');
+        });
     }
 
+    private function validateRequest($request)
+    {
+        $userId = Auth::id(); // lấy user id hiện tại
+
+        $rules = [
+            'company_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('config', 'company_name')->ignore($userId, 'user_id'),
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('config', 'email')->ignore($userId, 'user_id'),
+            ],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('config', 'phone')->ignore($userId, 'user_id'),
+            ],
+            'address' => 'required|string|max:255',
+            'tax_number' => 'required|string|max:20',
+            'receiver' => 'required|string|max:255',
+            'bank_account_number' => 'required|string|max:20',
+            'bank_id' => 'required|exists:banks,id',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
+
+        $attributes = [
+            'company_name' => 'Tên cửa hàng',
+            'email' => 'Email',
+            'phone' => 'Số điện thoại',
+            'address' => 'Địa chỉ',
+            'tax_number' => 'Mã số thuế',
+            'receiver' => 'Chủ tài khoản',
+            'bank_account_number' => 'Số tài khoản',
+            'bank_id' => 'Ngân hàng',
+            'logo' => 'Logo'
+        ];
+
+        return $this->validate($request, $rules, __('request.messages'), $attributes);
+    }
 }

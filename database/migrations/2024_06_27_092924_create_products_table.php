@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->index();
             $table->unsignedBigInteger('price');
-            $table->unsignedBigInteger('priceBuy');
+            $table->unsignedBigInteger('price_buy');
             $table->string('product_unit')->nullable();
             $table->string('quantity');
             $table->text('description');

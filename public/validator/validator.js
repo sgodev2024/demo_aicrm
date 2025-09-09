@@ -130,6 +130,9 @@ function generateErrorMessage(code, values = []) {
         E042 : ' Nhập ngày sinh ',
         E043 : ' Nhập mã bưu diện ',
         E044 : ' Chọn giới tính ',
+           // chi nhánh cửa hàng
+        ER01 : ' Nhập tên chi nhánh ',
+        ER02 : ' Trạng thái không bỏ trống ',
         // nhanvien
         E037 : ' Nhập tên nhân viên ',
         E038 : ' Nhập email nhân viên ',
@@ -137,6 +140,7 @@ function generateErrorMessage(code, values = []) {
         E040 : ' Nhập địa chỉ nhân viên ',
         E041 : ' Xác nhận mật khẩu mới ',
         E046 : 'Chọn nơi làm việc',
+        E047 : 'Chọn vai trò',
         // dang ky
         R042: ' Họ tên không được để trống',
         R043: ' Số điện thoại không được để trống',

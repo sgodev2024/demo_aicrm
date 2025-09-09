@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Cart;
-use App\Models\ClientGroup;
+use App\Models\Client;
 use App\Models\Config;
 use App\Models\Product;
 use App\Models\ProductStorage;
@@ -13,8 +14,6 @@ use App\Services\ClientService;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -32,17 +31,12 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $storage_id = $user->storage_id;
-        // dd($storage_id);
-        // $product = $this->productService->getPRoductInStorage_Staff($storage_id);
-        // dd($product);
+
         $title = "Quản lý bán hàng";
-        $config = Config::first();
-        // $product = $this->productService->getProductAll_Staff();
-        $clients = $this->clientService->getAllClientStaff();
+        $config = Config::query()->with(['user', 'bank'])->first();
         $clientgroup = $this->clientGroupService->getAllClientGroup();
         $user = Auth::user();
         $cart =  Cart::where('user_id', $user->id)->get();
-        // dd($cart);
         foreach ($cart as $key => $item) {
             $item->delete();
         }
@@ -51,38 +45,59 @@ class ProductController extends Controller
         foreach ($cart as $key => $value) {
             $sum += $value->price * $value->amount;
         }
-        return view('Themes.pages.layout_staff.index', compact( 'clients', 'cart', 'sum', 'config', 'title', 'clientgroup'));
+
+        return view('Themes.pages.layout_staff.index', compact('cart', 'sum', 'config', 'title', 'clientgroup'));
     }
 
-    public function product()
+    public function getBranchs()
+    {
+        $branchs = Branch::query()->where('status', true)->pluck('name', 'id')->toArray();
+
+        return response()->json($branchs);
+    }
+
+    public function product(Request $request)
+    {
+        // $user = Auth::user();
+        // $storage_id = $user->storage_id;
+        // $productStorages = ProductStorage::with('product')
+        //     ->where('storage_id', $storage_id)
+        //     ->where('quantity', '>', 0)
+        //     ->orderByDesc('created_at')
+        //     ->get();
+        $user = Auth::user();
+        $userId = $user->id;
+
+        if ($user->role_id === 3) {
+            $userId = $user->manager_id;
+        }
+
+        $searchText = $request->input('searchText');
+
+        $products = Product::query()
+            ->where('user_id', $userId)
+            ->when(!empty($searchText), function ($query) use ($searchText) {
+                $query->where('name', 'like', "%$searchText%");
+            })
+            ->get();
+
+        return response()->json($products);
+    }
+
+    public function getClients(Request $request)
     {
         $user = Auth::user();
-        $storage_id = $user->storage_id;
-        $productStorages = ProductStorage::with('product')
-        ->where('storage_id', $storage_id)
-        ->where('quantity', '>', 0)
-        // ->whereHas('product', function ($query) use ($name) {
-        //     $query->where('name', 'like', "%{$name}%");
-        // })
-        ->orderByDesc('created_at')
-        ->get();
 
-        // $products = [];
-        // Log::info($productStorages);
-        // foreach ($productStorages as $storage) {
-        //     $product = $storage->product;
-        //     Log::info($product);
-        //     $products[] = [
-        //         'id' => $product->id ?? '',
-        //         'name' => $product->name,
-        //         'priceBuy' => $product->priceBuy,
-        //         'quantity' => $storage->quantity,
-        //         'product_unit' => $product->product_unit,
-        //         'images' => $product->images
-        //     ];
-        // }
+        $userId = $user->role_id === 3 ? $user->manager_id : $user->id;
 
-        return response()->json($productStorages);
+        $searchText = $request->input('searchText');
+        $clients = Client::query()
+            ->where('user_id', $userId)
+            ->when(!empty($searchText), function ($query) use ($searchText) {
+                $query->where('name', 'like', "%{$searchText}%");
+            })
+            ->get();
+        return response()->json($clients);
     }
 
     public function addToCart(Request $request)
@@ -105,16 +120,15 @@ class ProductController extends Controller
             ['product_id', '=', $productId],
             ['storage_id', '=', $storage_id]
         ])->with('product')->first();
-        if ($existingCartItem ) {
-            if($existingCartItem->amount < $ProductStorage->quantity){
+        if ($existingCartItem) {
+            if ($existingCartItem->amount < $ProductStorage->quantity) {
                 $existingCartItem->update(['amount' => $existingCartItem->amount + 1]);
             }
-
         } else {
 
             Cart::create([
                 'product_id' => $productId,
-                'price' => $product->priceBuy,
+                'price' => $product->price_buy,
                 'user_id' => $user->id,
                 'amount' => $amount
             ]);
@@ -137,7 +151,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -183,7 +197,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -214,7 +228,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];
@@ -230,13 +244,13 @@ class ProductController extends Controller
         $user = Auth::user();
         $storage_id = $user->storage_id;
         $productStorages = ProductStorage::with('product')
-        ->where('storage_id', $storage_id)
-        ->where('quantity', '>', 0)
-        ->whereHas('product', function ($query) use ($name) {
-            $query->where('name', 'like', "%{$name}%");
-        })
-        ->orderByDesc('created_at')
-        ->get();
+            ->where('storage_id', $storage_id)
+            ->where('quantity', '>', 0)
+            ->whereHas('product', function ($query) use ($name) {
+                $query->where('name', 'like', "%{$name}%");
+            })
+            ->orderByDesc('created_at')
+            ->get();
 
         $products = [];
 
@@ -246,7 +260,7 @@ class ProductController extends Controller
             $products[] = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'priceBuy' => $product->priceBuy,
+                'price_buy' => $product->price_buy,
                 'quantity' => $storage->quantity,
                 'product_unit' => $product->product_unit,
                 'images' => $product->images
@@ -283,7 +297,7 @@ class ProductController extends Controller
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'amount' => $item->amount,
-                    'priceBuy' => $item->price,
+                    'price_buy' => $item->price,
                     'product_name' => $product->product->name,
                     'quantity' => $product->quantity,
                 ];

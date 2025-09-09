@@ -9,6 +9,7 @@ use App\Services\OrderService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
@@ -22,55 +23,52 @@ class OrderController extends Controller
     }
     public function index(Request $request)
     {
-        $title = 'Đơn hàng';
-        $phone = $request->input('search');
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        if ($request->ajax()) {
+            $searchText = $request->query('s');
+            $dateRange = $request->query('date_range'); // ví dụ: "12/05/2025 - 12/04/2026"
+            $start = $end = null;
 
-        try {
-            $query = Order::query();
-
-            if ($startDate) {
-                $query->whereDate('created_at', '>=', $startDate);
+            if (!empty($dateRange)) {
+                $dates = explode(' - ', $dateRange);
+                if (count($dates) === 2) {
+                    $start = \Carbon\Carbon::createFromFormat('d/m/Y', trim($dates[0]))->startOfDay();
+                    $end = \Carbon\Carbon::createFromFormat('d/m/Y', trim($dates[1]))->endOfDay();
+                }
             }
 
-            if ($endDate) {
-                $query->whereDate('created_at', '<=', $endDate);
-            }
+            $orders = Order::query()
+                ->where('user_id', Auth::id())
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    $query->where('code', 'like', "%$searchText%")
+                        ->orWhereHas('client', function ($q) use ($searchText) {
+                            $q->where('name', 'like', "%$searchText%")
+                                ->orWhere('phone', 'like', "%$searchText%");
+                        });
+                })
+                ->when($start && $end, function ($query) use ($start, $end) {
+                    $query->whereBetween('created_at', [$start, $end]);
+                })
+                ->with(['user', 'client', 'creator'])
+                ->withCount('orderDetails')
+                ->paginate(10);
 
-            if ($phone) {
-                $query->whereHas('client', function ($query) use ($phone) {
-                    $query->where(function ($q) use ($phone) {
-                        $q->where('phone', $phone)
-                            ->orWhere('name', 'like', '%' . $phone . '%')
-                            ->orWhere('email', 'like', '%' . $phone . '%');
-                    });
-                });
-            }
-
-            $orders = $query->orderByDesc('created_at')->paginate(10)->appends($request->query());
-
-            return view('admin.order.index', compact('orders', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch orders: ' . $e->getMessage());
-            return redirect()->route('admin.order.index')->with('error', 'Đã có lỗi khi tải đơn hàng');
+            return response()->json([
+                'html' => view('admin.order.table', compact('orders'))->render(),
+            ]);
         }
+
+        return view('admin.order.index');
     }
 
-
-
-    public function detail($id)
+    public function show(string $id)
     {
-        $title = 'Chi tiết đơn hàng';
-        try {
-            $order = $this->orderService->getOrderbyID($id);
-            if ($order->notification == 1) {
-                $order->notification = 0;
-                $order->save();
-            }
-            return view('admin.order.detail', compact('order', 'title'));
-        } catch (\Exception $e) {
-            Log::error('Failed to find order');
-        }
+        $order = Order::query()
+            ->where('user_id', Auth::id())
+            ->with(['client', 'creator', 'orderDetails'])
+            ->findOrFail($id);
+
+        $title = "Chi tiết đơn hàng - {$order->code}";
+
+        return view('admin.order.detail', compact('title', 'order'));
     }
 }

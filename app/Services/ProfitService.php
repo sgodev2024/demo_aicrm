@@ -50,7 +50,7 @@ class ProfitService
 
                 foreach ($orders as $detail) {
                     $soldQuantity += $detail->quantity;
-                    $revenue += $detail->quantity * $detail->product->priceBuy;
+                    $revenue += $detail->quantity * $detail->product->price_buy;
                     $invest += $detail->quantity * $detail->product->price;
                     $profit += $revenue - $invest;
                 }

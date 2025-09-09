@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Mail\SendMailInfo;
+use App\Models\Roles;
 use App\Models\User;
 use App\Services\AdminService;
 use App\Services\StorageService;
@@ -14,8 +16,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
-
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -29,43 +32,64 @@ class UserController extends Controller
         $this->storageService = $storageService;
     }
 
-    public function getUserByRole($role)
-    {
-        try {
-            $user = $this->userService->getUserByRole($role);
-            // return view('', compact('user'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch products: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch products', 500);
-        }
-    }
-
     public function index(Request $request)
     {
-        try {
-            $title = "Nhân viên";
-            $search = $request->input('search');
+        $title = "Tài khoản quản trị";
+        $mode = 'users';
+        if ($request->ajax()) {
+            $searchText = $request->query('s');
 
-            $query = User::where('role_id', '!=', 1);
+            $users = User::query()
+                ->where('id', '<>', Auth::id())
+                ->where(['manager_id' => Auth::id(), 'role_id' => 2])
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    $query->where('name', 'like', "%{$searchText}%");
+                })
+                ->latest()
+                ->paginate(10);
 
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('phone', $search)
-                        ->orWhere('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
-                });
-            }
+            $html = view('admin.employee.table', compact('users', 'mode'))->render();
 
-            $user = $query->orderByDesc('created_at')
-                ->paginate(10)
-                ->appends($request->query());
-
-            return view('admin.employee.index', compact('user', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch user: ' . $e->getMessage());
-            return ApiResponse::error('Failed to fetch user', 500);
+            return response()->json(['html' => $html]);
         }
+
+        return view('admin.employee.index', compact('title'));
     }
+
+    public function create(Request $request)
+    {
+        $title = "Thêm quản trị";
+        $api = '/admin/users';
+        $user = null;
+        return view('admin.employee.form', compact('title', 'api', 'user'));
+    }
+
+    public function store(Request $request)
+    {
+        // $title = 'Thêm nhân viên';
+        // $storage = $this->storageService->getAllStorage();
+        // $role    = Roles::all();
+        // return view('admin.employee.add', compact('title', 'storage', 'role'));
+
+        $credentials = $this->validateRequest($request);
+
+        return transaction(function () use ($credentials, $request) {
+            $credentials['role_id'] = 2;
+            $credentials['manager_id'] = Auth::id();
+
+            $user = User::create($credentials);
+
+            Mail::to($credentials['email'])->send(new SendMailInfo($user,  $credentials['password']));
+
+            return successResponse(
+                message: 'Tạo tài khoản quản trị thành công.',
+                data: ['redirect' => '/admin/users'],
+                code: Response::HTTP_CREATED,
+                isToastr: true
+            );
+        });
+    }
+
     public function findByPhone(Request $request)
     {
         try {
@@ -84,30 +108,36 @@ class UserController extends Controller
             return response()->json(['error' => 'Failed to find staff'], 500);
         }
     }
-    public function edit($id)
+    public function edit(string $id)
     {
-        $title = "Sửa nhân viên";
-        try {
-            $storage = $this->storageService->getAllStorage();
-            $user = $this->adminService->getUserById($id);
-            return view('admin.employee.edit', compact('user', 'title', 'storage'));
-        } catch (Exception $e) {
-            Log::error('Failed to find user: ' . $e->getMessage());
-            return ApiResponse::error('Failed to find user', 500);
-        }
+        $user = User::query()->where('role_id', 2)->findOrFail($id);
+        $title = "Sửa tài khoản - $user->name";
+        $api = "/admin/users/$user->id";
+
+        return view('admin.employee.form', compact('title', 'api', 'user'));
     }
 
     public function update(Request $request, $id)
     {
-        // dd($request->all());
+        $credentials = $this->validateRequest($request, $id);
 
-        try {
-            $user = $this->adminService->updateUser($id, $request);
-            return redirect()->route('admin.staff.store')->with('success', 'Cập nhật thành công');
-        } catch (Exception $e) {
-            Log::error('Failed to Cập nhật user: ' . $e->getMessage());
-            return ApiResponse::error('Failed to Cập nhật user', 500);
-        }
+        return transaction(function () use ($credentials, $id) {
+
+            if (! $user = User::query()->where('role_id', 2)->find($id)) return errorResponse(message: 'Tài khoản không tồn tại', code: Response::HTTP_NOT_FOUND);
+
+            if (empty($credentials['password'])) {
+                unset($credentials['password']);
+            }
+
+            $user->update($credentials);
+
+            return successResponse(
+                message: 'Cập nhật tài khoản quản trị thành công.',
+                data: ['redirect' => '/admin/users'],
+                code: Response::HTTP_OK,
+                isToastr: true
+            );
+        });
     }
 
     public function updateadmin(Request $request, $id)
@@ -124,43 +154,28 @@ class UserController extends Controller
         }
     }
 
-    public function addForm()
+    private function validateRequest($request, $id = null)
     {
-        $title = 'Thêm nhân viên';
-        $storage = $this->storageService->getAllStorage();
-        return view('admin.employee.add', compact('title', 'storage'));
-    }
-    public function add(Request $request)
-    {
-        try {
-            $user = $this->adminService->addStaff($request->all());
-            return redirect()->route('admin.staff.store')->with('success', 'Thêm thành công');
-        } catch (Exception $e) {
-            Log::error('Failed to add staff: ' . $e->getMessage());
-            return ApiResponse::error('Failed to add staff:', 500);
-        }
-    }
+        $rules = [
+            'name'       => "required|string|max:255",
+            'email'      => "required|email|max:255|unique:users,email,{$id}",
+            'phone'      => "required|string|max:15|unique:users,phone,{$id}",
+            'address'    => "nullable|string|max:255",
+            'storage_id' => 'nullable|integer|exists:storages,id',
+            'status'     => 'required|in:active,inactive,locked',
+            'img_url'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password'   => $id ? 'nullable' : 'required' . "|string|min:6"
+        ];
 
-    public function delete($id)
-    {
-        try {
-            $this->adminService->deleteStaff($id);
-            $user = User::orderByDesc('created_at')->paginate(10); // Adjust this if you have specific filtering
-            $table = view('admin.employee.table', compact('user'))->render();
-            $pagination = $user->links('vendor.pagination.custom')->render();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Xóa nhân viên thành công',
-                'table' => $table,
-                'pagination' => $pagination
-            ]);
-        } catch (Exception $e) {
-            Log::error('Failed to delete staff: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể xóa nhân viên'
-            ]);
-        }
+        return $this->validate($request, $rules, __('request.messages'), [
+            'name'       => 'Tên tài khoản',
+            'email'      => 'Email',
+            'phone'      => 'Số điện thoại',
+            'password'   => 'Mật khẩu',
+            'address'    => 'Địa chỉ',
+            'storage_id' => 'Kho hàng',
+            'status'     => 'Trạng thái',
+            'img_url'    => 'Ảnh đại diện',
+        ]);
     }
 }

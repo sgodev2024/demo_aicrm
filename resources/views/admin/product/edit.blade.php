@@ -131,10 +131,10 @@
                                                 <label for="example-search-input" class="form-label">Giá bán<span
                                                         class="text text-danger">*</span></label>
                                                 <input min='1'
-                                                    class="form-control @error('priceBuy') is-invalid @enderror" name="priceBuy"
-                                                    type="number" id="priceBuy"
-                                                    value="{{ old('priceBuy', $products->priceBuy) }}">
-                                                @error('priceBuy')
+                                                    class="form-control @error('price_buy') is-invalid @enderror" name="price_buy"
+                                                    type="number" id="price_buy"
+                                                    value="{{ old('price_buy', $products->price_buy) }}">
+                                                @error('price_buy')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>

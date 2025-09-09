@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ClientsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Client;
@@ -13,8 +14,10 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -29,30 +32,35 @@ class ClientController extends Controller
     }
     public function index(Request $request)
     {
-        $title = 'Khách hàng';
-        $search = $request->input('search');
+        if ($request->ajax()) {
+            $searchText = trim($request->query('s'));
 
-        try {
-            $query = Client::query();
-
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('phone', $search)
-                        ->orWhere('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
-                });
-            }
-
-            $clients = $query->orderByDesc('created_at')
+            $clients = Client::query()
+                ->where('user_id', Auth::id())
+                ->when(!empty($searchText), function ($query) use ($searchText) {
+                    if (is_numeric($searchText)) {
+                        // Nếu nhập số -> ưu tiên tìm phone
+                        $query->where('phone', 'like', "%{$searchText}%");
+                    } elseif (str_contains($searchText, '@')) {
+                        // Nếu có @ -> ưu tiên email
+                        $query->where('email', 'like', "%{$searchText}%");
+                    } else {
+                        // Mặc định -> tìm trong name
+                        $query->where('name', 'like', "%{$searchText}%");
+                    }
+                })
+                ->latest()
                 ->paginate(10)
                 ->appends($request->query());
 
-            return view('admin.client.index', compact('clients', 'title'));
-        } catch (Exception $e) {
-            Log::error('Failed to fetch clients: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to fetch clients'], 500);
+            $html = view('admin.client.table', compact('clients'))->render();
+
+            return response()->json(['html' => $html]);
         }
+
+        return view('admin.client.index');
     }
+
 
 
     public function findClient(Request $request)
@@ -128,49 +136,6 @@ class ClientController extends Controller
 
     public function export()
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        $clients = Client::all();
-
-        $sheet->setCellValue('A1', 'Mã khách hàng');
-        $sheet->setCellValue('B1', 'Tên khách hàng');
-        $sheet->setCellValue('C1', 'Giới tính');
-        $sheet->setCellValue('D1', 'Ngày sinh');
-        $sheet->setCellValue('E1', 'Số điện thoại');
-        $sheet->setCellValue('F1', 'Email');
-        $sheet->setCellValue('G1', 'Mã bưu chính');
-        $sheet->setCellValue('H1', 'Địa chỉ');
-
-        $row = 2;
-        foreach ($clients as $client) {
-            $sheet->setCellValue('A' . $row, $client->id ?? '');
-            $sheet->setCellValue('B' . $row, $client->name ?? '');
-            $sheet->setCellValue('C' . $row, isset($client->gender) ? (($client->gender == 0) ? 'Nam' : 'Nữ') : '');
-            $sheet->setCellValue('D' . $row, Carbon::parse($client->dob)->format('d/m/Y') ?? '');
-            $sheet->setCellValue('E' . $row, $client->phone ?? '');
-            $sheet->setCellValue('F' . $row, $client->email ?? '');
-            $sheet->setCellValue('G' . $row, $client->zip_code ?? '');
-            $sheet->setCellValue('H' . $row, $client->address ?? '');
-            $row++;
-        }
-
-        $sheet->getColumnDimension('A')->setWidth(10);
-        $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(10);
-        $sheet->getColumnDimension('D')->setWidth(30);
-        $sheet->getColumnDimension('E')->setWidth(20);
-        $sheet->getColumnDimension('F')->setWidth(35);
-        $sheet->getColumnDimension('G')->setWidth(20);
-        $sheet->getColumnDimension('H')->setWidth(50);
-
-        $write = new Xlsx($spreadsheet);
-
-        $fileName = 'Danh sách khách hàng.xlsx';
-        $temp_file = tempnam(sys_get_temp_dir(), $fileName);
-
-        $write->save($temp_file);
-
-        return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
+        return Excel::download(new ClientsExport, 'clients.xlsx');
     }
 }

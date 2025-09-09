@@ -8,10 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Brand extends Model
 {
     use HasFactory;
-    protected $table = 'brands';
-    protected $fillable = ['name', 'logo', 'email', 'phone', 'address', 'supplier_id'];
-    public function supplier()
+
+    protected $fillable = ['user_id', 'name', 'logo', 'email', 'phone', 'address', 'status'];
+
+    public function user()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(User::class);
     }
+
+    protected $casts = [
+        'status' => 'boolean'
+    ];
 }

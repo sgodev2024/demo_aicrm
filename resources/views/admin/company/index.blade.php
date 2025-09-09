@@ -1,175 +1,129 @@
 @extends('admin.layout.index')
 
 @section('content')
-
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.company.index') }}">Nhà cung cấp</a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.company.index') }}">Danh sách</a>
-                </li>
-            </ul>
-        </div>
+
+        <x-breadcrumb :items="[['label' => 'Nhà cung cấp']]" />
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title" style="color: white; text-align: center">Danh sách nhà cung cấp</h4>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Thao tác
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-delete">
+                                            <i class="fa-solid fa-trash me-2"></i> Xóa đã chọn
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="bulk-status">
+                                            <i class="fa-solid fa-toggle-on me-2"></i> Thay đổi trạng thái
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="d-flex justify-content-end align-items-center">
+                                <input type="text" name="search" class="form-control me-2" style="width: 300px;"
+                                    placeholder="Tìm kiếm...">
+
+                                <button type="button" class="btn" id="btn-reset"> <i
+                                        class="fa-solid fa-rotate"></i></button>
+                            </div>
+                        </div>
+                        <a href="/admin/company/create" class="btn btn-primary" id="show-modal"><i
+                                class="fa-solid fa-plus"></i>
+                            Thêm mới</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <div id="basic-datatables_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-6">
-                                        <div class="dataTables_length" id="basic-datatables_length">
-                                            <a class="btn btn-primary" href="{{ route('admin.company.add') }}">
-                                                Thêm nhà cung cấp
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12 col-md-6">
-                                        <form action="{{ route('admin.company.filter') }}" method="GET">
-                                            <div class="dataTables_filter">
-                                                <div class="input-group">
-                                                    <select name="city_id" id="city_id"
-                                                        class="form-control form-control-sm">
-                                                        <option value="">Khu vực</option>
-                                                        @foreach ($cities as $city)
-                                                            <option value="{{ $city->id }}"
-                                                                {{ request('city_id') == $city->id ? 'selected' : '' }}>
-                                                                {{ $city->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <input type="text" name="name_filter"
-                                                        class="form-control form-control-sm" placeholder="Nhập tên NCC"
-                                                        value="{{ old('name') }}">
-                                                    <span class="input-group-btn">
-                                                        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="col-sm-12 col-md-6" id="delete-selected-container" style="display: none;">
-                                        <button id="btn-delete-selected" class="btn" style="background: rgb(242, 91, 91); color: white" data-model='Company'> Xóa </button>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12" id="company-table">
-                                        @include('admin.company.table', ['companies' => $companies])
-                                    </div>
-                                    <div class="col-sm-12" id="pagination">
-                                        @if ($companies instanceof \Illuminate\Pagination\LengthAwarePaginator)
-                                            {{ $companies->links('vendor.pagination.custom') }}
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
+
+
+                        <div id="table-wrapper">
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-notify/0.2.0/js/bootstrap-notify.min.js"></script>
-    <script>
-        $(document).on('click', '.btn-delete', function(e) {
-            e.preventDefault(); // Ngăn chặn hành vi mặc định của liên kết
+@endsection
 
-            if (confirm('Bạn có chắc chắn muốn xóa?')) {
-                var companyID = $(this).data('id'); // Đảm bảo điều này được thiết lập chính xác trong HTML của bạn
-                var deleteUrl = '{{ route('admin.company.delete', ['id' => ':id']) }}';
-                deleteUrl = deleteUrl.replace(':id', companyID);
+@push('script')
+    <script>
+        $(function() {
+            let currentPage = 1;
+            let searchText = '';
+            let resetCooldown = false
+
+            $(document).on('click', 'a.page-link', function(e) {
+                e.preventDefault();
+
+                let url = $(this).attr('href');
+                let page = new URL(url).searchParams.get("page");
+
+                fetchCompanies(page, searchText);
+            });
+
+            $('input[name="search"]').on('input', debounce(function() {
+                searchText = $(this).val();
+                fetchCompanies(1, searchText); // reset về page 1 khi search
+            }));
+
+            $('#btn-reset').click(function() {
+                if (resetCooldown) return // đang cooldown thì bỏ qua
+
+                resetCooldown = true
+                fetchCompanies()
+                $('input[name="search"]').val('')
+
+                setTimeout(() => resetCooldown = false, 1500) // 1.5s sau mới cho bấm lại
+            })
+
+            $(document).on('click', '.btn-delete', function() {
+                let id = $(this).data('id');
+                handleDestroy(function() {
+                    fetchCompanies(1, searchText)
+                }, 'Company', id)
+            });
+
+            $('#bulk-delete').click(function() {
+                handleDestroy(function() {
+                    fetchCompanies(1, searchText)
+                }, 'Company')
+            })
+
+            $('#bulk-status').click(function() {
+                handleChangeStatus(function() {
+                    fetchCompanies(currentPage, searchText)
+                }, 'Company')
+            })
+
+            const fetchCompanies = (page = 1, search) => {
 
                 $.ajax({
-                    url: deleteUrl,
-                    type: 'POST',
+                    url: window.location.pathname,
+                    method: 'GET',
                     data: {
-                        _token: '{{ csrf_token() }}',
-                        _method: 'DELETE'
+                        page,
+                        s: search
                     },
-                    success: function(response) {
-                        if (response.success) {
-                            // Cập nhật bảng công ty
-                            $('#company-table').html(response.table);
-                            $('#pagination').html(response
-                                .pagination); // Đảm bảo bạn bao gồm phân trang trong phản hồi
-                            $.notify({
-                                icon: 'icon-bell',
-                                title: 'Nhà cung cấp',
-                                message: response.message,
-                            }, {
-                                type: 'success',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                time: 1000,
-                            });
-                        } else {
-                            $.notify({
-                                icon: 'icon-bell',
-                                title: 'Nhà cung cấp',
-                                message: response.message,
-                            }, {
-                                type: 'danger',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                time: 1000,
-                            });
-                        }
+                    success: (res) => {
+                        $('#table-wrapper').html(res.html)
+                        currentPage = page
                     },
-                    error: function(xhr) {
-                        $.notify({
-                            icon: 'icon-bell',
-                            title: 'Nhà cung cấp',
-                            message: 'Xóa công ty thất bại!',
-                        }, {
-                            type: 'danger',
-                            placement: {
-                                from: "bottom",
-                                align: "right"
-                            },
-                            time: 1000,
-                        });
-                    }
-                });
-            }
-        });
+                    error: (xhr) => {
 
-        @if (session('success'))
-            $(document).ready(function() {
-                $.notify({
-                    icon: 'icon-bell',
-                    title: 'Nhà cung cấp',
-                    message: '{{ session('success') }}',
-                }, {
-                    type: 'secondary',
-                    placement: {
-                        from: "bottom",
-                        align: "right"
                     },
-                    time: 1000,
-                });
-            });
-        @endif
+                })
+            }
+
+            fetchCompanies()
+        })
     </script>
-@endsection
+@endpush

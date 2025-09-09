@@ -45,7 +45,9 @@ class ReportController extends Controller
             $latestImportCoupon = ImportCoupon::where('storage_id', $storage_id)
                 ->orderBy('created_at', 'desc')
                 ->first();
+
             $latestImportDate = $latestImportCoupon ? $latestImportCoupon->created_at : null;
+
             $yesterday = now()->subDay()->toDateString();
 
             return view('admin.inventory.index', compact('title', 'products', 'storages', 'storage', 'latestImportDate', 'yesterday'));
@@ -124,7 +126,7 @@ class ReportController extends Controller
                         $quantityBeforeImport = $currentQuantity + $soldQuantity - $importedQuantity;
                         $beforeImportValue = $quantityBeforeImport * $productStorage->product->price;
                         $importedValue = $importedQuantity * $latestImportDetail->price;
-                        $soldValue = $soldQuantity * $productStorage->product->priceBuy;
+                        $soldValue = $soldQuantity * $productStorage->product->price_buy;
                         $currentValue = $currentQuantity * $productStorage->product->price;
                     }
                 }

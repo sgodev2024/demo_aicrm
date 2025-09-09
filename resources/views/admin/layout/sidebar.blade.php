@@ -1,9 +1,3 @@
-<style>
-    .nav-collapse {
-        padding: 0 0 0 10px !important;
-        margin-bottom: 0px !important;
-    }
-</style>
 <div class="sidebar no-print" data-background-color="dark">
     <div class="sidebar-logo">
         <!-- Logo Header -->
@@ -25,6 +19,7 @@
         </div>
         <!-- End Logo Header -->
     </div>
+
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
@@ -35,33 +30,33 @@
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit','admin.company.index', 'admin.company.add', 'admin.company.detail')  ? 'active' : '' }}">
+                    class="nav-item {{ request()->routeIs('admin.products.index', 'admin.products.create', 'admin.products.edit', 'admin.category.index', 'admin.category.create', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#product">
                         <i class="fas fa-box"></i>
                         <p>Sản phẩm</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.product.store', 'admin.product.addForm', 'admin.product.edit', 'admin.category.index', 'admin.category.add', 'admin.category.detail', 'admin.brand.store', 'admin.brand.addForm', 'admin.brand.edit', 'admin.company.index', 'admin.company.add', 'admin.company.detail') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.products.index', 'admin.products.create', 'admin.products.edit', 'admin.category.index', 'admin.category.create', 'admin.category.detail', 'admin.brand.index', 'admin.brand.create', 'admin.brand.edit', 'admin.company.index', 'admin.company.create', 'admin.company.edit') ? 'show' : '' }}"
                         id="product">
                         <ul class="nav nav-collapse">
-                            <li class=" {{ request()->routeIs('admin.product.store') ? 'active' : '' }}">
-                                <a href="{{ route('admin.product.store') }}">
-                                    <span class="sub-item">Sản phẩm</span>
+                            <li class=" {{ request()->routeIs('admin.products.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.products.index') }}">
+                                    <span class="sub-item">Quản lý sản phẩm</span>
                                 </a>
                             </li>
                             <li class=" {{ request()->routeIs('admin.category.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.category.index') }}">
-                                    <span class="sub-item">Danh mục</span>
+                                    <span class="sub-item">Quản lý danh mục</span>
                                 </a>
                             </li>
-                            <li class=" {{ request()->routeIs('admin.brand.store') ? 'active' : '' }}">
-                                <a href="{{ route('admin.brand.store') }}">
-                                    <span class="sub-item">Thương hiệu</span>
+                            <li class=" {{ request()->routeIs('admin.brand.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.brand.index') }}">
+                                    <span class="sub-item">Quản lý thương hiệu</span>
                                 </a>
                             </li>
                             <li class=" {{ request()->routeIs('admin.company.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.company.index') }}">
-                                    <span class="sub-item">Nhà cung cấp</span>
+                                    <span class="sub-item">Quản lý nhà cung cấp</span>
                                 </a>
                             </li>
 
@@ -89,16 +84,6 @@
                                     <span class="sub-item">Nhập hàng</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="#">
-                                    <span class="sub-item">Xuất kho</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <span class="sub-item">Chuyển kho</span>
-                                </a>
-                            </li>
                             <li class="{{ request()->routeIs('admin.check.index') ? 'active' : '' }}">
                                 <a href="{{ route('admin.check.index') }}">
                                     <span class="sub-item">Phiếu kiểm kho</span>
@@ -113,8 +98,7 @@
                     </div>
                 </li>
 
-
-                <li
+                {{-- <li
                     class="nav-item {{ request()->routeIs('admin.quanlythuchi.receipts.index', 'admin.quanlythuchi.expense.index') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#sidebarthuchi">
                         <i class="fas fa-coins"></i>
@@ -136,9 +120,7 @@
                             </li>
                         </ul>
                     </div>
-                </li>
-
-
+                </li> --}}
 
                 <li
                     class="nav-item {{ request()->routeIs(
@@ -155,15 +137,7 @@
                         <p>Báo cáo</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs(
-                        'admin.order.index',
-                        'admin.client.index',
-                        'admin.profit.index',
-                        'admin.debts.client',
-                        'admin.debts.supplier',
-                    )
-                        ? 'show'
-                        : '' }}"
+                    <div class="collapse {{ request()->routeIs('admin.order.index', 'admin.client.index', 'admin.profit.index') ? 'show' : '' }}"
                         id="sidebarbaocao">
                         <ul class="nav nav-collapse">
                             <li class="{{ request()->routeIs('admin.order.index') ? 'active' : '' }}">
@@ -181,7 +155,7 @@
                                     <span class="sub-item">Lợi nhuận</span>
                                 </a>
                             </li>
-                            <li
+                            {{-- <li
                                 class="{{ request()->routeIs('admin.debts.client', 'admin.debts.supplier') ? 'active' : '' }}">
                                 <a data-bs-toggle="collapse" href="#sidebarcongno">
                                     <span class="sub-item">Công nợ</span>
@@ -202,25 +176,28 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </li>
 
-                <li class="nav-item {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'active' : '' }}">
+                <li
+                    class="nav-item {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#sidebarthongke">
                         <i class="fas fa-chart-line"></i>
                         <span class="sub-item">Thống kê ngày</span>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'show' : '' }}" id="sidebarthongke">
+                    <div class="collapse {{ request()->routeIs('admin.report.orders.getDailyOrder', 'admin.report.imports.getDailyImport') ? 'show' : '' }}"
+                        id="sidebarthongke">
                         <ul class="nav nav-collapse">
                             <li class="{{ request()->routeIs('admin.report.orders.getDailyOrder') ? 'active' : '' }}">
                                 <a href="{{ route('admin.report.orders.getDailyOrder') }}">
                                     <span class="sub-item">Bán hàng</span>
                                 </a>
                             </li>
-                            <li class="{{ request()->routeIs('admin.report.imports.getDailyImport') ? 'active' : '' }}">
+                            <li
+                                class="{{ request()->routeIs('admin.report.imports.getDailyImport') ? 'active' : '' }}">
                                 <a href="{{ route('admin.report.imports.getDailyImport') }}">
                                     <span class="sub-item">Nhập hàng</span>
                                 </a>
@@ -229,17 +206,79 @@
                     </div>
                 </li>
 
+                <li class="nav-item {{ request()->routeIs('admin.accounts.index') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#receipt">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span class="sub-item">Kế toán</span>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.accounts.index', 'admin.transactions.cash.index', 'admin.transactions.bank.index', 'admin.accounts.balance', 'admin.debts.customer', 'admin.debts.supplier', 'admin.debts.beginning', 'admin.journal-entries.index') ? 'show' : '' }}"
+                        id="receipt">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->routeIs('admin.transactions.cash.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.transactions.cash.index') }}">
+                                    <span class="sub-item">Thu chi tiền mặt</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.transactions.bank.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.transactions.bank.index') }}">
+                                    <span class="sub-item">Thu chi ngân hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.debts.customer') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.customer') }}">
+                                    <span class="sub-item">Công nợ khác hàng</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.debts.supplier') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.supplier') }}">
+                                    <span class="sub-item">Công nợ nhà cung cấp</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.debts.beginning') ? 'active' : '' }}">
+                                <a href="{{ route('admin.debts.beginning') }}">
+                                    <span class="sub-item">Nhập công nợ đầu kỳ</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.accounts.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.accounts.index') }}">
+                                    <span class="sub-item">Tài khoản kế toán</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.accounts.balance') ? 'active' : '' }}">
+                                <a href="{{ route('admin.accounts.balance') }}">
+                                    <span class="sub-item">Tổng hợp theo tài khoản</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('admin.journal-entries.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.journal-entries.index') }}">
+                                    <span class="sub-item">Bút toán</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
-                <li class="nav-item {{ request()->routeIs('admin.staff.store') ? 'active' : '' }}">
-                    <a href="{{ route('admin.staff.store') }}">
+                @if (Auth::user()->role_id === 1)
+                    <li class="nav-item {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
+                        <a href="/admin/users">
+                            <i class="fas fa-user-plus"></i>
+                            <p>Tạo tài khoản quản trị</p>
+                        </a>
+                    </li>
+                @endif
+
+                <li class="nav-item {{ request()->routeIs('admin.employees.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.employees.index') }}">
                         <i class="fas fa-user-tie"></i>
-                        <p>Nhân viên</p>
+                        <p>Quản lý nhân viên</p>
                     </a>
                 </li>
-                <li class="nav-item {{ request()->routeIs('admin.config.detail') ? 'active' : '' }}">
-                    <a href="{{ route('admin.config.detail') }}">
+
+                <li class="nav-item {{ request()->routeIs('admin.config.form') ? 'active' : '' }}">
+                    <a href="{{ route('admin.config.form') }}">
                         <i class="fas fa-cog"></i>
-                        <p>Cấu hình</p>
+                        <p>Cấu hình chung</p>
                     </a>
                 </li>
             </ul>

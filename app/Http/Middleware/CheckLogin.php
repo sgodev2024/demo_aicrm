@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Middleware;
+
 use Illuminate\Support\Facades\Auth;
 use Closure;
 use Illuminate\Http\Request;
@@ -16,10 +17,18 @@ class CheckLogin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!session('authUser')) {
+
+        if (!auth()->check()) {
             // Nếu session chưa được đặt, chuyển hướng người dùng đến trang login
-            return redirect()->route('formlogin');
+            return redirect()->route('auth.login');
         }
+
+        $user = auth()->user();
+
+        if (!in_array($user->role_id, [1, 2, 3])) {
+            abort(403, 'Access denied');
+        }
+
         return $next($request);
     }
 }

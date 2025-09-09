@@ -6,7 +6,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
-
         .numberInput {
             width: 100px;
         }
@@ -69,8 +68,6 @@
         .form-wrapper {
             padding: 20px;
         }
-
-
     </style>
 
     <div class="page-inner">
@@ -253,8 +250,9 @@
                                                             {{ $user->name }}
                                                         </div>
                                                         <div class="pull-right">
-                                                            <input type="datetime-local" class="form-control" id="datetime" name="datetime"
-                                                                class="datetime-input" value="2024-07-18T16:24">
+                                                            <input type="datetime-local" class="form-control"
+                                                                id="datetime" name="datetime" class="datetime-input"
+                                                                value="2024-07-18T16:24">
                                                         </div>
                                                     </div>
                                                     <div class="form-group mt-2">
@@ -264,7 +262,8 @@
                                                             Nhà cung cấp
                                                         </div>
                                                         <div class="pull-right">
-                                                            <select name="supplier" class="form-control" id="supplier" style="width: 195px;">
+                                                            <select name="supplier" class="form-control" id="supplier"
+                                                                style="width: 195px;">
                                                                 <option value="">--- Chọn nhà cung cấp ---</option>
                                                                 @foreach ($supplier as $key => $value)
                                                                     <option value="{{ $value->id }}">
@@ -282,7 +281,8 @@
                                                             Kho hàng
                                                         </div>
                                                         <div class="pull-right">
-                                                            <select name="storage" class="form-control" id="storage" style="width: 195px;">
+                                                            <select name="storage" class="form-control" id="storage"
+                                                                style="width: 195px;">
                                                                 <option value="">--- Chọn nhà kho hàng ---</option>
                                                                 @foreach ($storage as $key => $value)
                                                                     <option value="{{ $value->id }}">
@@ -364,8 +364,7 @@
                 'validations': [{
                     'func': function(value) {
                         return checkRequired(value);
-                    },
-                    'message': generateErrorMessage('E018')
+                    }
                 }, ]
             },
         }
@@ -388,7 +387,7 @@
                 url: '{{ route('admin.importproduct.import') }}',
                 type: 'GET',
                 success: function(data) {
-                    updateimport(data.import, data.total);
+                    // updateimport(data.import, data.total);
                     var category = $j('#checkboxForm_category');
                     category.empty();
                     var cantra = $j('.cantra');
@@ -625,10 +624,10 @@
                 } else {
                     $.each(importproduct, function(index, item) {
                         var productHtml = `
-                        <tr data-id='${item.id}'  data-product='${item.product.code}'>
+                        <tr data-id='${item.id}'  data-product='12'>
                             <td class='delete'><i class="fas fa-trash-alt"></i></td>
                             <td>${ index + 1 }</td>
-                            <td>${item.product.code}</td>
+                            <td>123</td>
                             <td>${item.product.name}</td>
                             <td><input style='text-align: center;' type="number" class="numberInput" name="quantity" value='${item.quantity !== null ? item.quantity : ''}' oninput="this.value = this.value.replace(/[^0-9]/g, '');" ></td>
                             <td class="giaban" contenteditable="true" oninput="this.innerText = this.innerText.replace(/[^0-9.]/g, '')">${item.price !== null ? item.price : ''}</td>

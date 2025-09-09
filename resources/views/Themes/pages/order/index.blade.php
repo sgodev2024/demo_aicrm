@@ -1,200 +1,151 @@
 @extends('Themes.layout_staff.app')
+
 @section('content')
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <div class="container-fluid mx-2 mt-3">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-3">
+                <a href="/ban-hang  " class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-backward"></i></a>
+                <h4 class="card-title mb-0">{{ $title }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
+                    <div class="search-container">
+                        <input type="text" id="dateFilter" style="width: 350px" class="form-control search-input"
+                            placeholder="Chọn khoảng ngày">
+                    </div>
 
-<style>
-    body {
-        background-color: #f8f9fa;
-        padding-top: 20px;
-    }
+                    <div class="d-flex justify-content-end align-items-center">
+                        <input type="text" name="search" class="form-control me-2" style="width: 300px;"
+                            placeholder="Nhập tên chi nhánh">
 
-    .container {
-        background-color: #fff;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        border-radius: 8px;
-        margin-top: 20px;
-    }
+                        <button type="button" class="btn btn-outline-secondary" id="btn-reset"> <i
+                                class="fa-solid fa-rotate"></i></button>
+                    </div>
+                </div>
 
-    .order-table {
-        width: 100%;
-        margin-top: 20px;
-    }
-
-    .order-table th,
-    .order-table td {
-        padding: 10px;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .order-table thead {
-        background-color: #007bff;
-        color: #fff;
-    }
-
-    .order-table tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    .order-table tbody tr:hover {
-        background-color: #e9ecef;
-    }
-
-    .pagination {
-        justify-content: center;
-    }
-
-    #tieude {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #tieude div {
-        text-align: left;
-    }
-
-    #tieude h2 {
-        display: block;
-        margin: 0px auto;
-    }
-</style>
-<div class="container">
-
-    <div id="tieude">
-        <div><a href="{{ route('staff.index') }}">Quay lại</a></div>
-        <h2 class="text-center">Lịch sử đơn hàng</h2>
+                <div id="table-wrapper">
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table table-bordered order-table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Mã đơn hàng</th>
-                <th scope="col">Tên khách hàng</th>
-                <th scope="col">Tổng tiền</th>
-                <th scope="col">Người tạo</th>
-                <th scope="col">Ngày tạo</th>
-                <th scope="col">Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody id="order-data">
-            <!-- Dữ liệu đơn hàng sẽ được thêm vào đây từ JavaScript -->
-        </tbody>
-    </table>
+@endsection
 
-    <!-- Phân trang -->
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center" id="pagination">
+@push('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-        </ul>
-    </nav>
-</div>
+    <script>
+        $(function() {
+            let currentPage = 1
+            let searchText = '';
 
-<script>
-    var j = jQuery.noConflict();
+            let start = moment().subtract(1, 'month');
+            let end = moment();
 
-    j.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': j('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    j(document).ready(function() {
-        fetch_orders(1);
-
-        function fetch_orders(page) {
-            j.ajax({
-                url: "{{ route('staff.orderFetch') }}?page=" + page,
-                method: 'GET',
-                success: function(data) {
-                    let html = '';
-                    var start_index = (page - 1) * data.pageOrder;
-                    j.each(data.data, function(index, order) {
-                        let formattedDate = moment(order.created_at).format('DD/MM/YYYY');
-                        html += `
-                            <tr>
-                                <td>${start_index + index + 1}</td>
-                                <td>${order.id}</td>
-                                <td>${order.client_name}</td>
-                                <td>${(Math.ceil(order.total_money / 500) * 500).toLocaleString('en-US')}</td>
-                                <td>${order.user_name}</td>
-                                <td>${formattedDate}</td>
-                                <td>${order.status === 1 ? '<span class="badge badge-success p-2">Đã thanh toán</span>' : '<span class="badge badge-success p-2">Chưa thanh toán</span>'}</td>
-                            </tr>
-                        `;
-                    });
-                    j('#order-data').html(html);
-                    let pagination = createPagination(data.current_page, data.last_page);
-                    j('#pagination').html(pagination);
+            $('#dateFilter').daterangepicker({
+                startDate: start,
+                endDate: end,
+                autoUpdateInput: true,
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    cancelLabel: 'Hủy',
+                    applyLabel: 'Áp dụng',
+                    customRangeLabel: 'Tùy chọn',
+                    daysOfWeek: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+                    monthNames: [
+                        'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                        'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+                    ],
+                    firstDay: 1
                 },
-                error: function(xhr, status, error) {
-                    console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+                ranges: {
+                    'Hôm nay': [moment(), moment()],
+                    'Ngày mai': [moment().add(1, 'days'), moment().add(1, 'days')],
+                    'Tuần này': [moment().startOf('week'), moment().endOf('week')],
+                    'Tuần sau': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf(
+                        'week')],
+                    'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                    'Tháng sau': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf(
+                        'month')]
                 }
             });
+
+            // Hiển thị mặc định trên input khi load
+            $('#dateFilter').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+            $('#dateFilter').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format(
+                    'DD/MM/YYYY'));
+
+                let dateRange = $(this).val();
+                fetchOrders(1, searchText, dateRange);
+            });
+
+            $('#dateFilter').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+
+                let dateRange = $(this).val();
+                fetchOrders(1, searchText, dateRange);
+            });
+
+            $(document).on('click', 'a.page-link', function(e) {
+                e.preventDefault();
+
+                let url = $(this).attr('href');
+                let page = new URL(url).searchParams.get("page");
+
+                fetchOrders(page, searchText);
+            });
+
+            function debounce(fn, delay = 500) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            $('input[name="search"]').on('input', debounce(function() {
+                searchText = $(this).val();
+                fetchOrders(1, searchText); // reset về page 1 khi search
+            }));
+
+            $('#btn-reset').click(function() {
+                $('input[name="search"]').val('');
+                fetchOrders()
+            })
+
+            const fetchOrders = (page = 1, search, dateRange) => {
+                $.ajax({
+                    url: window.location.pathname,
+                    method: 'GET',
+                    data: {
+                        page,
+                        s: search,
+                        date_range: dateRange
+                    },
+                    success: (res) => {
+                        $('#table-wrapper').html(res.html);
+                    },
+                    error: (xhr) => {
+                        console.log(xhr);
+                    }
+                })
+            }
+
+            fetchOrders();
+        })
+    </script>
+@endpush
+
+@push('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
+    <style>
+        table tr th {
+            font-size: 12px;
+            text-transform: uppercase;
         }
-
-        function createPagination(current, last) {
-            if (last == 1) {
-                return '';
-            }
-
-            let pagination = '';
-
-            if (current > 1) {
-                pagination += `<li class="page-item">
-                    <a class="page-link" href="#" data-page="${current - 1}"><i class="fas fa-backward"></i></a>
-                </li>`;
-            }
-
-            pagination += `<li class="page-item ${1 === current ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="1">1</a>
-            </li>`;
-
-            if (current > 3) {
-                pagination += `<li class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>`;
-            }
-
-            let start = Math.max(2, current - 1);
-            let end = Math.min(current + 1, last - 1);
-
-            for (let i = start; i <= end; i++) {
-                pagination += `<li class="page-item ${i === current ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>`;
-            }
-
-            if (current < last - 2) {
-                pagination += `<li class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>`;
-            }
-
-            pagination += `<li class="page-item ${last === current ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${last}">${last}</a>
-            </li>`;
-
-            if (current < last) {
-                pagination += `<li class="page-item">
-                    <a class="page-link" href="#" data-page="${current + 1}"><i class="fas fa-forward"></i></a>
-                </li>`;
-            }
-
-            return pagination;
-        }
-
-
-        j(document).on('click', '.pagination a', function(event) {
-            event.preventDefault();
-            let page = j(this).data('page');
-            fetch_orders(page);
-        });
-    });
-</script>
-
-@endsection
+    </style>
+@endpush

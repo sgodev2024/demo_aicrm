@@ -24,10 +24,12 @@ class ClientService
         }
     }
 
-    public function getAllClientStaff()
+    public function getAllClientStaff($searchText = null)
     {
         try {
-            return $this->client->get();
+            return $this->client->when(!empty($searchText), function ($query) use ($searchText) {
+                $query->where('name', 'like', "%$searchText%");
+            })->get();
         } catch (Exception $e) {
             Log::error('Failed to get all clients: ' . $e->getMessage());
             throw new Exception('Failed to get all clients');

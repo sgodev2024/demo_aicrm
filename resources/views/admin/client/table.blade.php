@@ -1,48 +1,45 @@
-<table id="basic-datatables" class="display table table-striped table-hover dataTable" role="grid"
-    aria-describedby="basic-datatables_info">
+<table class="table table-hover table-striped table-bordered mt-3" role="grid">
     <thead>
         <tr>
-            <th style="width: 3% !important; text-align: center;"><input type="checkbox" id="check-all"></th>
-            <th style="width: 5% !important;">STT</th>
-            <th style="width: 30% !important;">Tên khách hàng</th>
-            {{-- <th style="width: 12% !important;">Nhóm khách hàng</th> --}}
-            <th style="width: 12% !important;">Số điện thoại</th>
-            <th style="width: 10% !important;">Email</th>
-            <th style="width: 10% !important;">Địa chỉ</th>
-            <th style="width: 20% !important; text-align: center;">Hành động</th>
+            <th style="width: 3%"><input type="checkbox" id="check-all"></th>
+            <th style="width: 12%"># | Ngày tạo</th>
+            <th style="width: 18%">tên khách hàng</th>
+            <th style="width: 12%">Số điện thoại</th>
+            <th style="width: 20%">Email</th>
+            <th>Địa chỉ</th>
+            <th style="width: 10%" class="text-center">Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @if ($clients && $clients->count() > 0)
-            @foreach ($clients as $key => $value)
-                @if (is_object($value))
-                    <tr>
-                        <td style="text-align: center;"><input type="checkbox" class="product-checkbox" value="{{ $value->id }}"></td>
-                        <td>{{ ($clients->currentPage() - 1) * $clients->perPage() + $loop->index + 1 }}</td>
-                        <td>{{ $value->name ?? '' }}</td>
-                        {{-- <td>{{ $value->clientgroup->name ?? '' }}</td> --}}
-                        <td>{{ $value->phone ?? '' }}</td>
-                        <td>{{ $value->email ?? '' }}</td>
-                        <td>{{ $value->address ?? '' }}</td>
-                        <td style="text-align: center;">
-                            <a class="btn btn-warning btn-sm" href="{{ route('admin.client.detail', ['id' => $value->id]) }}">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $value->id }}">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                @endif
-            @endforeach
-        @else
+        @forelse ($clients as $client)
             <tr>
-                <td class="text-center" colspan="8">
-                    <div class="">
-                        Chưa có khách hàng
+                <td><input type="checkbox" class="checked-item" value="{{ $client->id }}"></td>
+                <td>
+                    {{ ($clients->currentPage() - 1) * $clients->perPage() + $loop->iteration }}
+                    | {{ $client->created_at->format('d/m/Y') }}
+                </td>
+                <td>{{ $client->name }}</td>
+                <td>{{ $client->phone }}</td>
+                <td>{{ $client->email }}</td>
+                <td>{{ $client->address ?? '-----' }}</td>
+                <td>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $client->id }}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
-        @endif
+        @empty
+            <tr>
+                <td class="text-center" colspan="7">Không có khách hàng nào</td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
+
+<div class="row">
+    <div class="col-sm-12" id="pagination">
+        {{ $clients->links('vendor.pagination.custom') }}
+    </div>
+</div>

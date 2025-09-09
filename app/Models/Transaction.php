@@ -2,29 +2,56 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transaction extends Model
 {
-    use HasFactory;
-    protected $table = 'sgo_transactions';
     protected $fillable = [
-        // "wallet_id",
-        "amount",
-        "status",
-        "user_id",
-        "notification",
-        // 'method_id'
+        'user_id',
+        'transaction_date',
+        'description',
+        'reference_number',
+        'type',
+        'document_type',
+        'attachment',
+        'created_by',
     ];
-    public function user()
+
+    public function entries(): HasMany
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(TransactionEntry::class);
     }
-    // public function method(){
-    //     return $this->belongsTo(Method::class, 'method_id');
-    // }
-    // public function wallet(){
-    //     return $this->belongsTo(Wallet::class, 'wallet_id');
-    // }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+
+    /**
+     * Lấy entry tài khoản tiền
+     */
+    public function getMainEntry(array $moneyAccountIds)
+    {
+        return $this->entries->firstWhere(
+            fn($entry) =>
+            in_array($entry->account_id, $moneyAccountIds)
+        );
+    }
+
+    /**
+     * Lấy entry tài khoản công nợ đối ứng
+     */
+    public function getContraEntry(array $moneyAccountIds)
+    {
+        return $this->entries->firstWhere(
+            fn($entry) =>
+            !in_array($entry->account_id, $moneyAccountIds)
+        );
+    }
+
+    protected $casts = [
+        'transaction_date' => 'date',
+    ];
 }

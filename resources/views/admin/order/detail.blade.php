@@ -1,121 +1,116 @@
 @extends('admin.layout.index')
+
 @section('content')
     <div class="page-inner">
-        <div class="page-header">
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <i class="icon-home"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.order.index') }}">Đơn hàng</a>
-                </li>
-            </ul>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card shadow-lg">
-                    <div class="card-header bg-gradient-primary text-white">
-                        <h4 class="text-center mb-sm-0 font-size-18">Chi tiết hóa đơn số {{ $order->id }}</h4>
+        <x-breadcrumb :items="[['label' => 'Đơn hàng', 'url' => '/admin/order'], ['label' => $title]]" />
+
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <!-- Hàng trên: Khách hàng & Đơn hàng -->
+                <div class="row">
+                    <!-- Khách hàng -->
+                    <div class="col-md-6 mb-3">
+                        <h5 class="text-center text-primary"><b>Thông tin khách hàng</b></h5>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th><i class="fas fa-user"></i> Tên khách hàng</th>
+                                    <td>{{ $order->client->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-phone"></i> Số điện thoại</th>
+                                    <td>{{ $order->client->phone }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-envelope"></i> Email</th>
+                                    <td>{{ $order->client->email }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-map-marker-alt"></i> Địa chỉ</th>
+                                    <td>{{ $order->client->address }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="text-center text-primary"><b>Thông tin khách hàng</b></h5>
-                                <table class="table table-bordered table-hover">
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-user"></i> Tên khách hàng</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->client->name }}</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-phone"></i> Số điện thoại</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->client->phone }}</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-envelope"></i> Email</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->client->email }}</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-map-marker-alt"></i> Địa chỉ nhận</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->receive_address }}</div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="text-center text-primary"><b>Thông tin đơn hàng</b></h5>
-                                <table class="table table-bordered table-hover">
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-receipt"></i> Mã đơn hàng</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->id }}</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-user-tie"></i> Tên nhân viên</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->user->name }}</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-box-open"></i> Sản phẩm</th>
-                                            <td>
-                                                @foreach ($order->orderDetails as $item)
-                                                    <div class="d-flex justify-content-between nowrap">
-                                                        <span>{{ $item->product->name }} x{{ $item->quantity }}</span>
-                                                        <span>{{ number_format($item->price * $item->quantity) }}
-                                                            VND</span>
-                                                    </div>
-                                                @endforeach
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-money-bill-wave"></i> Tổng tiền</th>
-                                            <td>
-                                                <div class="nowrap">{{ number_format($order->total_money) }} VND</div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-hand-holding-usd"></i> Trạng thái</th>
-                                            @if ($order->status == 4)
-                                                <td>
-                                                    <div class="nowrap">Công nợ</div>
-                                                </td>
-                                            @else
-                                                <td>
-                                                    <div class="nowrap">Đã thanh toán</div>
-                                                </td>
-                                            @endif
-                                        </tr>
-                                        <tr>
-                                            <th scope="row"><i class="fas fa-barcode"></i> Mã bưu điện</th>
-                                            <td>
-                                                <div class="nowrap">{{ $order->client->zip_code }}</div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="text-center mt-4">
-                            <a href="{{ route('admin.order.index') }}" class="btn btn-primary w-md">
-                                <i class="fas fa-arrow-left"></i> Quay lại
-                            </a>
-                        </div>
+
+                    <!-- Đơn hàng -->
+                    <div class="col-md-6 mb-3">
+                        <h5 class="text-center text-primary"><b>Thông tin đơn hàng</b></h5>
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th><i class="fas fa-receipt"></i> Mã đơn hàng</th>
+                                    <td>{{ $order->code }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-user-tie"></i> Nhân viên</th>
+                                    <td>{{ $order->creator->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-money-bill-wave"></i> Tổng tiền</th>
+                                    <td>{{ formatPrice($order->total_money) }} VND</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-hand-holding-usd"></i> Trạng thái</th>
+                                    <td>{{ $order->status ? 'Đã hoàn thành' : 'Chưa hoàn thành' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="text-center text-primary mb-0"><b>Danh sách sản phẩm</b></h5>
+            </div>
+            <div class="card-body">
+                <!-- Hàng dưới: Danh sách sản phẩm -->
+
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($order->orderDetails as $item)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $item->p_name }}</td>
+                                <td>{{ formatPrice($item->p_price) }} VND</td>
+                                <td>x{{ $item->p_quantity }}</td>
+                                <td>{{ formatPrice($item->p_price * $item->p_quantity) }} VND</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <!-- Tổng kết -->
+                <div class="row justify-content-end mt-3">
+                    <div class="col-md-4">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th>Tạm tính:</th>
+                                    <td class="text-end">{{ formatPrice($order->total_money + $order->discount_value) }}
+                                        VND</td>
+                                </tr>
+                                <tr>
+                                    <th>Khuyến mãi:</th>
+                                    <td class="text-end">-{{ formatPrice($order->discount_value) }} VND</td>
+                                </tr>
+                                <tr class="table-active fw-bold">
+                                    <th>Tổng cộng:</th>
+                                    <td class="text-end">{{ formatPrice($order->total_money) }} VND</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

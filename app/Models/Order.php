@@ -12,24 +12,34 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    protected $table = 'orders';
+
     protected $fillable = [
-        "total_money",
-        "status",
-        "note",
-        "receive_address",
-        "user_id",
+        'user_id',
         'client_id',
+        'code',
+        'zip_code',
         'name',
         'phone',
-        'zip_code',
-        'notification',
+        'email',
+        'address',
+        'total_money',
+        'discount_value',
+        'discount_type',
+        'payment_method',
+        'status',
+        'note',
+        'created_by'
+    ];
+
+    protected $casts = [
+        'status' => 'boolean'
     ];
 
     protected $appends = ['orderdetail'];
 
-    public function getOrderdetailAttribute(){
-        return OrderDetail::where('order_id',$this->attributes['id'])->get();
+    public function getOrderdetailAttribute()
+    {
+        return OrderDetail::where('order_id', $this->attributes['id'])->get();
     }
     public function orderDetails()
     {
@@ -44,5 +54,10 @@ class Order extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

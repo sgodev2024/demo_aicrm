@@ -13,12 +13,17 @@ class Config extends Model
 
     // Cập nhật các cột có thể điền được
     protected $fillable = [
-        'logo',
-        'receiver', // thêm cột receiver
-        'bank_account',
-        'qr',
+        'user_id',
         'bank_id',
-        'user_id' // thêm cột user_id
+        'company_name',
+        'phone',
+        'email',
+        'address',
+        'tax_number',
+        'bank_account_number',
+        'receiver',
+        'logo',
+        'favicon'
     ];
 
     // Nếu bạn vẫn cần sử dụng thuộc tính 'bank', giữ lại 'appends' và các phương thức liên quan

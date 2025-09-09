@@ -1,33 +1,50 @@
-<table id="basic-datatables" class="display table table-striped table-hover" role="grid">
+<table class="table table-hover table-striped table-bordered mt-3" role="grid">
     <thead>
         <tr>
-            <th><input type="checkbox" id="check-all"></th>
-            <th>Mã danh mục</th>
+            <th style="width: 5%"><input type="checkbox" id="check-all"></th>
+            <th style="width: 15%"># | ngày tạo</th>
             <th>Tên danh mục</th>
             <th>Mô tả</th>
-            <th style="text-align: center">Hành động</th>
+            <th style="width: 13%">Trạng thái</th>
+            <th class="text-center" style="width: 13%">Hành động</th>
         </tr>
     </thead>
-    @if ($category)
-        <tbody>
-            @foreach ($category as $key => $value)
-                <tr id="category-{{ $value->id }}">
-                    <td><input type="checkbox" class="product-checkbox" value="{{ $value->id }}"></td> <!-- Checkbox item -->
-                    <td>{{ ($category->currentPage() - 1) * $category->perPage() + $loop->index + 1 }}</td>
-                    <td>{{ $value->name ?? '' }}</td>
-                    <td>{!! $value->description !!}</td>
-                    <td style="text-align:center">
-                        <a class="btn btn-warning"
-                            href="{{ route('admin.category.detail', ['id' => $value->id]) }}"><i class="fa-solid fa-pen"></i></a>
-                        <button class="btn btn-danger btn-delete" data-id="{{ $value->id }}"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    @else
-        <tr>
-            <td class="text-center" colspan="6">Không có danh mục</td>
-        </tr>
-    @endif
+    <tbody>
+        @forelse ($categories as $index => $category)
+            <tr>
+                <td><input type="checkbox" class="checked-item" value="{{ $category->id }}"></td>
+                <td>
+                    {{ ($categories->currentPage() - 1) * $categories->perPage() + $loop->iteration }}
+                    | {{ $category->created_at->format('d/m/Y') }}
+                </td>
+                <td>{{ $category->name }}</td>
+                <td>{{ $category->description }}</td>
+                <td>
+                    {!! $category->status
+                        ? '<span class="badge bg-success">Kích hoạt</span>'
+                        : '<span class="badge bg-danger">Không kích hoạt</span>' !!}
+                </td>
+                <td>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-primary btn-sm btn-show" data-id="{{ $category->id }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $category->id }}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td class="text-center" colspan="6">Không có danh mục</td>
+            </tr>
+        @endforelse
+    </tbody>
 </table>
 
+<div class="row">
+    <div class="col-sm-12" id="pagination">
+        {{ $categories->links('vendor.pagination.custom') }}
+    </div>
+</div>

@@ -1,54 +1,54 @@
-<div class="table-responsive">
-    <table id="basic-datatables" class="table display table-striped table-hover">
-        <thead>
+<table class="table table-hover table-striped table-bordered mt-3" role="grid">
+    <thead>
+        <tr>
+            <th style="width: 3%"><input type="checkbox" id="check-all"></th>
+            <th style="width: 14%"># | Ngày tạo</th>
+            <th>Thông tin công ty</th>
+            <th style="width: 25%">Địa chỉ</th>
+            <th style="width: 12%">Trạng thái</th>
+            <th style="width: 12%" class="text-center">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($companies as $company)
             <tr>
-                <th><input type="checkbox" id="check-all"></th>
-                <th>STT</th>
-                <th>Nhà cung cấp</th>
-                {{-- <th>SĐT</th>
-                <th>Email</th> --}}
-                <th>Mã số thuế</th>
-                <th>Tài khoản ngân hàng</th>
-                {{-- <th>Địa chỉ</th> --}}
-                <th style="text-align: center">Hành động</th>
+                <td><input type="checkbox" class="checked-item" value="{{ $company->id }}"></td>
+                <td>
+                    {{ ($companies->currentPage() - 1) * $companies->perPage() + $loop->iteration }}
+                    | {{ $company->created_at->format('d/m/Y') }}
+                </td>
+                <td>
+                    <div><strong>{{ $company->name }}</strong></div>
+                    <div>Email: {{ $company->email }}</div>
+                    <div>Phone: {{ $company->phone }}</div>
+                </td>
+                <td>{{ $company->address }}</td>
+                <td>
+                    {!! $company->status
+                        ? '<span class="badge bg-success">Kích hoạt</span>'
+                        : '<span class="badge bg-danger">Không kích hoạt</span>' !!}
+                </td>
+                <td>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="/admin/company/{{ $company->id }}/edit" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $company->id }}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @if ($companies && $companies->count() > 0)
-                @foreach ($companies as $key => $value)
-                    @if (is_object($value))
-                        <tr >
-                            <td><input type="checkbox" class="product-checkbox" value="{{ $value->id }}"></td> <!-- Checkbox item -->
-                            <td>{{ ($companies->currentPage() - 1) * $companies->perPage() + $loop->index + 1 }}</td>
-                            <td><p>{{ $value->name ?? '' }}</p> <p>{{ $value->phone ?? '' }}</p> <p>{{ $value->email ?? '' }}</p></td>
-                            {{-- <td>{{ $value->phone ?? '' }}</td>
-                            <td>{{ $value->email ?? '' }}</td> --}}
-                            <td>{{ $value->tax_number ?? '' }}</td>
-                            <td>{{ $value->bank_account }} ({{ $value->bank->shortName }})</td>
-                            {{-- <td>{{ $value->address ?? '' }}, {{ $value->city->name ?? '' }}</td> --}}
-                            <td style="text-align:center" class="d-flex justify-content-around" style="align-content: center">
-                                <a class="btn btn-warning"
-                                    href="{{ route('admin.company.detail', ['id' => $value->id]) }}"> <i class="fa-solid fa-pen"></i></a>
-                                @if ($value->hasRepresentative())
-                                    <a class="btn btn-dark"
-                                        href="{{ route('admin.supplier.index', ['company_id' => $value->id]) }}"><i
-                                            class="fa-solid fa-user-group"></i></a>
-                                @else
-                                    <a class="btn btn-secondary"
-                                        href="{{ route('admin.supplier.add', ['company_id' => $value->id]) }}"><i
-                                            class="fa-solid fa-user-plus"></i></a>
-                                @endif
-                                <button class="btn btn-danger btn-delete" data-id="{{ $value->id }}"><i
-                                        class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    @endif
-                @endforeach
-            @else
-                <tr>
-                    <td class="text-center" colspan="8">Chưa có nhà cung cấp</td>
-                </tr>
-            @endif
-        </tbody>
-    </table>
+        @empty
+            <tr>
+                <td class="text-center" colspan="6">Không có công ty nào</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-sm-12" id="pagination">
+        {{ $companies->links('vendor.pagination.custom') }}
+    </div>
 </div>

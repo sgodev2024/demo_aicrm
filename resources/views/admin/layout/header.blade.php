@@ -3,7 +3,7 @@
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="white">
             <a href="../index.html" class="logo">
-                <img   src="{{ asset('images/sgovn.png') }}" alt="navbar brand" class="navbar-brand" style="width: 120px;">
+                <img src="{{ asset('images/sgovn.png') }}" alt="navbar brand" class="navbar-brand" style="width: 120px;">
             </a>
             <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -51,7 +51,7 @@
                     <a class="dropdown-toggle profile-pic" target="_blank" href="{{ route('staff.index') }}"
                         aria-expanded="false">
                         <i style="font-size: 16px; padding: 0px 5px; color: rgb(138, 135, 135)"
-                            class="fas fa-cart-plus"></i> Trang bán hàng
+                            class="fas fa-cart-plus  me-2"></i> Trang bán hàng
                     </a>
 
                 </li>
@@ -121,8 +121,8 @@
                     <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
                         aria-expanded="false">
                         <div class="avatar-sm">
-                            <img src="{{ showImage(auth()->user()->img_url)}}"
-                                alt="{{ auth()->user()->name}}" class="avatar-img rounded-circle">
+                            <img src="{{ showImage(auth()->user()->img_url) }}" alt="{{ auth()->user()->name }}"
+                                class="avatar-img rounded-circle">
                         </div>
                         <span class="profile-username">
                             <span class="op-7">Hi,</span>
@@ -136,14 +136,14 @@
                                 <li>
                                     <div class="user-box">
                                         <div class="avatar-lg">
-                                            <img src="{{ showImage(auth()->user()->img_url) }}"
-                                                alt="image profile" class="avatar-img rounded-circle">
+                                            <img src="{{ showImage(auth()->user()->img_url) }}" alt="image profile"
+                                                class="avatar-img rounded-circle">
                                         </div>
                                         <div class="u-text">
                                             <h4>{{ auth()->user()->name }}</h4>
                                             <p class="text-muted">{{ auth()->user()->email }}</p>
                                             <div style="display: flex">
-                                                <a href="{{ route('admin.detail', ['id' => auth()->id()]) }}"
+                                                <a href="{{ route('admin.profile') }}"
                                                     class="btn btn-xs btn-secondary btn-sm p-1">Trang cá nhân</a>
                                                 <a href="#" class="btn btn-xs btn-sm p-1"
                                                     style="background: red; color: #ffff; margin-left: 10px"

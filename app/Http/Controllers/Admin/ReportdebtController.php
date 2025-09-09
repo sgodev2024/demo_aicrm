@@ -57,7 +57,7 @@ class ReportdebtController extends Controller
                 'products.id',
                 'products.name',
                 'products.code',
-                'products.priceBuy',
+                'products.price_buy',
                 'products.quantity',
                 DB::raw('COALESCE(imports.total_imports, 0) AS total_imports'),
                 DB::raw('COALESCE(orders.total_orders, 0) AS total_orders')
@@ -71,8 +71,8 @@ class ReportdebtController extends Controller
                 $tongtonkho += $item->quantity;
                 $tongluongnhap += $item->total_imports;
                 $tongluongban += $item->total_orders;
-                $tongtiendaban += $item->total_orders * $item->priceBuy;
-                $tongtintonghang += $item->quantity * $item->priceBuy;
+                $tongtiendaban += $item->total_orders * $item->price_buy;
+                $tongtintonghang += $item->quantity * $item->price_buy;
             }
         return view('admin.report.index', compact('stocks', 'title', 'tongtonkho', 'tongluongnhap', 'tongluongban', 'tongtiendaban', 'tongtintonghang'));
     }
@@ -104,7 +104,7 @@ class ReportdebtController extends Controller
                 'products.id',
                 'products.name',
                 'products.code',
-                'products.priceBuy',
+                'products.price_buy',
                 'products.quantity',
                 DB::raw('COALESCE(imports.total_imports, 0) AS total_imports'),
                 DB::raw('COALESCE(orders.total_orders, 0) AS total_orders')
@@ -118,8 +118,8 @@ class ReportdebtController extends Controller
                 $tongtonkho += $item->quantity;
                 $tongluongnhap += $item->total_imports;
                 $tongluongban += $item->total_orders;
-                $tongtiendaban += $item->total_orders * $item->priceBuy;
-                $tongtintonghang += $item->quantity * $item->priceBuy;
+                $tongtiendaban += $item->total_orders * $item->price_buy;
+                $tongtintonghang += $item->quantity * $item->price_buy;
             }
         return view('admin.report.print', compact('stocks','tongtonkho', 'tongluongnhap', 'tongluongban', 'tongtiendaban', 'tongtintonghang'));
     }
